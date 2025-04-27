@@ -12,8 +12,8 @@ const
     MiniCssExtractPlugin = require(`mini-css-extract-plugin`),
     TerserPlugin = require(`terser-webpack-plugin`),
     fs = require(`fs`),
-    read = file => fs.readFileSync(path.resolve(__dirname, file), `utf8`),
-    write = (file, code) => fs.writeFileSync(path.resolve(__dirname, file), code, `utf8`),
+    read = file => fs.readFileSync(path.resolve(process.cwd(), file), `utf8`),
+    write = (file, code) => fs.writeFileSync(path.resolve(process.cwd(), file), code, `utf8`),
     build = ({
         mode = `production`, // `development` | `production` 
         appShortName = `WebApp`,
@@ -280,7 +280,7 @@ Sitemap: https://${websiteDomain}/sitemap.xml`,
                 maxEntrypointSize: 2 * 1024 ** 2,
             },
             output: {
-                path: path.resolve(__dirname, productionDir),
+                path: path.resolve(process.cwd(), productionDir),
                 filename: `[name].[contenthash].js`,
             },
             resolve: {
@@ -302,7 +302,7 @@ Sitemap: https://${websiteDomain}/sitemap.xml`,
                     test: /\.(png|jpe?g|gif|svg|ico)$/, // For images
                     exclude: /node_modules/,
                     type: `${assetsDir}/resource`,
-                    include: path.resolve(__dirname, `${srcDir}/${assetsDir}/${imagesDir}`), // Only include files from the assets folder
+                    include: path.resolve(process.cwd(), `${srcDir}/${assetsDir}/${imagesDir}`), // Only include files from the assets folder
                     generator: {
                         filename: `${assetsDir}/${imagesDir}/[name][ext][query]`, // Output to dist/assets folder
                     },
@@ -378,7 +378,7 @@ Sitemap: https://${websiteDomain}/sitemap.xml`,
             },
             devServer: {
                 static: {
-                    directory: path.join(__dirname, developDir),
+                    directory: path.join(process.cwd(), developDir),
                 },
                 port: 3000, // Specify your desired port
                 open: true, // Automatically open the browser
