@@ -4,10 +4,13 @@ export interface StringObj {
 interface Page {
     uri: string;
     name: string;
-    short_name: string;
+    short_name?: string;
     description: string;
-    icon: string;
-    shortcut: boolean;
+    icon?: string;
+    shortcut?: boolean;
+    noindex?: boolean;
+    headerCode?: string;
+    publishDate?: string;
 }
 export interface Config {
     mode: 'development' | 'production';
@@ -39,6 +42,7 @@ export interface Config {
     pagesDir: string;
     pageHome: string;
     productionDir: string;
+    htaccessCustom: string;
 }
 interface Icon {
     src: string;
@@ -70,5 +74,19 @@ type MetaTag = string | false | {
 };
 export interface MetaTags {
     [key: string]: MetaTag;
+}
+export interface MetaTagsInput {
+    author: string;
+    websiteDescription: string;
+    websiteName: string;
+    websiteTitle: string;
+    coverImageLink: string;
+    coverImageDescription: string;
+    publishedTime: string;
+    websiteLink: string;
+    dataString: string;
+    theme_color: string;
+    twitterUserName: string;
+    appIconFile: string;
 }
 export {};

@@ -11,13 +11,14 @@ import * as HtmlInlineCssWebpackPlugin from "html-inline-css-webpack-plugin"
 import MiniCssExtractPlugin from "mini-css-extract-plugin"
 import TerserPlugin from "terser-webpack-plugin"
 import fs from "fs"
-import { Config, MetaTags, StringObj, WebManifest } from "./types"
+import { Config, StringObj, WebManifest } from "./types"
+import { metaTags } from "./utils"
 
 const
     read = (file: string) => fs.readFileSync(path.resolve(process.cwd(), file), `utf8`),
     write = (file: string, code: string) => fs.writeFileSync(path.resolve(process.cwd(), file), code, `utf8`),
     build = ({
-        mode = `production`, // `development` | `production` 
+        mode = `production`,
         appShortName = `WebApp`,
         twitterUserName = `degreesign`,
         websiteName = `DegreeSign WebApp`,
@@ -34,7 +35,7 @@ const
         theme_color = '#000',
         app_icon = `app_icon.png`,
         fav_icon = `favicon.ico`,
-        orientation = 'portrait', // `portrait` | `landscape`
+        orientation = 'portrait',
         /** Pages list array */
         pagesList = [],
         htmlCommonElements = [],
@@ -49,6 +50,8 @@ const
         pagesDir = `pages`,
         pageHome = `home`,
         productionDir = `public_html`,
+        /** Added to end of htaccess */
+        htaccessCustom = ``,
     }: Config) => {
 
         const
@@ -75,217 +78,12 @@ const
                     };
                 return elements
             })(),
-            meta: MetaTags = {
-                author,
-                robots: `index, follow`,
-                description: `${websiteDescription}`,
-                viewport: `width=device-width, initial-scale=1.0`,
-                charset: { charset: `UTF-8` },
-                'http-equiv:X-UA-Compatible': {
-                    'http-equiv': `X-UA-Compatible`,
-                    content: `ie=edge`,
-                },
-                'twitter:card': `summary_large_image`,
-                'twitter:title': {
-                    property: 'twitter:title',
-                    content: `${websiteName} | ${websiteTitle}`
-                },
-                'twitter:description': {
-                    property: 'twitter:description',
-                    content: `${websiteDescription}`
-                },
-                'twitter:image': {
-                    property: 'twitter:image',
-                    content: coverImageLink
-                },
-                'twitter:image:alt': {
-                    property: 'twitter:image:alt',
-                    content: coverImageDescription
-                },
-                thumbnailUrl: {
-                    itemprop: `thumbnailUrl`,
-                    content: coverImageLink
-                },
-                image: {
-                    itemprop: `image`,
-                    content: coverImageLink
-                },
-                'article:published_time': {
-                    property: 'article:published_time',
-                    content: publishedTime
-                },
-                'article:modified_time': {
-                    property: 'article:modified_time',
-                    content: dataString
-                },
-                'og:type': {
-                    property: 'og:type',
-                    content: `website`,
-                    name: `type`,
-                },
-                'og:title': {
-                    property: 'og:title',
-                    content: `${websiteName} | ${websiteTitle}`,
-                    name: `title`,
-                },
-                'og:description': {
-                    property: 'og:description',
-                    content: `${websiteDescription}`,
-                    name: `description`,
-                },
-                'og:image': {
-                    property: 'og:image',
-                    content: coverImageLink,
-                    name: `image`,
-                },
-                'og:publish_date': {
-                    content: publishedTime,
-                    property: `og:publish_date`,
-                    name: `publish_date`,
-                },
-                'og:modified_date': {
-                    content: dataString,
-                    property: `og:modified_date`,
-                    name: `modified_date`,
-                },
-                'og:url': {
-                    content: websiteLink,
-                    property: `og:url`,
-                    name: `url`,
-                },
-                referrer: "origin",
-                "theme-color": theme_color,
-                "twitter:site": `@${twitterUserName}`,
-                "mobile-web-app-capable": "yes",
-                "apple-mobile-web-app-capable": "yes",
-                "apple-mobile-web-app-title": websiteName,
-                "apple-mobile-web-app-status-bar-style": "black",
-                "http-equiv:cache-control": {
-                    "http-equiv": "Cache-control",
-                    content: "NO-STORE",
-                },
-                "http-equiv:content-security-policy": {
-                    "http-equiv": "Content-Security-Policy",
-                    content: "",
-                },
-                "http-equiv:content-type": {
-                    "http-equiv": "Content-Type",
-                    content: "text/html; charset=UTF-8",
-                },
-                "og:locale": {
-                    property: "og:locale",
-                    content: "en_GB",
-                },
-                "og:image:width": {
-                    property: "og:image:width",
-                    content: "1400",
-                },
-                "og:image:height": {
-                    property: "og:image:height",
-                    content: "700",
-                },
-                "og:site_name": {
-                    property: "og:site_name",
-                    content: websiteName,
-                },
-                "favicon-32": {
-                    href: appIconFile,
-                    rel: "icon",
-                    type: "image/png",
-                    sizes: "32x32",
-                },
-                "favicon-128": {
-                    href: appIconFile,
-                    rel: "icon",
-                    type: "image/png",
-                    sizes: "128x128",
-                },
-                "favicon-180": {
-                    href: appIconFile,
-                    rel: "icon",
-                    type: "image/png",
-                    sizes: "180x180",
-                },
-                "favicon-192": {
-                    href: appIconFile,
-                    rel: "icon",
-                    type: "image/png",
-                    sizes: "192x192",
-                },
-                "shortcut-icon-196": {
-                    href: appIconFile,
-                    rel: "shortcut icon",
-                    type: "image/png",
-                    sizes: "196x196",
-                },
-                "shortcut-icon-512": {
-                    href: appIconFile,
-                    rel: "shortcut icon",
-                    type: "image/png",
-                    sizes: "512x512",
-                },
-                "apple-touch-icon-120": {
-                    href: appIconFile,
-                    rel: "apple-touch-icon",
-                    type: "image/png",
-                    sizes: "120x120",
-                },
-                "apple-touch-icon-152": {
-                    href: appIconFile,
-                    rel: "apple-touch-icon",
-                    type: "image/png",
-                    sizes: "152x152",
-                },
-                "apple-touch-icon-180": {
-                    href: appIconFile,
-                    rel: "apple-touch-icon",
-                    type: "image/png",
-                    sizes: "180x180",
-                },
-                "apple-touch-icon-512": {
-                    href: appIconFile,
-                    rel: "apple-touch-icon",
-                    type: "image/png",
-                    sizes: "512x512",
-                },
-            },
 
             envKeys: StringObj = {},
 
             entryPoints = {
                 [`${pageHome}`]: `./${srcDir}/${pagesDir}/${pageHome}/${pageHome}.ts`, // Entry file for TypeScript
             },
-
-            htaccessFile = `# Policies
-<IfModule mod_headers.c>
-  SetEnvIf Origin ^*\\.${websiteDomain?.replaceAll(`.`, `\\.`)}$ ORIGIN=$0
-  Header always set Access-Control-Allow-Origin %{ORIGIN}e env=ORIGIN
-  Header set Referrer-Policy "strict-origin-when-cross-origin"
-  Header set X-Frame-Options "SAMEORIGIN"
-  Header set Content-Security-Policy ""
-  Header set Permissions-Policy ""
-  Header set Strict-Transport-Security "max-age=31536000; includeSubDomains"
-</IfModule>
-
-# Add content type
-<Files about>
-  Header set Content-Type "text/html"
-</Files>
-
-# disable indexing
-Options -Indexes
-
-<IfModule mod_rewrite.c>
-  RewriteEngine On
-  RewriteCond %{HTTPS} off
-
-  # Unique files
-  # RewriteRule ^sw.js /code/sw.js [L,NC]
-</IfModule>
-
-# Errors
-ErrorDocument 404 /404
-ErrorDocument 403 /404`,
 
             appManifest: WebManifest = {
                 background_color,
@@ -309,6 +107,7 @@ ErrorDocument 403 /404`,
                 description: websiteDescription,
                 name: websiteName
             },
+            siteMap = [{ path: `/`, priority: 1.0, lastmod: dataString }],
 
             robots = `User-agent: *
 Allow: /
@@ -332,6 +131,36 @@ Sitemap: https://${websiteDomain}/sitemap.xml`,
                 return `const CACHE_NAME='${cacheName}';const urlsToCache=${JSON.stringify(urlsToCache)};self.addEventListener('install',e=>e.waitUntil(caches.open(CACHE_NAME).then(c=>c.addAll(urlsToCache))));self.addEventListener('activate',e=>e.waitUntil(caches.keys().then(n=>Promise.all(n.map(n=>n!==CACHE_NAME?caches.delete(n):null))).then(()=>self.clients.claim())));self.addEventListener('fetch',e=>e.respondWith(caches.match(e.request).then(r=>r||fetch(e.request).catch(()=>caches.match('${fallbackUrl}')))));self.addEventListener('notificationclick',e=>{e.notification.close();const u=new URL('${rootUrl}',self.location.origin).href;e.waitUntil(clients.matchAll({type:'window',includeUncontrolled:true}).then(c=>{for(const t of c)if(t.url===u&&'focus' in t)return t.focus();if(clients.openWindow)return clients.openWindow(u);}));});self.addEventListener('notificationclose',e=>console.log('Notification closed:',e.notification));self.addEventListener('push',e=>{let d=${JSON.stringify(defaultNotificationData)};if(e.data)d=e.data.json();const o={body:d.body,icon:'${notificationIcon}',badge:'${notificationBadge}',data:{url:new URL('${rootUrl}',self.location.origin).href}};e.waitUntil(self.registration.showNotification(d.title,o));});`;
             };
 
+
+        let htaccessFile = `# Policies
+<IfModule mod_headers.c>
+  SetEnvIf Origin ^*\\.${websiteDomain?.replaceAll(`.`, `\\.`)}$ ORIGIN=$0
+  Header always set Access-Control-Allow-Origin %{ORIGIN}e env=ORIGIN
+  Header set Referrer-Policy "strict-origin-when-cross-origin"
+  Header set X-Frame-Options "SAMEORIGIN"
+  Header set Content-Security-Policy ""
+  Header set Permissions-Policy ""
+  Header set Strict-Transport-Security "max-age=31536000; includeSubDomains"
+</IfModule>
+
+# disable indexing
+Options -Indexes
+
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteCond %{HTTPS} off
+
+  # Unique files
+  # RewriteRule ^sw.js /code/sw.js [L,NC]
+</IfModule>
+
+# Errors
+ErrorDocument 404 /404
+ErrorDocument 403 /404
+
+# Add content type
+`;
+
         for (let i = 0; i < pagesList.length; i++) {
             const pageData = pagesList[i];
             if (pageData.shortcut) {
@@ -341,7 +170,7 @@ Sitemap: https://${websiteDomain}/sitemap.xml`,
                     : appIconFile;
                 appManifest.shortcuts.push({
                     name: pageData.name,
-                    short_name: pageData.short_name,
+                    short_name: pageData.short_name || pageData.name,
                     description: pageData.description,
                     url: `/${pageData.uri}`,
                     icons: [{
@@ -357,7 +186,20 @@ Sitemap: https://${websiteDomain}/sitemap.xml`,
                     }]
                 });
             };
+
+            htaccessFile += `<Files ${pageData.uri}>
+    Header set Content-Type "text/html"
+</Files>
+`
+            if (!pageData.noindex)
+                siteMap.push({
+                    path: `/${pageData.uri}`,
+                    priority: 0.8,
+                    lastmod: dataString
+                });
         };
+
+        htaccessFile += htaccessCustom;
 
         write(`./${productionDir}/robots.txt`, robots);
         write(`./${productionDir}/.htaccess`, htaccessFile);
@@ -384,7 +226,7 @@ Sitemap: https://${websiteDomain}/sitemap.xml`,
             },
             output: {
                 path: path.resolve(process.cwd(), productionDir),
-                filename: `[name].[contenthash].js`,
+                filename: `code/[name].[contenthash].js`,
             },
             resolve: {
                 extensions: [`.ts`, `.js`], // Resolve .ts and .js files
@@ -413,11 +255,11 @@ Sitemap: https://${websiteDomain}/sitemap.xml`,
             },
             plugins: [
                 new MiniCssExtractPlugin({
-                    filename: `styles.css`, // Output CSS file with original name
+                    filename: `styles/styles.css`, // Output CSS file with original name
                 }),
                 new webpack.DefinePlugin(envKeys),
                 new CleanWebpackPlugin({
-                    cleanOnceBeforeBuildPatterns: [],
+                    cleanOnceBeforeBuildPatterns: ['code/*.js'],
                 }),
                 new CopyWebpackPlugin({
                     patterns: [
@@ -429,7 +271,20 @@ Sitemap: https://${websiteDomain}/sitemap.xml`,
                     title: `${websiteName} | ${websiteTitle}`,
                     links: canonical(``),
                     template: `./${srcDir}/${pagesDir}/${pageHome}/${pageHome}.html`,
-                    meta,
+                    meta: metaTags({
+                        author,
+                        websiteDescription,
+                        websiteName,
+                        websiteTitle,
+                        coverImageLink,
+                        coverImageDescription,
+                        publishedTime,
+                        websiteLink,
+                        dataString,
+                        theme_color,
+                        twitterUserName,
+                        appIconFile,
+                    }),
                     ...htmlElements,
                 }),
                 ...pagesList.map(pageData => {
@@ -440,8 +295,25 @@ Sitemap: https://${websiteDomain}/sitemap.xml`,
                         links: canonical(`/${fileName}`),
                         template: `./${srcDir}/${pagesDir}/${fileName}/${fileName}.html`,
                         filename: fileName,
-                        meta,
+                        meta: metaTags({
+                            author,
+                            websiteDescription,
+                            websiteName,
+                            websiteTitle,
+                            coverImageLink,
+                            coverImageDescription,
+                            publishedTime,
+                            websiteLink,
+                            dataString,
+                            theme_color,
+                            twitterUserName,
+                            appIconFile,
+                        }),
                         ...htmlElements,
+                        ...pageData.headerCode ? {
+                            headerHTML: htmlElements.headerHTML
+                                + pageData.headerCode
+                        } : {},
                     })
                 }),
                 ...obfuscateON ? [new WebpackObfuscator(
@@ -453,13 +325,7 @@ Sitemap: https://${websiteDomain}/sitemap.xml`,
                 )] : [],
                 new SitemapPlugin.default({
                     base: websiteLink, // Replace with your site base URL
-                    paths: [
-                        { path: `/`, priority: 1.0, lastmod: dataString },
-                        ...pagesList.map(pageData => {
-                            const { uri: fileName } = pageData;
-                            return { path: `/${fileName}`, priority: 0.8, lastmod: dataString }
-                        })
-                    ],
+                    paths: siteMap,
                     options: {
                         filename: `sitemap.xml`, // The name of the generated sitemap
                     },
