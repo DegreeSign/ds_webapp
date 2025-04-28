@@ -50,7 +50,7 @@ const HtmlInlineCssWebpackPlugin = __importStar(require("html-inline-css-webpack
 const mini_css_extract_plugin_1 = __importDefault(require("mini-css-extract-plugin"));
 const terser_webpack_plugin_1 = __importDefault(require("terser-webpack-plugin"));
 const fs_1 = __importDefault(require("fs"));
-const read = (file) => fs_1.default.readFileSync(path_1.default.resolve(process.cwd(), file), `utf8`), write = (file, code) => fs_1.default.writeFileSync(path_1.default.resolve(process.cwd(), file), code, `utf8`), build = ({ mode = `production`, appShortName = `WebApp`, websiteName = `DegreeSign WebApp`, websiteDomain = `degreesign.com`, publishedTime = `2025-01-01T00:00:00+00:00`, author = `DegreeSign Team`, websiteTitle = `progressive webapp`, websiteDescription = `Webpack progressive web app`, coverImage = `degreesign_screenshot.webp`, coverImageDescription = `Screenshot of website`, notificationTitle = `New Notification`, notificationText = `You have a new notification!`, background_color = `#fff`, theme_color = '#000', app_icon = `app_icon.png`, fav_icon = `favicon.ico`, orientation = 'portrait', pagesList = [], htmlCommonElements = [], obfuscateON = false, srcDir = `src`, assetsDir = `assets`, developDir = `build`, commonDir = `common`, imagesDir = `images`, pagesDir = `pages`, pageHome = `home`, productionDir = `public_html`, }) => {
+const read = (file) => fs_1.default.readFileSync(path_1.default.resolve(process.cwd(), file), `utf8`), write = (file, code) => fs_1.default.writeFileSync(path_1.default.resolve(process.cwd(), file), code, `utf8`), build = ({ mode = `production`, appShortName = `WebApp`, twitterUserName = `degreesign`, websiteName = `DegreeSign WebApp`, websiteDomain = `degreesign.com`, publishedTime = `2025-01-01T00:00:00+00:00`, author = `DegreeSign Team`, websiteTitle = `progressive webapp`, websiteDescription = `Webpack progressive web app`, coverImage = `degreesign_screenshot.webp`, coverImageDescription = `Screenshot of website`, notificationTitle = `New Notification`, notificationText = `You have a new notification!`, background_color = `#fff`, theme_color = '#000', app_icon = `app_icon.png`, fav_icon = `favicon.ico`, orientation = 'portrait', pagesList = [], htmlCommonElements = [], obfuscateON = false, srcDir = `src`, assetsDir = `assets`, developDir = `build`, commonDir = `common`, imagesDir = `images`, pagesDir = `pages`, pageHome = `home`, productionDir = `public_html`, }) => {
     const canonical = (page) => `<link rel="canonical" href="https://${websiteDomain}${page}">`, dataString = new Date().toISOString(), timeNow = Date.now(), websiteLink = `https://${websiteDomain}`, coverImageLink = coverImage?.includes(`/`) ? coverImage
         : `${websiteLink}/${assetsDir}/${imagesDir}/${coverImage}`, appIconFile = app_icon?.includes(`/`) ? app_icon
         : `/${assetsDir}/${imagesDir}/${app_icon}`, favIconFile = fav_icon?.includes(`/`) ? fav_icon
@@ -73,7 +73,7 @@ const read = (file) => fs_1.default.readFileSync(path_1.default.resolve(process.
         description: `${websiteDescription}`,
         viewport: `width=device-width, initial-scale=1.0`,
         charset: { charset: `UTF-8` },
-        'http-equiv': {
+        'http-equiv:X-UA-Compatible': {
             'http-equiv': `X-UA-Compatible`,
             content: `ie=edge`,
         },
@@ -144,6 +144,101 @@ const read = (file) => fs_1.default.readFileSync(path_1.default.resolve(process.
             content: websiteLink,
             property: `og:url`,
             name: `url`,
+        },
+        referrer: "origin",
+        "theme-color": theme_color,
+        "twitter:site": `@${twitterUserName}`,
+        "mobile-web-app-capable": "yes",
+        "apple-mobile-web-app-capable": "yes",
+        "apple-mobile-web-app-title": websiteName,
+        "apple-mobile-web-app-status-bar-style": "black",
+        "http-equiv:cache-control": {
+            "http-equiv": "Cache-control",
+            content: "NO-STORE",
+        },
+        "http-equiv:content-security-policy": {
+            "http-equiv": "Content-Security-Policy",
+            content: "",
+        },
+        "http-equiv:content-type": {
+            "http-equiv": "Content-Type",
+            content: "text/html; charset=UTF-8",
+        },
+        "og:locale": {
+            property: "og:locale",
+            content: "en_GB",
+        },
+        "og:image:width": {
+            property: "og:image:width",
+            content: "1400",
+        },
+        "og:image:height": {
+            property: "og:image:height",
+            content: "700",
+        },
+        "og:site_name": {
+            property: "og:site_name",
+            content: websiteName,
+        },
+        "favicon-32": {
+            href: appIconFile,
+            rel: "icon",
+            type: "image/png",
+            sizes: "32x32",
+        },
+        "favicon-128": {
+            href: appIconFile,
+            rel: "icon",
+            type: "image/png",
+            sizes: "128x128",
+        },
+        "favicon-180": {
+            href: appIconFile,
+            rel: "icon",
+            type: "image/png",
+            sizes: "180x180",
+        },
+        "favicon-192": {
+            href: appIconFile,
+            rel: "icon",
+            type: "image/png",
+            sizes: "192x192",
+        },
+        "shortcut-icon-196": {
+            href: appIconFile,
+            rel: "shortcut icon",
+            type: "image/png",
+            sizes: "196x196",
+        },
+        "shortcut-icon-512": {
+            href: appIconFile,
+            rel: "shortcut icon",
+            type: "image/png",
+            sizes: "512x512",
+        },
+        "apple-touch-icon-120": {
+            href: appIconFile,
+            rel: "apple-touch-icon",
+            type: "image/png",
+            sizes: "120x120",
+        },
+        "apple-touch-icon-152": {
+            href: appIconFile,
+            rel: "apple-touch-icon",
+            type: "image/png",
+            sizes: "152x152",
+        },
+        "apple-touch-icon-180": {
+            href: appIconFile,
+            rel: "apple-touch-icon",
+            type: "image/png",
+            sizes: "180x180",
+        },
+        "apple-touch-icon-512": {
+            href: appIconFile,
+            rel: "apple-touch-icon",
+            type: "image/png",
+            sizes: "512x512",
         },
     }, envKeys = {}, entryPoints = {
         [`${pageHome}`]: `./${srcDir}/${pagesDir}/${pageHome}/${pageHome}.ts`,

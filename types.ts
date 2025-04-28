@@ -14,6 +14,7 @@ interface Page {
 export interface Config {
     mode: 'development' | 'production';
     appShortName: string;
+    twitterUserName: string;
     websiteName: string;
     websiteDomain: string;
     publishedTime: string;
@@ -68,4 +69,12 @@ export interface WebManifest {
     start_url: string;
     description: string;
     name: string;
+}
+
+type MetaTag = string
+    | false
+    | { [attributeName: string]: string | boolean; };
+
+export interface MetaTags {
+    [key: string]: MetaTag
 }
