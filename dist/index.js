@@ -249,7 +249,7 @@ ErrorDocument 403 /404
                 chunks: [`${pageHome}`],
                 title: `${websiteName} | ${websiteTitle}`,
                 links: (0, utils_1.canonicalTag)({ websiteDomain, page: `` }),
-                pageBody: `./${srcDir}/${pagesDir}/${pageHome}/${pageHome}.html`,
+                pageBody: (0, utils_1.readData)(`./${srcDir}/${pagesDir}/${pageHome}/${pageHome}.html`),
                 meta: (0, utils_1.metaTags)({
                     author,
                     websiteDescription,
@@ -273,7 +273,7 @@ ErrorDocument 403 /404
                     chunks: [fileName],
                     title: `${fileName?.toUpperCase()} | ${websiteName}`,
                     links: (0, utils_1.canonicalTag)({ websiteDomain, page: `/${fileName}` }),
-                    template: `./${srcDir}/${pagesDir}/${fileName}/${fileName}.html`,
+                    pageBody: (0, utils_1.readData)(`./${srcDir}/${pagesDir}/${fileName}/${fileName}.html`),
                     filename: fileName,
                     meta: (0, utils_1.metaTags)({
                         author,

@@ -285,7 +285,7 @@ ErrorDocument 403 /404
                     chunks: [`${pageHome}`],
                     title: `${websiteName} | ${websiteTitle}`,
                     links: canonicalTag({ websiteDomain, page: `` }),
-                    pageBody: `./${srcDir}/${pagesDir}/${pageHome}/${pageHome}.html`,
+                    pageBody: readData(`./${srcDir}/${pagesDir}/${pageHome}/${pageHome}.html`),
                     meta: metaTags({
                         author,
                         websiteDescription,
@@ -314,7 +314,7 @@ ErrorDocument 403 /404
                         chunks: [fileName],
                         title: `${fileName?.toUpperCase()} | ${websiteName}`,
                         links: canonicalTag({ websiteDomain, page: `/${fileName}` }),
-                        template: `./${srcDir}/${pagesDir}/${fileName}/${fileName}.html`,
+                        pageBody: readData(`./${srcDir}/${pagesDir}/${fileName}/${fileName}.html`),
                         filename: fileName,
                         meta: metaTags({
                             author,
