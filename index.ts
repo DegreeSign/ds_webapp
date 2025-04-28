@@ -244,7 +244,7 @@ ErrorDocument 403 /404
                 filename: `code/[name].[contenthash].js`,
             },
             resolve: {
-                extensions: [`.ts`, `.js`], // Resolve .ts and .js files
+                extensions: [`.ts`, `.js`, `.json`], // Resolve files
             },
             module: {
                 rules: [{
