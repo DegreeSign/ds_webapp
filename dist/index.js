@@ -49,13 +49,11 @@ const css_minimizer_webpack_plugin_1 = __importDefault(require("css-minimizer-we
 const HtmlInlineCssWebpackPlugin = __importStar(require("html-inline-css-webpack-plugin"));
 const mini_css_extract_plugin_1 = __importDefault(require("mini-css-extract-plugin"));
 const terser_webpack_plugin_1 = __importDefault(require("terser-webpack-plugin"));
-const fs_1 = __importDefault(require("fs"));
 const utils_1 = require("./utils");
-const read = (file) => fs_1.default.readFileSync(path_1.default.resolve(process.cwd(), file), `utf8`), write = (file, code) => fs_1.default.writeFileSync(path_1.default.resolve(process.cwd(), file), code, `utf8`), build = ({ mode = `production`, appShortName = `WebApp`, twitterUserName = `degreesign`, websiteName = `DegreeSign WebApp`, websiteDomain = `degreesign.com`, publishedTime = `2025-01-01T00:00:00+00:00`, author = `DegreeSign Team`, websiteTitle = `progressive webapp`, websiteDescription = `Webpack progressive web app`, coverImage = `degreesign_screenshot.webp`, coverImageDescription = `Screenshot of website`, notificationTitle = `New Notification`, notificationText = `You have a new notification!`, background_color = `#fff`, theme_color = '#000', app_icon = `app_icon.png`, fav_icon = `favicon.ico`, orientation = 'portrait', pagesList = [], htmlCommonElements = [], obfuscateON = false, srcDir = `src`, assetsDir = `assets`, developDir = `build`, commonDir = `common`, imagesDir = `images`, pagesDir = `pages`, pageHome = `home`, productionDir = `public_html`, htaccessCustom = ``, }) => {
-    const canonical = (page) => `<link rel="canonical" href="https://${websiteDomain}${page}">`, dataString = new Date().toISOString(), timeNow = Date.now(), websiteLink = `https://${websiteDomain}`, coverImageLink = coverImage?.includes(`/`) ? coverImage
-        : `${websiteLink}/${assetsDir}/${imagesDir}/${coverImage}`, appIconFile = app_icon?.includes(`/`) ? app_icon
-        : `/${assetsDir}/${imagesDir}/${app_icon}`, favIconFile = fav_icon?.includes(`/`) ? fav_icon
-        : `/${assetsDir}/${imagesDir}/${fav_icon}`, htmlElements = (() => {
+const build = ({ mode = `production`, appShortName = `WebApp`, twitterUserName = `degreesign`, websiteName = `DegreeSign WebApp`, websiteDomain = `degreesign.com`, publishedTime = `2025-01-01T00:00:00+00:00`, author = `DegreeSign Team`, websiteTitle = `progressive webapp`, websiteDescription = `Webpack progressive web app`, coverImage = `degreesign_screenshot.webp`, coverImageDescription = `Screenshot of website`, notificationTitle = `New Notification`, notificationText = `You have a new notification!`, background_color = `#fff`, theme_color = '#000', app_icon = `app_icon.png`, fav_icon = `favicon.ico`, orientation = 'portrait', pagesList = [], htmlCommonElements = [], obfuscateON = false, srcDir = `src`, assetsDir = `assets`, developDir = `build`, commonDir = `common`, imagesDir = `images`, pagesDir = `pages`, pageHome = `home`, productionDir = `public_html`, htaccessCustom = ``, }) => {
+    const dataString = new Date().toISOString(), timeNow = Date.now(), websiteLink = `https://${websiteDomain}`, getImageURI = (image) => image?.includes(`/`) ? image
+        : `/${assetsDir}/${imagesDir}/${image}`, getImageLink = (image) => image?.includes(`/`) ? image
+        : `${websiteLink}/${assetsDir}/${imagesDir}/${image}`, coverImageLink = getImageLink(coverImage), appIconFile = getImageURI(app_icon), favIconFile = getImageURI(fav_icon), htmlElements = (() => {
         const elements = {
             headerHTML: `<link href="${coverImageLink}" rel="image_src"><link rel="icon" href="${favIconFile}" type="image/x-icon"><link rel="manifest" href="app.json?v=${timeNow}"><script>"serviceWorker" in navigator && navigator.serviceWorker.register("./sw.js?v=${timeNow}", { scope: "/" });</script>`
         };
@@ -64,7 +62,7 @@ const read = (file) => fs_1.default.readFileSync(path_1.default.resolve(process.
                 const elm = htmlCommonElements[i];
                 elements[`${elm}HTML`] =
                     (elm == `header` ? elements.headerHTML : ``)
-                        + read(`./${srcDir}/${commonDir}/${elm}.html`);
+                        + (0, utils_1.readData)(`./${srcDir}/${commonDir}/${elm}.html`);
             }
         ;
         return elements;
@@ -170,10 +168,10 @@ ErrorDocument 403 /404
     }
     ;
     htaccessFile += htaccessCustom;
-    write(`./${productionDir}/robots.txt`, robots);
-    write(`./${productionDir}/.htaccess`, htaccessFile);
-    write(`./${productionDir}/app.json`, JSON.stringify(appManifest));
-    write(`./${productionDir}/sw.js`, getServiceWorkerContent({}));
+    (0, utils_1.writeData)(`./${productionDir}/robots.txt`, robots);
+    (0, utils_1.writeData)(`./${productionDir}/.htaccess`, htaccessFile);
+    (0, utils_1.writeData)(`./${productionDir}/app.json`, JSON.stringify(appManifest));
+    (0, utils_1.writeData)(`./${productionDir}/sw.js`, getServiceWorkerContent({}));
     dotenv_1.default.config();
     for (const key in process.env)
         envKeys[`process.env.${key}`] = JSON.stringify(process.env[key]);
@@ -234,7 +232,7 @@ ErrorDocument 403 /404
             new html_webpack_plugin_1.default({
                 chunks: [`${pageHome}`],
                 title: `${websiteName} | ${websiteTitle}`,
-                links: canonical(``),
+                links: (0, utils_1.canonicalTag)({ websiteDomain, page: `` }),
                 template: `./${srcDir}/${pagesDir}/${pageHome}/${pageHome}.html`,
                 meta: (0, utils_1.metaTags)({
                     author,
@@ -253,11 +251,11 @@ ErrorDocument 403 /404
                 ...htmlElements,
             }),
             ...pagesList.map(pageData => {
-                const { uri: fileName } = pageData;
+                const { noindex, uri: fileName, coverImage: coverImagePage, coverImageDescription: coverImageDescriptionPage, } = pageData;
                 return new html_webpack_plugin_1.default({
                     chunks: [fileName],
                     title: `${fileName?.toUpperCase()} | ${websiteName}`,
-                    links: canonical(`/${fileName}`),
+                    links: (0, utils_1.canonicalTag)({ websiteDomain, page: `/${fileName}` }),
                     template: `./${srcDir}/${pagesDir}/${fileName}/${fileName}.html`,
                     filename: fileName,
                     meta: (0, utils_1.metaTags)({
@@ -265,14 +263,15 @@ ErrorDocument 403 /404
                         websiteDescription,
                         websiteName,
                         websiteTitle,
-                        coverImageLink,
-                        coverImageDescription,
+                        coverImageLink: coverImagePage ? getImageURI(coverImagePage) : coverImageLink,
+                        coverImageDescription: (coverImagePage ? coverImageDescriptionPage : coverImageDescription) || ``,
                         publishedTime,
                         websiteLink,
                         dataString,
                         theme_color,
                         twitterUserName,
                         appIconFile,
+                        noindex,
                     }),
                     ...htmlElements,
                     ...pageData.headerCode ? {

@@ -10,13 +10,10 @@ import CssMinimizerPlugin from "css-minimizer-webpack-plugin"
 import * as HtmlInlineCssWebpackPlugin from "html-inline-css-webpack-plugin"
 import MiniCssExtractPlugin from "mini-css-extract-plugin"
 import TerserPlugin from "terser-webpack-plugin"
-import fs from "fs"
 import { Config, StringObj, WebManifest } from "./types"
-import { metaTags } from "./utils"
+import { canonicalTag, metaTags, readData, writeData } from "./utils"
 
 const
-    read = (file: string) => fs.readFileSync(path.resolve(process.cwd(), file), `utf8`),
-    write = (file: string, code: string) => fs.writeFileSync(path.resolve(process.cwd(), file), code, `utf8`),
     build = ({
         mode = `production`,
         appShortName = `WebApp`,
@@ -55,16 +52,16 @@ const
     }: Config) => {
 
         const
-            canonical = (page: string) => `<link rel="canonical" href="https://${websiteDomain}${page}">`,
             dataString = new Date().toISOString(),
             timeNow = Date.now(),
             websiteLink = `https://${websiteDomain}`,
-            coverImageLink = coverImage?.includes(`/`) ? coverImage
-                : `${websiteLink}/${assetsDir}/${imagesDir}/${coverImage}`,
-            appIconFile = app_icon?.includes(`/`) ? app_icon
-                : `/${assetsDir}/${imagesDir}/${app_icon}`,
-            favIconFile = fav_icon?.includes(`/`) ? fav_icon
-                : `/${assetsDir}/${imagesDir}/${fav_icon}`,
+            getImageURI = (image: string) => image?.includes(`/`) ? image
+                : `/${assetsDir}/${imagesDir}/${image}`,
+            getImageLink = (image: string) => image?.includes(`/`) ? image
+                : `${websiteLink}/${assetsDir}/${imagesDir}/${image}`,
+            coverImageLink = getImageLink(coverImage),
+            appIconFile = getImageURI(app_icon),
+            favIconFile = getImageURI(fav_icon),
             htmlElements = (() => {
                 const elements: StringObj = {
                     headerHTML: `<link href="${coverImageLink}" rel="image_src"><link rel="icon" href="${favIconFile}" type="image/x-icon"><link rel="manifest" href="app.json?v=${timeNow}"><script>"serviceWorker" in navigator && navigator.serviceWorker.register("./sw.js?v=${timeNow}", { scope: "/" });</script>`
@@ -74,7 +71,7 @@ const
                         const elm = htmlCommonElements[i];
                         elements[`${elm}HTML`] =
                             (elm == `header` ? elements.headerHTML : ``)
-                            + read(`./${srcDir}/${commonDir}/${elm}.html`);
+                            + readData(`./${srcDir}/${commonDir}/${elm}.html`);
                     };
                 return elements
             })(),
@@ -201,10 +198,10 @@ ErrorDocument 403 /404
 
         htaccessFile += htaccessCustom;
 
-        write(`./${productionDir}/robots.txt`, robots);
-        write(`./${productionDir}/.htaccess`, htaccessFile);
-        write(`./${productionDir}/app.json`, JSON.stringify(appManifest));
-        write(`./${productionDir}/sw.js`, getServiceWorkerContent({}));
+        writeData(`./${productionDir}/robots.txt`, robots);
+        writeData(`./${productionDir}/.htaccess`, htaccessFile);
+        writeData(`./${productionDir}/app.json`, JSON.stringify(appManifest));
+        writeData(`./${productionDir}/sw.js`, getServiceWorkerContent({}));
 
         // Environment keys
         dotenv.config();
@@ -269,7 +266,7 @@ ErrorDocument 403 /404
                 new HtmlWebpackPlugin({
                     chunks: [`${pageHome}`],
                     title: `${websiteName} | ${websiteTitle}`,
-                    links: canonical(``),
+                    links: canonicalTag({ websiteDomain, page: `` }),
                     template: `./${srcDir}/${pagesDir}/${pageHome}/${pageHome}.html`,
                     meta: metaTags({
                         author,
@@ -288,11 +285,16 @@ ErrorDocument 403 /404
                     ...htmlElements,
                 }),
                 ...pagesList.map(pageData => {
-                    const { uri: fileName } = pageData;
+                    const {
+                        noindex,
+                        uri: fileName,
+                        coverImage: coverImagePage,
+                        coverImageDescription: coverImageDescriptionPage,
+                    } = pageData;
                     return new HtmlWebpackPlugin({
                         chunks: [fileName],
                         title: `${fileName?.toUpperCase()} | ${websiteName}`,
-                        links: canonical(`/${fileName}`),
+                        links: canonicalTag({ websiteDomain, page: `/${fileName}` }),
                         template: `./${srcDir}/${pagesDir}/${fileName}/${fileName}.html`,
                         filename: fileName,
                         meta: metaTags({
@@ -300,14 +302,15 @@ ErrorDocument 403 /404
                             websiteDescription,
                             websiteName,
                             websiteTitle,
-                            coverImageLink,
-                            coverImageDescription,
+                            coverImageLink: coverImagePage ? getImageURI(coverImagePage) : coverImageLink,
+                            coverImageDescription: (coverImagePage ? coverImageDescriptionPage : coverImageDescription) || ``,
                             publishedTime,
                             websiteLink,
                             dataString,
                             theme_color,
                             twitterUserName,
                             appIconFile,
+                            noindex,
                         }),
                         ...htmlElements,
                         ...pageData.headerCode ? {

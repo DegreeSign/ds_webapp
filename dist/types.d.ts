@@ -11,6 +11,8 @@ interface Page {
     noindex?: boolean;
     headerCode?: string;
     publishDate?: string;
+    coverImage?: string;
+    coverImageDescription?: string;
 }
 export interface Config {
     mode: 'development' | 'production';
@@ -88,5 +90,6 @@ export interface MetaTagsInput {
     theme_color: string;
     twitterUserName: string;
     appIconFile: string;
+    noindex?: boolean;
 }
 export {};

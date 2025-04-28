@@ -1,8 +1,37 @@
 "use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.metaTags = void 0;
-const metaTags = ({ author, websiteDescription, websiteName, websiteTitle, coverImageLink, coverImageDescription, publishedTime, websiteLink, dataString, theme_color, twitterUserName, appIconFile, }) => {
+exports.canonicalTag = exports.metaTags = exports.readData = exports.writeData = void 0;
+const fs_1 = __importDefault(require("fs"));
+const path_1 = __importDefault(require("path"));
+const writeData = (file, code) => {
+    try {
+        return code ? (fs_1.default.writeFileSync(path_1.default.resolve(process.cwd(), file), code, `utf8`),
+            true) : (console.log(`no data to write to`, file),
+            false);
+    }
+    catch (e) {
+        console.log(`failed to write to`, file);
+        return false;
+    }
+    ;
+}, readData = (file) => {
+    try {
+        return fs_1.default.readFileSync(path_1.default.resolve(process.cwd(), file), `utf8`);
+    }
+    catch (e) {
+        console.log(`no data to read at`, file);
+        return ``;
+    }
+    ;
+}, metaTags = ({ author, websiteDescription, websiteName, websiteTitle, coverImageLink, coverImageDescription, publishedTime, websiteLink, dataString, theme_color, twitterUserName, appIconFile, noindex, }) => {
     return {
+        noindexTag: noindex ? {
+            name: `robots`,
+            content: `noindex`,
+        } : {},
         author,
         robots: `index, follow`,
         description: websiteDescription,
@@ -176,5 +205,8 @@ const metaTags = ({ author, websiteDescription, websiteName, websiteTitle, cover
             sizes: "512x512",
         },
     };
-};
+}, canonicalTag = ({ websiteDomain, page, }) => `<link rel="canonical" href="https://${websiteDomain}${page}">`;
+exports.writeData = writeData;
+exports.readData = readData;
 exports.metaTags = metaTags;
+exports.canonicalTag = canonicalTag;

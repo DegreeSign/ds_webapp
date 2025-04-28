@@ -1,6 +1,32 @@
 import { MetaTags, MetaTagsInput } from "./types";
+import fs from "fs"
+import path from "path"
 
 const
+    /** Write to files */
+    writeData = (file: string, code: any) => {
+        try {
+            return code ? (
+                fs.writeFileSync(path.resolve(process.cwd(), file), code, `utf8`),
+                true
+            ) : (
+                console.log(`no data to write to`, file),
+                false
+            )
+        } catch (e) {
+            console.log(`failed to write to`, file);
+            return false
+        };
+    },
+    /** Read files */
+    readData = (file: string) => {
+        try {
+            return fs.readFileSync(path.resolve(process.cwd(), file), `utf8`);
+        } catch (e) {
+            console.log(`no data to read at`, file);
+            return ``;
+        };
+    },
     metaTags = ({
         author,
         websiteDescription,
@@ -14,8 +40,13 @@ const
         theme_color,
         twitterUserName,
         appIconFile,
+        noindex,
     }: MetaTagsInput): MetaTags => {
         return {
+            noindexTag: noindex ? {
+                name: `robots`,
+                content: `noindex`,
+            } : {},
             author,
             robots: `index, follow`,
             description: websiteDescription,
@@ -189,8 +220,18 @@ const
                 sizes: "512x512",
             },
         }
-    };
+    },
+    canonicalTag = ({
+        websiteDomain,
+        page,
+    }: {
+        websiteDomain: string,
+        page: string
+    }) => `<link rel="canonical" href="https://${websiteDomain}${page}">`;
 
 export {
-    metaTags
+    writeData,
+    readData,
+    metaTags,
+    canonicalTag,
 }
