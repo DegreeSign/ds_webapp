@@ -32,6 +32,7 @@ const
         background_color = `#fff`,
         theme_color = '#000',
         app_icon = `app_icon.png`,
+        fav_icon = `favicon.ico`,
         orientation = 'portrait', // `portrait` | `landscape`
         /** Pages list array */
         pagesList = [],
@@ -51,20 +52,28 @@ const
 
         const
             canonical = (page: string) => `<link rel="canonical" href="https://${websiteDomain}${page}">`,
+            dataString = new Date().toISOString(),
+            timeNow = Date.now(),
+            websiteLink = `https://${websiteDomain}`,
+            coverImageLink = coverImage?.includes(`/`) ? coverImage
+                : `${websiteLink}/${assetsDir}/${imagesDir}/${coverImage}`,
+            appIconFile = app_icon?.includes(`/`) ? app_icon
+                : `/${assetsDir}/${imagesDir}/${app_icon}`,
+            favIconFile = fav_icon?.includes(`/`) ? fav_icon
+                : `/${assetsDir}/${imagesDir}/${fav_icon}`,
             htmlElements = (() => {
-                const elements: StringObj = {};
+                const elements: StringObj = {
+                    basicHeaderHTML: `        <link href="${coverImageLink}" rel="image_src">
+            <link rel="icon" href="${favIconFile}" type="image/x-icon">
+            <link rel="manifest" href="app.json?v=${timeNow}">
+            <script>"serviceWorker" in navigator && navigator.serviceWorker.register("./sw.js?v=${timeNow}", { scope: "/" });</script>`
+                };
                 for (let i = 0; i < htmlCommonElements.length; i++) {
                     const elm = htmlCommonElements[i];
                     elements[`${elm}HTML`] = read(`./${srcDir}/${commonDir}/${elm}.html`);
                 };
                 return elements
             })(),
-            dataString = new Date().toISOString(),
-            websiteLink = `https://${websiteDomain}`,
-            coverImageLink = coverImage?.includes(`/`) ? coverImage
-                : `${websiteLink}/${assetsDir}/${imagesDir}/${coverImage}`,
-            appIconFile = app_icon?.includes(`/`) ? app_icon
-                : `/${assetsDir}/${imagesDir}/${app_icon}`,
             meta = {
                 author,
                 robots: `index, follow`,

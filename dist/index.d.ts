@@ -8,7 +8,7 @@ import CssMinimizerPlugin from "css-minimizer-webpack-plugin";
 import MiniCssExtractPlugin from "mini-css-extract-plugin";
 import TerserPlugin from "terser-webpack-plugin";
 import { Config } from "./types";
-declare const build: ({ mode, appShortName, websiteName, websiteDomain, publishedTime, author, websiteTitle, websiteDescription, coverImage, coverImageDescription, notificationTitle, notificationText, background_color, theme_color, app_icon, orientation, pagesList, htmlCommonElements, obfuscateON, srcDir, assetsDir, developDir, commonDir, imagesDir, pagesDir, pageHome, productionDir, }: Config) => {
+declare const build: ({ mode, appShortName, websiteName, websiteDomain, publishedTime, author, websiteTitle, websiteDescription, coverImage, coverImageDescription, notificationTitle, notificationText, background_color, theme_color, app_icon, fav_icon, orientation, pagesList, htmlCommonElements, obfuscateON, srcDir, assetsDir, developDir, commonDir, imagesDir, pagesDir, pageHome, productionDir, }: Config) => {
     entry: {
         [x: string]: string;
     };

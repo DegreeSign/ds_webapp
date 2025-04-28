@@ -27,6 +27,7 @@ export interface Config {
     background_color: string;
     theme_color: string;
     app_icon: string;
+    fav_icon: string;
     orientation: 'portrait' | 'landscape';
     pagesList: Page[];
     htmlCommonElements: string[];

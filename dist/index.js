@@ -50,18 +50,24 @@ const HtmlInlineCssWebpackPlugin = __importStar(require("html-inline-css-webpack
 const mini_css_extract_plugin_1 = __importDefault(require("mini-css-extract-plugin"));
 const terser_webpack_plugin_1 = __importDefault(require("terser-webpack-plugin"));
 const fs_1 = __importDefault(require("fs"));
-const read = (file) => fs_1.default.readFileSync(path_1.default.resolve(process.cwd(), file), `utf8`), write = (file, code) => fs_1.default.writeFileSync(path_1.default.resolve(process.cwd(), file), code, `utf8`), build = ({ mode = `production`, appShortName = `WebApp`, websiteName = `DegreeSign WebApp`, websiteDomain = `degreesign.com`, publishedTime = `2025-01-01T00:00:00+00:00`, author = `DegreeSign Team`, websiteTitle = `progressive webapp`, websiteDescription = `Webpack progressive web app`, coverImage = `degreesign_screenshot.webp`, coverImageDescription = `Screenshot of website`, notificationTitle = `New Notification`, notificationText = `You have a new notification!`, background_color = `#fff`, theme_color = '#000', app_icon = `app_icon.png`, orientation = 'portrait', pagesList = [], htmlCommonElements = [], obfuscateON = false, srcDir = `src`, assetsDir = `assets`, developDir = `build`, commonDir = `common`, imagesDir = `images`, pagesDir = `pages`, pageHome = `home`, productionDir = `public_html`, }) => {
-    const canonical = (page) => `<link rel="canonical" href="https://${websiteDomain}${page}">`, htmlElements = (() => {
-        const elements = {};
+const read = (file) => fs_1.default.readFileSync(path_1.default.resolve(process.cwd(), file), `utf8`), write = (file, code) => fs_1.default.writeFileSync(path_1.default.resolve(process.cwd(), file), code, `utf8`), build = ({ mode = `production`, appShortName = `WebApp`, websiteName = `DegreeSign WebApp`, websiteDomain = `degreesign.com`, publishedTime = `2025-01-01T00:00:00+00:00`, author = `DegreeSign Team`, websiteTitle = `progressive webapp`, websiteDescription = `Webpack progressive web app`, coverImage = `degreesign_screenshot.webp`, coverImageDescription = `Screenshot of website`, notificationTitle = `New Notification`, notificationText = `You have a new notification!`, background_color = `#fff`, theme_color = '#000', app_icon = `app_icon.png`, fav_icon = `favicon.ico`, orientation = 'portrait', pagesList = [], htmlCommonElements = [], obfuscateON = false, srcDir = `src`, assetsDir = `assets`, developDir = `build`, commonDir = `common`, imagesDir = `images`, pagesDir = `pages`, pageHome = `home`, productionDir = `public_html`, }) => {
+    const canonical = (page) => `<link rel="canonical" href="https://${websiteDomain}${page}">`, dataString = new Date().toISOString(), timeNow = Date.now(), websiteLink = `https://${websiteDomain}`, coverImageLink = coverImage?.includes(`/`) ? coverImage
+        : `${websiteLink}/${assetsDir}/${imagesDir}/${coverImage}`, appIconFile = app_icon?.includes(`/`) ? app_icon
+        : `/${assetsDir}/${imagesDir}/${app_icon}`, favIconFile = fav_icon?.includes(`/`) ? fav_icon
+        : `/${assetsDir}/${imagesDir}/${fav_icon}`, htmlElements = (() => {
+        const elements = {
+            basicHeaderHTML: `        <link href="${coverImageLink}" rel="image_src">
+            <link rel="icon" href="${favIconFile}" type="image/x-icon">
+            <link rel="manifest" href="app.json?v=${timeNow}">
+            <script>"serviceWorker" in navigator && navigator.serviceWorker.register("./sw.js?v=${timeNow}", { scope: "/" });</script>`
+        };
         for (let i = 0; i < htmlCommonElements.length; i++) {
             const elm = htmlCommonElements[i];
             elements[`${elm}HTML`] = read(`./${srcDir}/${commonDir}/${elm}.html`);
         }
         ;
         return elements;
-    })(), dataString = new Date().toISOString(), websiteLink = `https://${websiteDomain}`, coverImageLink = coverImage?.includes(`/`) ? coverImage
-        : `${websiteLink}/${assetsDir}/${imagesDir}/${coverImage}`, appIconFile = app_icon?.includes(`/`) ? app_icon
-        : `/${assetsDir}/${imagesDir}/${app_icon}`, meta = {
+    })(), meta = {
         author,
         robots: `index, follow`,
         description: `${websiteDescription}`,
