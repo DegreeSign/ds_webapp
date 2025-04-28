@@ -50,14 +50,7 @@ const HtmlInlineCssWebpackPlugin = __importStar(require("html-inline-css-webpack
 const mini_css_extract_plugin_1 = __importDefault(require("mini-css-extract-plugin"));
 const terser_webpack_plugin_1 = __importDefault(require("terser-webpack-plugin"));
 const fs_1 = __importDefault(require("fs"));
-const read = (file) => fs_1.default.readFileSync(path_1.default.resolve(process.cwd(), file), `utf8`), write = (file, code) => fs_1.default.writeFileSync(path_1.default.resolve(process.cwd(), file), code, `utf8`), build = ({ mode = `production`, appShortName = `WebApp`, websiteName = `DegreeSign WebApp`, websiteDomain = `degreesign.com`, publishedTime = `2025-01-01T00:00:00+00:00`, author = `DegreeSign Team`, websiteTitle = `progressive webapp`, websiteDescription = `Webpack progressive web app`, coverImage = `degreesign_screenshot.webp`, coverImageDescription = `Screenshot of website`, notificationTitle = `New Notification`, notificationText = `You have a new notification!`, background_color = `#fff`, theme_color = '#000', app_icon = `app_icon.png`, orientation = 'portrait', pagesList = [{
-        uri: `about`,
-        name: `About`,
-        short_name: `About`,
-        description: `About WebApp`,
-        icon: ``,
-        shortcut: true,
-    }], htmlCommonElements = [], obfuscateON = false, srcDir = `src`, assetsDir = `assets`, developDir = `build`, commonDir = `common`, imagesDir = `images`, pagesDir = `pages`, pageHome = `home`, productionDir = `public_html`, }) => {
+const read = (file) => fs_1.default.readFileSync(path_1.default.resolve(process.cwd(), file), `utf8`), write = (file, code) => fs_1.default.writeFileSync(path_1.default.resolve(process.cwd(), file), code, `utf8`), build = ({ mode = `production`, appShortName = `WebApp`, websiteName = `DegreeSign WebApp`, websiteDomain = `degreesign.com`, publishedTime = `2025-01-01T00:00:00+00:00`, author = `DegreeSign Team`, websiteTitle = `progressive webapp`, websiteDescription = `Webpack progressive web app`, coverImage = `degreesign_screenshot.webp`, coverImageDescription = `Screenshot of website`, notificationTitle = `New Notification`, notificationText = `You have a new notification!`, background_color = `#fff`, theme_color = '#000', app_icon = `app_icon.png`, orientation = 'portrait', pagesList = [], htmlCommonElements = [], obfuscateON = false, srcDir = `src`, assetsDir = `assets`, developDir = `build`, commonDir = `common`, imagesDir = `images`, pagesDir = `pages`, pageHome = `home`, productionDir = `public_html`, }) => {
     const canonical = (page) => `<link rel="canonical" href="https://${websiteDomain}${page}">`, htmlElements = (() => {
         const elements = {};
         for (let i = 0; i < htmlCommonElements.length; i++) {
@@ -66,7 +59,9 @@ const read = (file) => fs_1.default.readFileSync(path_1.default.resolve(process.
         }
         ;
         return elements;
-    })(), dataString = new Date().toISOString(), websiteLink = `https://${websiteDomain}`, coverImageLink = `${websiteLink}/${assetsDir}/${imagesDir}/${coverImage}`, appIconFile = `/${assetsDir}/${imagesDir}/${app_icon}`, meta = {
+    })(), dataString = new Date().toISOString(), websiteLink = `https://${websiteDomain}`, coverImageLink = coverImage?.includes(`/`) ? coverImage
+        : `${websiteLink}/${assetsDir}/${imagesDir}/${coverImage}`, appIconFile = app_icon?.includes(`/`) ? app_icon
+        : `/${assetsDir}/${imagesDir}/${app_icon}`, meta = {
         author,
         robots: `index, follow`,
         description: `${websiteDescription}`,
@@ -212,7 +207,8 @@ Sitemap: https://${websiteDomain}/sitemap.xml`, getServiceWorkerContent = ({ cac
         const pageData = pagesList[i];
         if (pageData.shortcut) {
             const icon = pageData.icon ?
-                `/${assetsDir}/${imagesDir}/${pageData.icon}`
+                pageData.icon?.includes(`/`) ? pageData.icon
+                    : `/${assetsDir}/${imagesDir}/${pageData.icon}`
                 : appIconFile;
             appManifest.shortcuts.push({
                 name: pageData.name,
@@ -276,7 +272,7 @@ Sitemap: https://${websiteDomain}/sitemap.xml`, getServiceWorkerContent = ({ cac
                 }, {
                     test: /\.(png|jpe?g|gif|svg|ico)$/,
                     exclude: /node_modules/,
-                    type: `${assetsDir}/resource`,
+                    type: `${assetsDir}/${imagesDir}`,
                     include: path_1.default.resolve(process.cwd(), `${srcDir}/${assetsDir}/${imagesDir}`),
                     generator: {
                         filename: `${assetsDir}/${imagesDir}/[name][ext][query]`,
