@@ -1,7 +1,7 @@
 {
   "license": "MIT",
   "name": "degreesign",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "main": "dist/index.js",
   "module": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -44,6 +44,6 @@
     "webpack-obfuscator": "^3.5.1"
   },
   "files": [
-    "index/"
+    "dist/"
   ]
 }
