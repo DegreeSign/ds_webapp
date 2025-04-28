@@ -63,15 +63,15 @@ const
                 : `/${assetsDir}/${imagesDir}/${fav_icon}`,
             htmlElements = (() => {
                 const elements: StringObj = {
-                    basicHeaderHTML: `        <link href="${coverImageLink}" rel="image_src">
-            <link rel="icon" href="${favIconFile}" type="image/x-icon">
-            <link rel="manifest" href="app.json?v=${timeNow}">
-            <script>"serviceWorker" in navigator && navigator.serviceWorker.register("./sw.js?v=${timeNow}", { scope: "/" });</script>`
+                    headerHTML: `<link href="${coverImageLink}" rel="image_src"><link rel="icon" href="${favIconFile}" type="image/x-icon"><link rel="manifest" href="app.json?v=${timeNow}"><script>"serviceWorker" in navigator && navigator.serviceWorker.register("./sw.js?v=${timeNow}", { scope: "/" });</script>`
                 };
-                for (let i = 0; i < htmlCommonElements.length; i++) {
-                    const elm = htmlCommonElements[i];
-                    elements[`${elm}HTML`] = read(`./${srcDir}/${commonDir}/${elm}.html`);
-                };
+                if (htmlCommonElements?.length)
+                    for (let i = 0; i < htmlCommonElements.length; i++) {
+                        const elm = htmlCommonElements[i];
+                        elements[`${elm}HTML`] =
+                            (elm == `header` ? elements.headerHTML : ``)
+                            + read(`./${srcDir}/${commonDir}/${elm}.html`);
+                    };
                 return elements
             })(),
             meta = {

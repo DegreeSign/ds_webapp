@@ -30,7 +30,7 @@ export interface Config {
     fav_icon: string;
     orientation: 'portrait' | 'landscape';
     pagesList: Page[];
-    htmlCommonElements: string[];
+    htmlCommonElements: (`header` | `footer` | `menu`)[];
     obfuscateON: boolean;
     srcDir: string;
     assetsDir: string;
