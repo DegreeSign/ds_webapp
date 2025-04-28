@@ -17,9 +17,10 @@ const writeData = (file, code) => {
         return false;
     }
     ;
-}, readData = (file) => {
+}, readData = (file, absolute) => {
     try {
-        return fs_1.default.readFileSync(path_1.default.resolve(process.cwd(), file), `utf8`);
+        return fs_1.default.readFileSync(absolute ? file
+            : path_1.default.resolve(process.cwd(), file), `utf8`);
     }
     catch (e) {
         console.log(`no data to read at`, file);

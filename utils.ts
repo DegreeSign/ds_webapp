@@ -19,9 +19,13 @@ const
         };
     },
     /** Read files */
-    readData = (file: string) => {
+    readData = (file: string, absolute?: boolean) => {
         try {
-            return fs.readFileSync(path.resolve(process.cwd(), file), `utf8`);
+            return fs.readFileSync(
+                absolute ? file
+                    : path.resolve(process.cwd(), file),
+                `utf8`
+            );
         } catch (e) {
             console.log(`no data to read at`, file);
             return ``;

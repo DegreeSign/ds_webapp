@@ -106,6 +106,24 @@ const
             },
             siteMap = [{ path: `/`, priority: 1.0, lastmod: dataString }],
 
+            templateContent = ({ htmlWebpackPlugin }: any) => `
+            <!-- Copyright © ${websiteName}, All rights reserved. -->
+            <!DOCTYPE html>
+            <!-- Last Published: ${dataString} (Coordinated Universal Time) -->
+            <html lang="en" prefix="og: https://ogp.me/">
+            <head>
+                ${htmlWebpackPlugin.options.links}
+                ${htmlWebpackPlugin.options.headerHTML}
+                <title>${htmlWebpackPlugin.options.title}</title>
+            </head>
+            <body>
+                ${htmlWebpackPlugin.options.menuHTML}
+                ${htmlWebpackPlugin.options.pageBody}
+                ${htmlWebpackPlugin.options.footerHTML}
+            </body>
+            </html>
+          `,
+
             robots = `User-agent: *
 Allow: /
 Disallow: /404
@@ -267,7 +285,7 @@ ErrorDocument 403 /404
                     chunks: [`${pageHome}`],
                     title: `${websiteName} | ${websiteTitle}`,
                     links: canonicalTag({ websiteDomain, page: `` }),
-                    template: `./${srcDir}/${pagesDir}/${pageHome}/${pageHome}.html`,
+                    pageBody: `./${srcDir}/${pagesDir}/${pageHome}/${pageHome}.html`,
                     meta: metaTags({
                         author,
                         websiteDescription,
@@ -283,6 +301,7 @@ ErrorDocument 403 /404
                         appIconFile,
                     }),
                     ...htmlElements,
+                    templateContent,
                 }),
                 ...pagesList.map(pageData => {
                     const {
@@ -317,6 +336,7 @@ ErrorDocument 403 /404
                             headerHTML: htmlElements.headerHTML
                                 + pageData.headerCode
                         } : {},
+                        templateContent,
                     })
                 }),
                 ...obfuscateON ? [new WebpackObfuscator(
