@@ -14,6 +14,7 @@ interface Page {
     publishDate?: string;
     coverImage?: string;
     coverImageDescription?: string;
+    customHTML?: string[];
 }
 
 export interface Config {
@@ -99,4 +100,14 @@ export interface MetaTagsInput {
     twitterUserName: string,
     appIconFile: string,
     noindex?: boolean,
+}
+
+export interface TemplateHTMLOptions {
+    links?: string,
+    headerHTML?: string,
+    title?: string,
+    menuHTML?: string,
+    customHTML?: string,
+    pageBody?: string,
+    footerHTML?: string,
 }

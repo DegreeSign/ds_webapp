@@ -89,23 +89,25 @@ const build = ({ mode = `production`, appShortName = `WebApp`, twitterUserName =
         start_url: '/',
         description: websiteDescription,
         name: websiteName
-    }, siteMap = [{ path: `/`, priority: 1.0, lastmod: dataString }], templateContent = ({ htmlWebpackPlugin }) => `
-            <!-- Copyright © ${websiteName}, All rights reserved. -->
-            <!DOCTYPE html>
-            <!-- Last Published: ${dataString} (Coordinated Universal Time) -->
-            <html lang="en" prefix="og: https://ogp.me/">
-            <head>
-                ${htmlWebpackPlugin.options.links}
-                ${htmlWebpackPlugin.options.headerHTML}
-                <title>${htmlWebpackPlugin.options.title}</title>
-            </head>
-            <body>
-                ${htmlWebpackPlugin.options.menuHTML}
-                ${htmlWebpackPlugin.options.pageBody}
-                ${htmlWebpackPlugin.options.footerHTML}
-            </body>
-            </html>
-          `, robots = `User-agent: *
+    }, siteMap = [{ path: `/`, priority: 1.0, lastmod: dataString }], templateContent = ({ htmlWebpackPlugin }) => {
+        const { links, headerHTML, title, menuHTML, customHTML, pageBody, footerHTML, } = htmlWebpackPlugin.options || {};
+        return `<!-- Copyright © ${websiteName}, All rights reserved. -->
+                    <!DOCTYPE html>
+                    <!-- Last Published: ${dataString} (Coordinated Universal Time) -->
+                    <html lang="en" prefix="og: https://ogp.me/">
+                    <head>
+                        ${links || ``}
+                        ${headerHTML || ``}
+                        <title>${title || ``}</title>
+                    </head>
+                    <body>
+                        ${menuHTML || ``}
+                        ${customHTML || ``}
+                        ${pageBody || ``}
+                        ${footerHTML || ``}
+                    </body>
+                    </html>`;
+    }, robots = `User-agent: *
 Allow: /
 Disallow: /404
 
@@ -245,34 +247,13 @@ ErrorDocument 403 /404
                     { from: `${srcDir}/${assetsDir}`, to: `${assetsDir}` },
                 ],
             }),
-            new html_webpack_plugin_1.default({
-                chunks: [`${pageHome}`],
-                title: `${websiteName} | ${websiteTitle}`,
-                links: (0, utils_1.canonicalTag)({ websiteDomain, page: `` }),
-                pageBody: (0, utils_1.readData)(`./${srcDir}/${pagesDir}/${pageHome}/${pageHome}.html`),
-                meta: (0, utils_1.metaTags)({
-                    author,
-                    websiteDescription,
-                    websiteName,
-                    websiteTitle,
-                    coverImageLink,
-                    coverImageDescription,
-                    publishedTime,
-                    websiteLink,
-                    dataString,
-                    theme_color,
-                    twitterUserName,
-                    appIconFile,
-                }),
-                ...htmlElements,
-                templateContent,
-            }),
             ...pagesList.map(pageData => {
-                const { noindex, uri: fileName, coverImage: coverImagePage, coverImageDescription: coverImageDescriptionPage, } = pageData;
+                const { noindex, uri: fileName, coverImage: coverImagePage, coverImageDescription: coverImageDescriptionPage, } = pageData, isHome = pageHome == fileName;
                 return new html_webpack_plugin_1.default({
                     chunks: [fileName],
-                    title: `${fileName?.toUpperCase()} | ${websiteName}`,
-                    links: (0, utils_1.canonicalTag)({ websiteDomain, page: `/${fileName}` }),
+                    title: isHome ? `${websiteName} | ${websiteTitle}`
+                        : `${fileName?.toUpperCase()} | ${websiteName}`,
+                    links: (0, utils_1.canonicalTag)({ websiteDomain, page: isHome ? `` : `/${fileName}` }),
                     pageBody: (0, utils_1.readData)(`./${srcDir}/${pagesDir}/${fileName}/${fileName}.html`),
                     filename: fileName,
                     meta: (0, utils_1.metaTags)({
@@ -294,6 +275,9 @@ ErrorDocument 403 /404
                     ...pageData.headerCode ? {
                         headerHTML: htmlElements.headerHTML
                             + pageData.headerCode
+                    } : {},
+                    ...pageData.customHTML?.length ? {
+                        customHTML: pageData.customHTML.map(elm => (0, utils_1.readData)(`./${srcDir}/${commonDir}/${elm}.html`))?.join(``),
                     } : {},
                     templateContent,
                 });

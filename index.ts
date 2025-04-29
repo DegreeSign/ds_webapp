@@ -10,7 +10,7 @@ import CssMinimizerPlugin from "css-minimizer-webpack-plugin"
 import * as HtmlInlineCssWebpackPlugin from "html-inline-css-webpack-plugin"
 import MiniCssExtractPlugin from "mini-css-extract-plugin"
 import TerserPlugin from "terser-webpack-plugin"
-import { Config, StringObj, WebManifest } from "./types"
+import { Config, StringObj, TemplateHTMLOptions, WebManifest } from "./types"
 import { canonicalTag, metaTags, readData, writeData } from "./utils"
 
 const
@@ -63,7 +63,7 @@ const
             appIconFile = getImageURI(app_icon),
             favIconFile = getImageURI(fav_icon),
             htmlElements = (() => {
-                const elements: StringObj = {
+                const elements: TemplateHTMLOptions = {
                     headerHTML: `<link href="${coverImageLink}" rel="image_src"><link rel="icon" href="${favIconFile}" type="image/x-icon"><link rel="manifest" href="app.json?v=${timeNow}"><script>"serviceWorker" in navigator && navigator.serviceWorker.register("./sw.js?v=${timeNow}", { scope: "/" });</script>`
                 };
                 if (htmlCommonElements?.length)
@@ -106,23 +106,33 @@ const
             },
             siteMap = [{ path: `/`, priority: 1.0, lastmod: dataString }],
 
-            templateContent = ({ htmlWebpackPlugin }: any) => `
-            <!-- Copyright © ${websiteName}, All rights reserved. -->
-            <!DOCTYPE html>
-            <!-- Last Published: ${dataString} (Coordinated Universal Time) -->
-            <html lang="en" prefix="og: https://ogp.me/">
-            <head>
-                ${htmlWebpackPlugin.options.links}
-                ${htmlWebpackPlugin.options.headerHTML}
-                <title>${htmlWebpackPlugin.options.title}</title>
-            </head>
-            <body>
-                ${htmlWebpackPlugin.options.menuHTML}
-                ${htmlWebpackPlugin.options.pageBody}
-                ${htmlWebpackPlugin.options.footerHTML}
-            </body>
-            </html>
-          `,
+            templateContent = ({ htmlWebpackPlugin }: any) => {
+                const {
+                    links,
+                    headerHTML,
+                    title,
+                    menuHTML,
+                    customHTML,
+                    pageBody,
+                    footerHTML,
+                }: TemplateHTMLOptions = htmlWebpackPlugin.options || {};
+                return `<!-- Copyright © ${websiteName}, All rights reserved. -->
+                    <!DOCTYPE html>
+                    <!-- Last Published: ${dataString} (Coordinated Universal Time) -->
+                    <html lang="en" prefix="og: https://ogp.me/">
+                    <head>
+                        ${links || ``}
+                        ${headerHTML || ``}
+                        <title>${title || ``}</title>
+                    </head>
+                    <body>
+                        ${menuHTML || ``}
+                        ${customHTML || ``}
+                        ${pageBody || ``}
+                        ${footerHTML || ``}
+                    </body>
+                    </html>`
+            },
 
             robots = `User-agent: *
 Allow: /
@@ -281,39 +291,20 @@ ErrorDocument 403 /404
                         { from: `${srcDir}/${assetsDir}`, to: `${assetsDir}` },
                     ],
                 }),
-                new HtmlWebpackPlugin({
-                    chunks: [`${pageHome}`],
-                    title: `${websiteName} | ${websiteTitle}`,
-                    links: canonicalTag({ websiteDomain, page: `` }),
-                    pageBody: readData(`./${srcDir}/${pagesDir}/${pageHome}/${pageHome}.html`),
-                    meta: metaTags({
-                        author,
-                        websiteDescription,
-                        websiteName,
-                        websiteTitle,
-                        coverImageLink,
-                        coverImageDescription,
-                        publishedTime,
-                        websiteLink,
-                        dataString,
-                        theme_color,
-                        twitterUserName,
-                        appIconFile,
-                    }),
-                    ...htmlElements,
-                    templateContent,
-                }),
                 ...pagesList.map(pageData => {
-                    const {
-                        noindex,
-                        uri: fileName,
-                        coverImage: coverImagePage,
-                        coverImageDescription: coverImageDescriptionPage,
-                    } = pageData;
+                    const
+                        {
+                            noindex,
+                            uri: fileName,
+                            coverImage: coverImagePage,
+                            coverImageDescription: coverImageDescriptionPage,
+                        } = pageData,
+                        isHome = pageHome == fileName;
                     return new HtmlWebpackPlugin({
                         chunks: [fileName],
-                        title: `${fileName?.toUpperCase()} | ${websiteName}`,
-                        links: canonicalTag({ websiteDomain, page: `/${fileName}` }),
+                        title: isHome ? `${websiteName} | ${websiteTitle}`
+                            : `${fileName?.toUpperCase()} | ${websiteName}`,
+                        links: canonicalTag({ websiteDomain, page: isHome ? `` : `/${fileName}` }),
                         pageBody: readData(`./${srcDir}/${pagesDir}/${fileName}/${fileName}.html`),
                         filename: fileName,
                         meta: metaTags({
@@ -335,6 +326,11 @@ ErrorDocument 403 /404
                         ...pageData.headerCode ? {
                             headerHTML: htmlElements.headerHTML
                                 + pageData.headerCode
+                        } : {},
+                        ...pageData.customHTML?.length ? {
+                            customHTML: pageData.customHTML.map(
+                                elm => readData(`./${srcDir}/${commonDir}/${elm}.html`)
+                            )?.join(``),
                         } : {},
                         templateContent,
                     })
