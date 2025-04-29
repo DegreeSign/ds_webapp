@@ -48,6 +48,8 @@ export interface Config {
     pageHome: string;
     productionDir: string;
     htaccessCustom: string;
+    startURI?: string;
+    language?: string;
 }
 
 interface Icon {
@@ -100,6 +102,7 @@ export interface MetaTagsInput {
     twitterUserName: string,
     appIconFile: string,
     noindex?: boolean,
+    language: string,
 }
 
 export interface TemplateHTMLOptions {

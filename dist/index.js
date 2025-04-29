@@ -50,12 +50,12 @@ const HtmlInlineCssWebpackPlugin = __importStar(require("html-inline-css-webpack
 const mini_css_extract_plugin_1 = __importDefault(require("mini-css-extract-plugin"));
 const terser_webpack_plugin_1 = __importDefault(require("terser-webpack-plugin"));
 const utils_1 = require("./utils");
-const build = ({ mode = `production`, appShortName = `WebApp`, twitterUserName = `degreesign`, websiteName = `DegreeSign WebApp`, websiteDomain = `degreesign.com`, publishedTime = `2025-01-01T00:00:00+00:00`, author = `DegreeSign Team`, websiteTitle = `progressive webapp`, websiteDescription = `Webpack progressive web app`, coverImage = `degreesign_screenshot.webp`, coverImageDescription = `Screenshot of website`, notificationTitle = `New Notification`, notificationText = `You have a new notification!`, background_color = `#fff`, theme_color = '#000', app_icon = `app_icon.png`, fav_icon = `favicon.ico`, orientation = 'portrait', pagesList = [], htmlCommonElements = [], obfuscateON = false, srcDir = `src`, assetsDir = `assets`, developDir = `build`, commonDir = `common`, imagesDir = `images`, pagesDir = `pages`, pageHome = `home`, productionDir = `public_html`, htaccessCustom = ``, }) => {
+const build = ({ mode = `production`, appShortName = `WebApp`, twitterUserName = `degreesign`, websiteName = `DegreeSign WebApp`, websiteDomain = `degreesign.com`, publishedTime = `2025-01-01T00:00:00+00:00`, author = `DegreeSign Team`, websiteTitle = `progressive webapp`, websiteDescription = `Webpack progressive web app`, coverImage = `degreesign_screenshot.webp`, coverImageDescription = `Screenshot of website`, notificationTitle = `New Notification`, notificationText = `You have a new notification!`, background_color = `#fff`, theme_color = '#000', app_icon = `app_icon.png`, fav_icon = `favicon.ico`, orientation = 'portrait', pagesList = [], htmlCommonElements = [], obfuscateON = false, srcDir = `src`, assetsDir = `assets`, developDir = `build`, commonDir = `common`, imagesDir = `images`, pagesDir = `pages`, pageHome = `home`, productionDir = `public_html`, htaccessCustom = ``, startURI = ``, language = `en_GB`, }) => {
     const dataString = new Date().toISOString(), timeNow = Date.now(), websiteLink = `https://${websiteDomain}`, getImageURI = (image) => image?.includes(`/`) ? image
         : `/${assetsDir}/${imagesDir}/${image}`, getImageLink = (image) => image?.includes(`/`) ? image
         : `${websiteLink}/${assetsDir}/${imagesDir}/${image}`, coverImageLink = getImageLink(coverImage), appIconFile = getImageURI(app_icon), favIconFile = getImageURI(fav_icon), htmlElements = (() => {
         const elements = {
-            headerHTML: `<link href="${coverImageLink}" rel="image_src"><link rel="icon" href="${favIconFile}" type="image/x-icon"><link rel="manifest" href="app.json?v=${timeNow}"><script>"serviceWorker" in navigator && navigator.serviceWorker.register("./sw.js?v=${timeNow}", { scope: "/" });</script>`
+            headerHTML: `<script>"serviceWorker" in navigator && navigator.serviceWorker.register("./sw.js?v=${timeNow}", { scope: "/" });</script>`
         };
         if (htmlCommonElements?.length)
             for (let i = 0; i < htmlCommonElements.length; i++) {
@@ -86,16 +86,18 @@ const build = ({ mode = `production`, appShortName = `WebApp`, twitterUserName =
         display: 'standalone',
         orientation,
         short_name: appShortName,
-        start_url: '/',
+        start_url: `/${startURI}`,
         description: websiteDescription,
         name: websiteName
     }, siteMap = [{ path: `/`, priority: 1.0, lastmod: dataString }], templateContent = ({ htmlWebpackPlugin }) => {
         const { links, headerHTML, title, menuHTML, customHTML, pageBody, footerHTML, } = htmlWebpackPlugin.options || {};
-        return `<!-- Copyright © ${websiteName}, All rights reserved. -->
+        return `<!-- Copyright © ${new Date(publishedTime).getFullYear()}-present ${websiteName}, All rights reserved. -->
                     <!DOCTYPE html>
-                    <!-- Last Published: ${dataString} (Coordinated Universal Time) -->
+                    <!-- Last Published: ${new Date().toUTCString()}+0000 (Coordinated Universal Time) -->
                     <html lang="en" prefix="og: https://ogp.me/">
                     <head>
+                        <link rel="manifest" href="app.json?v=${timeNow}">
+                        <link rel="icon" href="${favIconFile}" type="image/x-icon">
                         ${links || ``}
                         ${headerHTML || ``}
                         <title>${title || ``}</title>
@@ -248,12 +250,16 @@ ErrorDocument 403 /404
                 ],
             }),
             ...pagesList.map(pageData => {
-                const { noindex, uri: fileName, coverImage: coverImagePage, coverImageDescription: coverImageDescriptionPage, } = pageData, isHome = pageHome == fileName;
+                const { noindex, uri: fileName, coverImage: coverImagePage, coverImageDescription: coverImageDescriptionPage, } = pageData, isHome = pageHome == fileName, coverImageLinkNew = coverImagePage ? getImageURI(coverImagePage) : coverImageLink;
                 return new html_webpack_plugin_1.default({
                     chunks: [fileName],
                     title: isHome ? `${websiteName} | ${websiteTitle}`
                         : `${fileName?.toUpperCase()} | ${websiteName}`,
-                    links: (0, utils_1.canonicalTag)({ websiteDomain, page: isHome ? `` : `/${fileName}` }),
+                    links: (0, utils_1.canonicalTag)({
+                        websiteDomain,
+                        page: isHome ? `` : `/${fileName}`,
+                        coverImageLink: coverImageLinkNew,
+                    }),
                     pageBody: (0, utils_1.readData)(`./${srcDir}/${pagesDir}/${fileName}/${fileName}.html`),
                     filename: fileName,
                     meta: (0, utils_1.metaTags)({
@@ -261,15 +267,16 @@ ErrorDocument 403 /404
                         websiteDescription,
                         websiteName,
                         websiteTitle,
-                        coverImageLink: coverImagePage ? getImageURI(coverImagePage) : coverImageLink,
+                        coverImageLink: coverImageLinkNew,
                         coverImageDescription: (coverImagePage ? coverImageDescriptionPage : coverImageDescription) || ``,
                         publishedTime,
-                        websiteLink,
+                        websiteLink: isHome ? websiteLink : `${websiteLink}/fileName`,
                         dataString,
                         theme_color,
                         twitterUserName,
                         appIconFile,
                         noindex,
+                        language,
                     }),
                     ...htmlElements,
                     ...pageData.headerCode ? {

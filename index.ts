@@ -49,6 +49,10 @@ const
         productionDir = `public_html`,
         /** Added to end of htaccess */
         htaccessCustom = ``,
+        /** App start URI */
+        startURI = ``,
+        /** App Language */
+        language = `en_GB`,
     }: Config) => {
 
         const
@@ -64,7 +68,7 @@ const
             favIconFile = getImageURI(fav_icon),
             htmlElements = (() => {
                 const elements: TemplateHTMLOptions = {
-                    headerHTML: `<link href="${coverImageLink}" rel="image_src"><link rel="icon" href="${favIconFile}" type="image/x-icon"><link rel="manifest" href="app.json?v=${timeNow}"><script>"serviceWorker" in navigator && navigator.serviceWorker.register("./sw.js?v=${timeNow}", { scope: "/" });</script>`
+                    headerHTML: `<script>"serviceWorker" in navigator && navigator.serviceWorker.register("./sw.js?v=${timeNow}", { scope: "/" });</script>`
                 };
                 if (htmlCommonElements?.length)
                     for (let i = 0; i < htmlCommonElements.length; i++) {
@@ -100,7 +104,7 @@ const
                 display: 'standalone',
                 orientation,
                 short_name: appShortName,
-                start_url: '/',
+                start_url: `/${startURI}`,
                 description: websiteDescription,
                 name: websiteName
             },
@@ -116,11 +120,13 @@ const
                     pageBody,
                     footerHTML,
                 }: TemplateHTMLOptions = htmlWebpackPlugin.options || {};
-                return `<!-- Copyright © ${websiteName}, All rights reserved. -->
+                return `<!-- Copyright © ${new Date(publishedTime).getFullYear()}-present ${websiteName}, All rights reserved. -->
                     <!DOCTYPE html>
-                    <!-- Last Published: ${dataString} (Coordinated Universal Time) -->
+                    <!-- Last Published: ${new Date().toUTCString()}+0000 (Coordinated Universal Time) -->
                     <html lang="en" prefix="og: https://ogp.me/">
                     <head>
+                        <link rel="manifest" href="app.json?v=${timeNow}">
+                        <link rel="icon" href="${favIconFile}" type="image/x-icon">
                         ${links || ``}
                         ${headerHTML || ``}
                         <title>${title || ``}</title>
@@ -299,12 +305,17 @@ ErrorDocument 403 /404
                             coverImage: coverImagePage,
                             coverImageDescription: coverImageDescriptionPage,
                         } = pageData,
-                        isHome = pageHome == fileName;
+                        isHome = pageHome == fileName,
+                        coverImageLinkNew = coverImagePage ? getImageURI(coverImagePage) : coverImageLink;
                     return new HtmlWebpackPlugin({
                         chunks: [fileName],
                         title: isHome ? `${websiteName} | ${websiteTitle}`
                             : `${fileName?.toUpperCase()} | ${websiteName}`,
-                        links: canonicalTag({ websiteDomain, page: isHome ? `` : `/${fileName}` }),
+                        links: canonicalTag({
+                            websiteDomain,
+                            page: isHome ? `` : `/${fileName}`,
+                            coverImageLink: coverImageLinkNew,
+                        }),
                         pageBody: readData(`./${srcDir}/${pagesDir}/${fileName}/${fileName}.html`),
                         filename: fileName,
                         meta: metaTags({
@@ -312,15 +323,16 @@ ErrorDocument 403 /404
                             websiteDescription,
                             websiteName,
                             websiteTitle,
-                            coverImageLink: coverImagePage ? getImageURI(coverImagePage) : coverImageLink,
+                            coverImageLink: coverImageLinkNew,
                             coverImageDescription: (coverImagePage ? coverImageDescriptionPage : coverImageDescription) || ``,
                             publishedTime,
-                            websiteLink,
+                            websiteLink: isHome ? websiteLink : `${websiteLink}/fileName`,
                             dataString,
                             theme_color,
                             twitterUserName,
                             appIconFile,
                             noindex,
+                            language,
                         }),
                         ...htmlElements,
                         ...pageData.headerCode ? {

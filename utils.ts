@@ -45,6 +45,7 @@ const
         twitterUserName,
         appIconFile,
         noindex,
+        language,
     }: MetaTagsInput): MetaTags => {
         return {
             noindexTag: noindex ? {
@@ -149,7 +150,7 @@ const
             },
             "og:locale": {
                 property: "og:locale",
-                content: "en_GB",
+                content: language,
             },
             "og:image:width": {
                 property: "og:image:width",
@@ -228,10 +229,13 @@ const
     canonicalTag = ({
         websiteDomain,
         page,
+        coverImageLink,
     }: {
+        coverImageLink: string,
         websiteDomain: string,
         page: string
-    }) => `<link rel="canonical" href="https://${websiteDomain}${page}">`;
+    }) => `<link href="${coverImageLink}" rel="image_src">
+        <link rel="canonical" href="https://${websiteDomain}${page}">`;
 
 export {
     writeData,

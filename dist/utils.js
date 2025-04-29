@@ -27,7 +27,7 @@ const writeData = (file, code) => {
         return ``;
     }
     ;
-}, metaTags = ({ author, websiteDescription, websiteName, websiteTitle, coverImageLink, coverImageDescription, publishedTime, websiteLink, dataString, theme_color, twitterUserName, appIconFile, noindex, }) => {
+}, metaTags = ({ author, websiteDescription, websiteName, websiteTitle, coverImageLink, coverImageDescription, publishedTime, websiteLink, dataString, theme_color, twitterUserName, appIconFile, noindex, language, }) => {
     return {
         noindexTag: noindex ? {
             name: `robots`,
@@ -131,7 +131,7 @@ const writeData = (file, code) => {
         },
         "og:locale": {
             property: "og:locale",
-            content: "en_GB",
+            content: language,
         },
         "og:image:width": {
             property: "og:image:width",
@@ -206,7 +206,8 @@ const writeData = (file, code) => {
             sizes: "512x512",
         },
     };
-}, canonicalTag = ({ websiteDomain, page, }) => `<link rel="canonical" href="https://${websiteDomain}${page}">`;
+}, canonicalTag = ({ websiteDomain, page, coverImageLink, }) => `<link href="${coverImageLink}" rel="image_src">
+        <link rel="canonical" href="https://${websiteDomain}${page}">`;
 exports.writeData = writeData;
 exports.readData = readData;
 exports.metaTags = metaTags;
