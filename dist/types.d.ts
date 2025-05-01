@@ -48,6 +48,7 @@ export interface Config {
     htaccessCustom: string;
     startURI?: string;
     language?: string;
+    port?: number;
 }
 interface Icon {
     src: string;

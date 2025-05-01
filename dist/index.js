@@ -50,7 +50,7 @@ const HtmlInlineCssWebpackPlugin = __importStar(require("html-inline-css-webpack
 const mini_css_extract_plugin_1 = __importDefault(require("mini-css-extract-plugin"));
 const terser_webpack_plugin_1 = __importDefault(require("terser-webpack-plugin"));
 const utils_1 = require("./utils");
-const build = ({ mode = `production`, appShortName = `WebApp`, twitterUserName = `degreesign`, websiteName = `DegreeSign WebApp`, websiteDomain = `degreesign.com`, publishedTime = `2025-01-01T00:00:00+00:00`, author = `DegreeSign Team`, websiteTitle = `progressive webapp`, websiteDescription = `Webpack progressive web app`, coverImage = `degreesign_screenshot.webp`, coverImageDescription = `Screenshot of website`, notificationTitle = `New Notification`, notificationText = `You have a new notification!`, background_color = `#fff`, theme_color = '#000', app_icon = `app_icon.png`, fav_icon = `favicon.ico`, orientation = 'portrait', pagesList = [], htmlCommonElements = [], obfuscateON = false, srcDir = `src`, assetsDir = `assets`, developDir = `build`, commonDir = `common`, imagesDir = `images`, pagesDir = `pages`, pageHome = `home`, productionDir = `public_html`, htaccessCustom = ``, startURI = ``, language = `en_GB`, }) => {
+const build = ({ mode = `production`, appShortName = `WebApp`, twitterUserName = `degreesign`, websiteName = `DegreeSign WebApp`, websiteDomain = `degreesign.com`, publishedTime = `2025-01-01T00:00:00+00:00`, author = `DegreeSign Team`, websiteTitle = `progressive webapp`, websiteDescription = `Webpack progressive web app`, coverImage = `degreesign_screenshot.webp`, coverImageDescription = `Screenshot of website`, notificationTitle = `New Notification`, notificationText = `You have a new notification!`, background_color = `#fff`, theme_color = '#000', app_icon = `app_icon.png`, fav_icon = `favicon.ico`, orientation = 'portrait', pagesList = [], htmlCommonElements = [], obfuscateON = false, srcDir = `src`, assetsDir = `assets`, developDir = `build`, commonDir = `common`, imagesDir = `images`, pagesDir = `pages`, pageHome = `home`, productionDir = `public_html`, htaccessCustom = ``, startURI = ``, language = `en_GB`, port = 3000, }) => {
     const dataString = new Date().toISOString(), timeNow = Date.now(), websiteLink = `https://${websiteDomain}`, getImageURI = (image) => image?.includes(`/`) ? image
         : `/${assetsDir}/${imagesDir}/${image}`, getImageLink = (image) => image?.includes(`/`) ? image
         : `${websiteLink}/${assetsDir}/${imagesDir}/${image}`, coverImageLink = getImageLink(coverImage), appIconFile = getImageURI(app_icon), favIconFile = getImageURI(fav_icon), htmlElements = (() => {
@@ -320,7 +320,7 @@ ErrorDocument 403 /404
             static: {
                 directory: path_1.default.join(process.cwd(), developDir),
             },
-            port: 3000,
+            port,
             open: true,
             compress: true,
         },

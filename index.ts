@@ -33,12 +33,9 @@ const
         app_icon = `app_icon.png`,
         fav_icon = `favicon.ico`,
         orientation = 'portrait',
-        /** Pages list array */
         pagesList = [],
         htmlCommonElements = [],
         obfuscateON = false,
-
-        // directories
         srcDir = `src`,
         assetsDir = `assets`,
         developDir = `build`,
@@ -47,12 +44,10 @@ const
         pagesDir = `pages`,
         pageHome = `home`,
         productionDir = `public_html`,
-        /** Added to end of htaccess */
         htaccessCustom = ``,
-        /** App start URI */
         startURI = ``,
-        /** App Language */
         language = `en_GB`,
+        port = 3000,
     }: Config) => {
 
         const
@@ -380,7 +375,7 @@ ErrorDocument 403 /404
                 static: {
                     directory: path.join(process.cwd(), developDir),
                 },
-                port: 3000, // Specify your desired port
+                port, // Specify your desired port
                 open: true, // Automatically open the browser
                 compress: true, // Enable gzip compression for files served
             },
