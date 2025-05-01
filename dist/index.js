@@ -67,7 +67,7 @@ const build = ({ mode = `production`, appShortName = `WebApp`, twitterUserName =
         ;
         return elements;
     })(), envKeys = {}, entryPoints = {
-        [`${pageHome}`]: `./${srcDir}/${pagesDir}/${pageHome}/${pageHome}.ts`,
+        [`${pageHome}`]: `./${srcDir}/${pagesDir}/${pageHome}/${pageHome}.ts`, // Entry file for TypeScript
     }, appManifest = {
         background_color,
         theme_color,
@@ -192,9 +192,11 @@ ErrorDocument 403 /404
     (0, utils_1.writeData)(`./${productionDir}/.htaccess`, htaccessFile);
     (0, utils_1.writeData)(`./${productionDir}/app.json`, JSON.stringify(appManifest));
     (0, utils_1.writeData)(`./${productionDir}/sw.js`, getServiceWorkerContent({}));
+    // Environment keys
     dotenv_1.default.config();
     for (const key in process.env)
         envKeys[`process.env.${key}`] = JSON.stringify(process.env[key]);
+    // entry points
     for (let i = 0; i < pagesList.length; i++) {
         const { uri: fileName } = pagesList[i];
         entryPoints[fileName] =
@@ -212,7 +214,7 @@ ErrorDocument 403 /404
             filename: `code/[name].[contenthash].js`,
         },
         resolve: {
-            extensions: [`.ts`, `.js`, `.json`],
+            extensions: [`.ts`, `.js`, `.json`], // Resolve files
         },
         module: {
             rules: [{
@@ -220,25 +222,25 @@ ErrorDocument 403 /404
                     exclude: /node_modules/,
                     use: `ts-loader`,
                 }, {
-                    test: /\.css$/,
+                    test: /\.css$/, // For CSS files
                     exclude: /node_modules/,
                     use: [
-                        mini_css_extract_plugin_1.default.loader,
-                        `css-loader`,
+                        mini_css_extract_plugin_1.default.loader, // Extract CSS into files
+                        `css-loader`, // Process CSS files
                     ],
                 }, {
-                    test: /\.(png|jpe?g|gif|svg|ico)$/,
+                    test: /\.(png|jpe?g|gif|svg|ico)$/, // For images
                     exclude: /node_modules/,
                     type: `${assetsDir}/${imagesDir}`,
-                    include: path_1.default.resolve(process.cwd(), `${srcDir}/${assetsDir}/${imagesDir}`),
+                    include: path_1.default.resolve(process.cwd(), `${srcDir}/${assetsDir}/${imagesDir}`), // Only include files from the assets folder
                     generator: {
-                        filename: `${assetsDir}/${imagesDir}/[name][ext][query]`,
+                        filename: `${assetsDir}/${imagesDir}/[name][ext][query]`, // Output to dist/assets folder
                     },
                 }],
         },
         plugins: [
             new mini_css_extract_plugin_1.default({
-                filename: `styles/styles.css`,
+                filename: `styles/styles.css`, // Output CSS file with original name
             }),
             new webpack_1.default.DefinePlugin(envKeys),
             new clean_webpack_plugin_1.CleanWebpackPlugin({
@@ -292,37 +294,37 @@ ErrorDocument 403 /404
             ...obfuscateON ? [new webpack_obfuscator_1.default({
                     rotateStringArray: true,
                     stringArray: true,
-                    stringArrayThreshold: 0.8,
+                    stringArrayThreshold: 0.8, // Percentage of strings to obfuscate
                 })] : [],
             new SitemapPlugin.default({
-                base: websiteLink,
+                base: websiteLink, // Replace with your site base URL
                 paths: siteMap,
                 options: {
-                    filename: `sitemap.xml`,
+                    filename: `sitemap.xml`, // The name of the generated sitemap
                 },
             }),
-            new HtmlInlineCssWebpackPlugin.default(),
+            new HtmlInlineCssWebpackPlugin.default(), // Inline CSS into the HTML
         ],
         optimization: {
-            minimize: true,
+            minimize: true, // Enable minimization
             minimizer: [
                 new terser_webpack_plugin_1.default({
                     terserOptions: {
                         compress: {
-                            drop_console: false,
+                            drop_console: false, // Do not remove console logs
                         },
                     },
                 }),
-                new css_minimizer_webpack_plugin_1.default(),
+                new css_minimizer_webpack_plugin_1.default(), // Add the CSS minimizer plugin
             ],
         },
         devServer: {
             static: {
                 directory: path_1.default.join(process.cwd(), developDir),
             },
-            port,
-            open: true,
-            compress: true,
+            port, // Specify your desired port
+            open: true, // Automatically open the browser
+            compress: true, // Enable gzip compression for files served
         },
         mode
     };

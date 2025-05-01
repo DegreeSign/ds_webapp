@@ -6,7 +6,9 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.canonicalTag = exports.metaTags = exports.readData = exports.writeData = void 0;
 const fs_1 = __importDefault(require("fs"));
 const path_1 = __importDefault(require("path"));
-const writeData = (file, code) => {
+const 
+/** Write to files */
+writeData = (file, code) => {
     try {
         return code ? (fs_1.default.writeFileSync(path_1.default.resolve(process.cwd(), file), code, `utf8`),
             true) : (console.log(`no data to write to`, file),
@@ -17,7 +19,9 @@ const writeData = (file, code) => {
         return false;
     }
     ;
-}, readData = (file, absolute) => {
+}, 
+/** Read files */
+readData = (file, absolute) => {
     try {
         return fs_1.default.readFileSync(absolute ? file
             : path_1.default.resolve(process.cwd(), file), `utf8`);
