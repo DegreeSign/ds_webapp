@@ -74,8 +74,6 @@ export interface Config {
     srcDir: string;
     /** Assets directory path */
     assetsDir: string;
-    /** Development directory path */
-    developDir: string;
     /** Common directory path */
     commonDir: string;
     /** Images directory path */

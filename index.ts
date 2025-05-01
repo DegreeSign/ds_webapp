@@ -38,7 +38,6 @@ const
         obfuscateON = false,
         srcDir = `src`,
         assetsDir = `assets`,
-        developDir = `build`,
         commonDir = `common`,
         imagesDir = `images`,
         pagesDir = `pages`,
@@ -312,7 +311,7 @@ ErrorDocument 403 /404
                             coverImageLink: coverImageLinkNew,
                         }),
                         pageBody: readData(`./${srcDir}/${pagesDir}/${fileName}/${fileName}.html`),
-                        filename: fileName,
+                        filename: isHome ? `index.html` : fileName,
                         meta: metaTags({
                             author,
                             websiteDescription,
@@ -373,7 +372,7 @@ ErrorDocument 403 /404
             },
             devServer: {
                 static: {
-                    directory: path.join(process.cwd(), developDir),
+                    directory: path.join(process.cwd(), productionDir),
                 },
                 port, // Specify your desired port
                 open: true, // Automatically open the browser
