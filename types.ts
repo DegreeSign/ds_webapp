@@ -66,7 +66,7 @@ export interface Config {
     theme_color: string;
     /** Path to the application icon */
     app_icon: string;
-    /** Path to the favicon */
+    /** favicon file name or path */
     fav_icon: string;
     /** Orientation of the application, either portrait or landscape */
     orientation: 'portrait' | 'landscape';

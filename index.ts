@@ -390,4 +390,8 @@ ErrorDocument 403 /404
         };
     };
 
-export { build };
+export {
+    build,
+    readData,
+    writeData
+};
