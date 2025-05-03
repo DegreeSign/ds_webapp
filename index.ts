@@ -47,6 +47,7 @@ const
         startURI = ``,
         language = `en_GB`,
         port = 3000,
+        cssDiscardUnused = true,
     }: Config) => {
 
         const
@@ -368,14 +369,22 @@ ErrorDocument 403 /404
             optimization: {
                 minimize: true, // Enable minimization
                 minimizer: [
-                    new TerserPlugin({ // Minify JavaScript
+
+                    // Minify JavaScript
+                    new TerserPlugin({
                         terserOptions: {
                             compress: {
                                 drop_console: false, // Do not remove console logs
                             },
                         },
                     }),
-                    new CssMinimizerPlugin(), // Add the CSS minimizer plugin
+
+                    // Add the CSS minimizer plugin
+                    new CssMinimizerPlugin({
+                        minimizerOptions: {
+                            preset: ['default', { discardUnused: cssDiscardUnused }], // Prevent removing unused styles
+                        },
+                    }),
                 ],
             },
             devServer: {

@@ -96,6 +96,8 @@ export interface Config {
     language?: string;
     /** Port Number */
     port?: number;
+    /** css Discard Unused */
+    cssDiscardUnused?: boolean;
 }
 interface Icon {
     /** Source URL or path to the icon */
