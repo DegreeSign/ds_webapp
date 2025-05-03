@@ -16,15 +16,19 @@ interface Page {
     shortcut?: boolean;
     /** Flag to indicate if the page should be excluded from indexing (optional) */
     noindex?: boolean;
-    /** Custom header code for the page (optional) */
-    headerCode?: string;
     /** Publication date of the page (optional) */
     publishDate?: string;
     /** URL or path to the cover image for the page (optional) */
     coverImage?: string;
     /** Description of the cover image (optional) */
     coverImageDescription?: string;
-    /** Array of custom HTML elements for the page (optional) */
+    /** Custom header HTML (optional) */
+    headerHTML?: string;
+    /** Custom menu HTML (optional) */
+    menuHTML?: string;
+    /** Custom footer HTML (optional) */
+    footerHTML?: string;
+    /** Custom body HTML Elements (optional) */
     customHTML?: string[];
 }
 export interface Config {
@@ -184,7 +188,7 @@ export interface TemplateHTMLOptions {
     /** HTML for the menu section (optional) */
     menuHTML?: string;
     /** Custom HTML content (optional) */
-    customHTML?: string;
+    bodyHTML?: string;
     /** HTML for the page body (optional) */
     pageBody?: string;
     /** HTML for the footer section (optional) */

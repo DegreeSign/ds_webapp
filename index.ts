@@ -110,7 +110,7 @@ const
                     headerHTML,
                     title,
                     menuHTML,
-                    customHTML,
+                    bodyHTML,
                     pageBody,
                     footerHTML,
                 }: TemplateHTMLOptions = htmlWebpackPlugin.options || {};
@@ -127,7 +127,7 @@ const
                     </head>
                     <body>
                         ${menuHTML || ``}
-                        ${customHTML || ``}
+                        ${bodyHTML || ``}
                         ${pageBody || ``}
                         ${footerHTML || ``}
                     </body>
@@ -303,8 +303,8 @@ ErrorDocument 403 /404
                         coverImageLinkNew = coverImagePage ? getImageURI(coverImagePage) : coverImageLink;
                     return new HtmlWebpackPlugin({
                         chunks: [fileName],
-                        title: isHome ? `${websiteName} | ${websiteTitle}`
-                            : `${fileName?.toUpperCase()} | ${websiteName}`,
+                        title: isHome ? `${websiteName || ``} | ${websiteTitle || ``}`
+                            : `${fileName?.toUpperCase()} | ${websiteName || ``}`,
                         links: canonicalTag({
                             websiteDomain,
                             page: isHome ? `` : `/${fileName}`,
@@ -329,12 +329,20 @@ ErrorDocument 403 /404
                             language,
                         }),
                         ...htmlElements,
-                        ...pageData.headerCode ? {
-                            headerHTML: htmlElements.headerHTML
-                                + pageData.headerCode
+                        ...pageData.headerHTML ? {
+                            headerHTML: (htmlElements.headerHTML || ``)
+                                + pageData.headerHTML
+                        } : {},
+                        ...pageData.menuHTML ? {
+                            menuHTML: (htmlElements.menuHTML || ``)
+                                + pageData.menuHTML
+                        } : {},
+                        ...pageData.footerHTML ? {
+                            footerHTML: pageData.footerHTML
+                                + (htmlElements.footerHTML || ``)
                         } : {},
                         ...pageData.customHTML?.length ? {
-                            customHTML: pageData.customHTML.map(
+                            bodyHTML: pageData.customHTML.map(
                                 elm => readData(`./${srcDir}/${commonDir}/${elm}.html`)
                             )?.join(``),
                         } : {},

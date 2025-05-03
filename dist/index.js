@@ -90,7 +90,7 @@ const build = ({ mode = `production`, appShortName = `WebApp`, twitterUserName =
         description: websiteDescription,
         name: websiteName
     }, siteMap = [{ path: `/`, priority: 1.0, lastmod: dataString }], templateContent = ({ htmlWebpackPlugin }) => {
-        const { links, headerHTML, title, menuHTML, customHTML, pageBody, footerHTML, } = htmlWebpackPlugin.options || {};
+        const { links, headerHTML, title, menuHTML, bodyHTML, pageBody, footerHTML, } = htmlWebpackPlugin.options || {};
         return `<!-- Copyright © ${new Date(publishedTime).getFullYear()}-present ${websiteName}, All rights reserved. -->
                     <!DOCTYPE html>
                     <!-- Last Published: ${new Date().toUTCString()}+0000 (Coordinated Universal Time) -->
@@ -104,7 +104,7 @@ const build = ({ mode = `production`, appShortName = `WebApp`, twitterUserName =
                     </head>
                     <body>
                         ${menuHTML || ``}
-                        ${customHTML || ``}
+                        ${bodyHTML || ``}
                         ${pageBody || ``}
                         ${footerHTML || ``}
                     </body>
@@ -255,8 +255,8 @@ ErrorDocument 403 /404
                 const { noindex, uri: fileName, coverImage: coverImagePage, coverImageDescription: coverImageDescriptionPage, } = pageData, isHome = pageHome == fileName, coverImageLinkNew = coverImagePage ? getImageURI(coverImagePage) : coverImageLink;
                 return new html_webpack_plugin_1.default({
                     chunks: [fileName],
-                    title: isHome ? `${websiteName} | ${websiteTitle}`
-                        : `${fileName?.toUpperCase()} | ${websiteName}`,
+                    title: isHome ? `${websiteName || ``} | ${websiteTitle || ``}`
+                        : `${fileName?.toUpperCase()} | ${websiteName || ``}`,
                     links: (0, utils_1.canonicalTag)({
                         websiteDomain,
                         page: isHome ? `` : `/${fileName}`,
@@ -281,12 +281,20 @@ ErrorDocument 403 /404
                         language,
                     }),
                     ...htmlElements,
-                    ...pageData.headerCode ? {
-                        headerHTML: htmlElements.headerHTML
-                            + pageData.headerCode
+                    ...pageData.headerHTML ? {
+                        headerHTML: (htmlElements.headerHTML || ``)
+                            + pageData.headerHTML
+                    } : {},
+                    ...pageData.menuHTML ? {
+                        menuHTML: (htmlElements.menuHTML || ``)
+                            + pageData.menuHTML
+                    } : {},
+                    ...pageData.footerHTML ? {
+                        footerHTML: pageData.footerHTML
+                            + (htmlElements.footerHTML || ``)
                     } : {},
                     ...pageData.customHTML?.length ? {
-                        customHTML: pageData.customHTML.map(elm => (0, utils_1.readData)(`./${srcDir}/${commonDir}/${elm}.html`))?.join(``),
+                        bodyHTML: pageData.customHTML.map(elm => (0, utils_1.readData)(`./${srcDir}/${commonDir}/${elm}.html`))?.join(``),
                     } : {},
                     templateContent,
                 });
