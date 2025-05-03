@@ -284,12 +284,12 @@ ErrorDocument 403 /404
                     }),
                     ...htmlElements,
                     ...pageData.headerHTML ? {
-                        headerHTML: (htmlElements.headerHTML || ``)
-                            + pageData.headerHTML
+                        headerHTML: pageData.headerHTML
+                            + (htmlElements.headerHTML || ``)
                     } : {},
                     ...pageData.menuHTML ? {
-                        menuHTML: (htmlElements.menuHTML || ``)
-                            + pageData.menuHTML
+                        menuHTML: pageData.menuHTML
+                            + (htmlElements.menuHTML || ``)
                     } : {},
                     ...pageData.footerHTML ? {
                         footerHTML: pageData.footerHTML
