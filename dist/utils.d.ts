@@ -7,5 +7,12 @@ readData: (file: string, absolute?: boolean) => string, metaTags: ({ author, web
     coverImageLink: string;
     websiteDomain: string;
     page: string;
-}) => string;
-export { writeData, readData, metaTags, canonicalTag, };
+}) => string, 
+/** Simple parser for .htaccess */
+parseHtaccess: (filePath: string) => {
+    type: string;
+    from: string | RegExp;
+    to: string;
+    status?: string;
+}[];
+export { writeData, readData, metaTags, canonicalTag, parseHtaccess, };

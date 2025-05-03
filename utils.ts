@@ -235,11 +235,38 @@ const
         websiteDomain: string,
         page: string
     }) => `<link href="${coverImageLink}" rel="image_src">
-        <link rel="canonical" href="https://${websiteDomain}${page}">`;
+        <link rel="canonical" href="https://${websiteDomain}${page}">`,
+    /** Simple parser for .htaccess */
+    parseHtaccess = (filePath: string) => {
+        const
+            content = readData(filePath),
+            rules: {
+                type: string;
+                from: string | RegExp;
+                to: string;
+                status?: string;
+            }[] = [];
+        content.split('\n').forEach((line) => {
+            line = line.trim();
+            if (line.startsWith('Redirect ')) {
+                const [, status, from, to] = line.match(/Redirect (\d+) (\S+) (\S+)/) || [];
+                if (from && to) {
+                    rules.push({ type: 'redirect', status, from, to });
+                }
+            } else if (line.startsWith('RewriteRule ')) {
+                const [, pattern, to] = line.match(/RewriteRule (\S+) (\S+)/) || [];
+                if (pattern && to) {
+                    rules.push({ type: 'rewrite', from: new RegExp(pattern), to });
+                }
+            }
+        });
+        return rules;
+    };
 
 export {
     writeData,
     readData,
     metaTags,
     canonicalTag,
+    parseHtaccess,
 }

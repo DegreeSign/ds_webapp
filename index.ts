@@ -11,7 +11,7 @@ import * as HtmlInlineCssWebpackPlugin from "html-inline-css-webpack-plugin"
 import MiniCssExtractPlugin from "mini-css-extract-plugin"
 import TerserPlugin from "terser-webpack-plugin"
 import { Config, StringObj, TemplateHTMLOptions, WebManifest } from "./types"
-import { canonicalTag, metaTags, readData, writeData } from "./utils"
+import { canonicalTag, metaTags, parseHtaccess, readData, writeData } from "./utils"
 
 const
     build = ({
@@ -155,8 +155,8 @@ Sitemap: https://${websiteDomain}/sitemap.xml`,
                 rootUrl = '/'
             }) => {
                 return `const CACHE_NAME='${cacheName}';const urlsToCache=${JSON.stringify(urlsToCache)};self.addEventListener('install',e=>e.waitUntil(caches.open(CACHE_NAME).then(c=>c.addAll(urlsToCache))));self.addEventListener('activate',e=>e.waitUntil(caches.keys().then(n=>Promise.all(n.map(n=>n!==CACHE_NAME?caches.delete(n):null))).then(()=>self.clients.claim())));self.addEventListener('fetch',e=>e.respondWith(caches.match(e.request).then(r=>r||fetch(e.request).catch(()=>caches.match('${fallbackUrl}')))));self.addEventListener('notificationclick',e=>{e.notification.close();const u=new URL('${rootUrl}',self.location.origin).href;e.waitUntil(clients.matchAll({type:'window',includeUncontrolled:true}).then(c=>{for(const t of c)if(t.url===u&&'focus' in t)return t.focus();if(clients.openWindow)return clients.openWindow(u);}));});self.addEventListener('notificationclose',e=>console.log('Notification closed:',e.notification));self.addEventListener('push',e=>{let d=${JSON.stringify(defaultNotificationData)};if(e.data)d=e.data.json();const o={body:d.body,icon:'${notificationIcon}',badge:'${notificationBadge}',data:{url:new URL('${rootUrl}',self.location.origin).href}};e.waitUntil(self.registration.showNotification(d.title,o));});`;
-            };
-
+            },
+            htaccessRules = parseHtaccess(`./${productionDir}/.htaccess`);
 
         let htaccessFile = `# Policies
 <IfModule mod_headers.c>
@@ -394,6 +394,26 @@ ErrorDocument 403 /404
                 port, // Specify your desired port
                 open: true, // Automatically open the browser
                 compress: true, // Enable gzip compression for files served
+                setupMiddlewares: (middlewares: any, devServer: any) => {
+                    htaccessRules.forEach((rule) => {
+                        if (rule.type === 'redirect') {
+                            devServer.app.get(rule.from, (req: any, res: any) => {
+                                res.redirect(parseInt(rule.status || ``), rule.to);
+                            });
+                        } else if (rule.type === 'rewrite') {
+                            devServer.app.get(rule.from, (req: any, res: any, next: () => void) => {
+                                req.url = rule.to; // Rewrite URL
+                                next();
+                            });
+                        };
+                    });
+                    return middlewares;
+                },
+                historyApiFallback: {
+                    rewrites: htaccessRules
+                        .filter((rule) => rule.type === 'rewrite')
+                        .map((rule) => ({ from: rule.from, to: rule.to })),
+                },
             },
             mode
         };
