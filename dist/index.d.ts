@@ -62,13 +62,6 @@ declare const build: ({ mode, appShortName, twitterUserName, websiteName, websit
         port: number;
         open: boolean;
         compress: boolean;
-        setupMiddlewares: (middlewares: any, devServer: any) => any;
-        historyApiFallback: {
-            rewrites: {
-                from: string | RegExp;
-                to: string;
-            }[];
-        };
     };
     mode: "development" | "production";
 };

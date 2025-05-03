@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.parseHtaccess = exports.canonicalTag = exports.metaTags = exports.readData = exports.writeData = void 0;
+exports.canonicalTag = exports.metaTags = exports.readData = exports.writeData = void 0;
 const fs_1 = __importDefault(require("fs"));
 const path_1 = __importDefault(require("path"));
 const 
@@ -211,29 +211,8 @@ readData = (file, absolute) => {
         },
     };
 }, canonicalTag = ({ websiteDomain, page, coverImageLink, }) => `<link href="${coverImageLink}" rel="image_src">
-        <link rel="canonical" href="https://${websiteDomain}${page}">`, 
-/** Simple parser for .htaccess */
-parseHtaccess = (filePath) => {
-    const content = readData(filePath), rules = [];
-    content.split('\n').forEach((line) => {
-        line = line.trim();
-        if (line.startsWith('Redirect ')) {
-            const [, status, from, to] = line.match(/Redirect (\d+) (\S+) (\S+)/) || [];
-            if (from && to) {
-                rules.push({ type: 'redirect', status, from, to });
-            }
-        }
-        else if (line.startsWith('RewriteRule ')) {
-            const [, pattern, to] = line.match(/RewriteRule (\S+) (\S+)/) || [];
-            if (pattern && to) {
-                rules.push({ type: 'rewrite', from: new RegExp(pattern), to });
-            }
-        }
-    });
-    return rules;
-};
+        <link rel="canonical" href="https://${websiteDomain}${page}">`;
 exports.writeData = writeData;
 exports.readData = readData;
 exports.metaTags = metaTags;
 exports.canonicalTag = canonicalTag;
-exports.parseHtaccess = parseHtaccess;
