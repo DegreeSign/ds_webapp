@@ -272,6 +272,7 @@ ErrorDocument 403 /404
             output: {
                 path: path.resolve(process.cwd(), productionDir),
                 filename: `code/[name].[contenthash].js`,
+                publicPath: '/', // Ensures assets are referenced with absolute paths starting from the root
             },
             resolve: {
                 extensions: [`.ts`, `.js`, `.json`], // Resolve files

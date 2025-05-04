@@ -19,6 +19,7 @@ declare const build: ({ mode, appShortName, twitterUserName, websiteName, websit
     output: {
         path: string;
         filename: string;
+        publicPath: string;
     };
     resolve: {
         extensions: string[];
