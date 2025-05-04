@@ -49,15 +49,19 @@ const css_minimizer_webpack_plugin_1 = __importDefault(require("css-minimizer-we
 const HtmlInlineCssWebpackPlugin = __importStar(require("html-inline-css-webpack-plugin"));
 const mini_css_extract_plugin_1 = __importDefault(require("mini-css-extract-plugin"));
 const terser_webpack_plugin_1 = __importDefault(require("terser-webpack-plugin"));
-const utils_1 = require("./utils");
+const utils_1 = require("./src/utils");
 Object.defineProperty(exports, "readData", { enumerable: true, get: function () { return utils_1.readData; } });
 Object.defineProperty(exports, "writeData", { enumerable: true, get: function () { return utils_1.writeData; } });
-const build = ({ mode = `production`, appShortName = `WebApp`, twitterUserName = `degreesign`, websiteName = `DegreeSign WebApp`, websiteDomain = `degreesign.com`, publishedTime = `2025-01-01T00:00:00+00:00`, author = `DegreeSign Team`, websiteTitle = `progressive webapp`, websiteDescription = `Webpack progressive web app`, coverImage = `degreesign_screenshot.webp`, coverImageDescription = `Screenshot of website`, notificationTitle = `New Notification`, notificationText = `You have a new notification!`, background_color = `#fff`, theme_color = '#000', app_icon = `app_icon.png`, fav_icon = `favicon.ico`, orientation = 'portrait', pagesList = [], htmlCommonElements = [], obfuscateON = false, srcDir = `src`, assetsDir = `assets`, commonDir = `common`, imagesDir = `images`, pagesDir = `pages`, pageHome = `home`, productionDir = `public_html`, htaccessCustom = ``, startURI = ``, language = `en_GB`, port = 3000, cssDiscardUnused = true, }) => {
-    const dataString = new Date().toISOString(), timeNow = Date.now(), websiteLink = `https://${websiteDomain}`, getImageURI = (image) => image?.includes(`/`) ? image
+const build = ({ mode = `production`, appShortName = `WebApp`, twitterUserName = `degreesign`, websiteName = `DegreeSign WebApp`, websiteDomain = `degreesign.com`, publishedTime = `2025-01-01T00:00:00+00:00`, author = `DegreeSign Team`, websiteTitle = `progressive webapp`, websiteDescription = `Webpack progressive web app`, coverImage = `degreesign_screenshot.webp`, coverImageDescription = `Screenshot of website`, notificationTitle = `New Notification`, notificationText = `You have a new notification!`, background_color = `#fff`, theme_color = '#000', app_icon = `app_icon.png`, fav_icon = `favicon.ico`, orientation = 'portrait', pagesList = [], htmlCommonElements = [], obfuscateON = false, srcDir = `src`, assetsDir = `assets`, commonDir = `common`, imagesDir = `images`, pagesDir = `pages`, pageHome = `home`, productionDir = `public_html`, htaccessCustom = ``, startURI = ``, language = `en_GB`, port = 3210, cssDiscardUnused = false, updateServiceWorker = false, onlineIndicatorFile = `https://degreesign.com/assets/images/Degree_Sign_Logo_2022.svg`, }) => {
+    const latestUpdates = (0, utils_1.readJSON)(`./updateTimes`) || {}, dataString = new Date().toISOString(), timeNow = Date.now(), websiteLink = `https://${websiteDomain}`, getImageURI = (image) => image?.includes(`/`) ? image
         : `/${assetsDir}/${imagesDir}/${image}`, getImageLink = (image) => image?.includes(`/`) ? image
         : `${websiteLink}/${assetsDir}/${imagesDir}/${image}`, coverImageLink = getImageLink(coverImage), appIconFile = getImageURI(app_icon), favIconFile = getImageURI(fav_icon), htmlElements = (() => {
-        const elements = {
-            headerHTML: `<script>"serviceWorker" in navigator && navigator.serviceWorker.register("/sw.js?v=${timeNow}", { scope: "/" });</script>`
+        const swTime = !latestUpdates.serviceWorker || !updateServiceWorker ?
+            timeNow : latestUpdates.serviceWorker, elements = {
+            headerHTML: `<script>`
+                + `"serviceWorker" in navigator && navigator.serviceWorker?.register(`
+                + `"/sw.js?v=${swTime}", { scope: "/" }`
+                + `);</script>`
         };
         if (htmlCommonElements?.length)
             for (let i = 0; i < htmlCommonElements.length; i++) {
@@ -121,7 +125,13 @@ Sitemap: https://${websiteDomain}/sitemap.xml`, getServiceWorkerContent = ({ cac
         title: notificationTitle,
         body: notificationText,
     }, rootUrl = '/' }) => {
-        return `const CACHE_NAME='${cacheName}';const urlsToCache=${JSON.stringify(urlsToCache)};self.addEventListener('install',e=>e.waitUntil(caches.open(CACHE_NAME).then(c=>c.addAll(urlsToCache))));self.addEventListener('activate',e=>e.waitUntil(caches.keys().then(n=>Promise.all(n.map(n=>n!==CACHE_NAME?caches.delete(n):null))).then(()=>self.clients.claim())));self.addEventListener('fetch',e=>e.respondWith(caches.match(e.request).then(r=>r||fetch(e.request).catch(()=>caches.match('${fallbackUrl}')))));self.addEventListener('notificationclick',e=>{e.notification.close();const u=new URL('${rootUrl}',self.location.origin).href;e.waitUntil(clients.matchAll({type:'window',includeUncontrolled:true}).then(c=>{for(const t of c)if(t.url===u&&'focus' in t)return t.focus();if(clients.openWindow)return clients.openWindow(u);}));});self.addEventListener('notificationclose',e=>console.log('Notification closed:',e.notification));self.addEventListener('push',e=>{let d=${JSON.stringify(defaultNotificationData)};if(e.data)d=e.data.json();const o={body:d.body,icon:'${notificationIcon}',badge:'${notificationBadge}',data:{url:new URL('${rootUrl}',self.location.origin).href}};e.waitUntil(self.registration.showNotification(d.title,o));});`;
+        const file = (0, utils_1.readData)(`./sw.js`, true);
+        return file
+            ?.replaceAll(`APP_URL`, `/${startURI}`)
+            ?.replaceAll(`APP_ICON`, appIconFile)
+            ?.replaceAll(`APP_BADGE`, appIconFile)
+            ?.replaceAll(`NOTIFICATION_URI`, `/${startURI}`)
+            ?.replaceAll(`REFERENCE_FILE`, onlineIndicatorFile);
     };
     let htaccessFile = `# Policies
 <IfModule mod_headers.c>

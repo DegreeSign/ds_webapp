@@ -7,9 +7,9 @@ import * as SitemapPlugin from "sitemap-webpack-plugin";
 import CssMinimizerPlugin from "css-minimizer-webpack-plugin";
 import MiniCssExtractPlugin from "mini-css-extract-plugin";
 import TerserPlugin from "terser-webpack-plugin";
-import { Config } from "./types";
-import { readData, writeData } from "./utils";
-declare const build: ({ mode, appShortName, twitterUserName, websiteName, websiteDomain, publishedTime, author, websiteTitle, websiteDescription, coverImage, coverImageDescription, notificationTitle, notificationText, background_color, theme_color, app_icon, fav_icon, orientation, pagesList, htmlCommonElements, obfuscateON, srcDir, assetsDir, commonDir, imagesDir, pagesDir, pageHome, productionDir, htaccessCustom, startURI, language, port, cssDiscardUnused, }: Config) => {
+import { Config } from "./src/types";
+import { readData, writeData } from "./src/utils";
+declare const build: ({ mode, appShortName, twitterUserName, websiteName, websiteDomain, publishedTime, author, websiteTitle, websiteDescription, coverImage, coverImageDescription, notificationTitle, notificationText, background_color, theme_color, app_icon, fav_icon, orientation, pagesList, htmlCommonElements, obfuscateON, srcDir, assetsDir, commonDir, imagesDir, pagesDir, pageHome, productionDir, htaccessCustom, startURI, language, port, cssDiscardUnused, updateServiceWorker, onlineIndicatorFile, }: Config) => {
     entry: {
         [x: string]: string;
     };

@@ -10,8 +10,20 @@ import CssMinimizerPlugin from "css-minimizer-webpack-plugin"
 import * as HtmlInlineCssWebpackPlugin from "html-inline-css-webpack-plugin"
 import MiniCssExtractPlugin from "mini-css-extract-plugin"
 import TerserPlugin from "terser-webpack-plugin"
-import { Config, StringObj, TemplateHTMLOptions, WebManifest } from "./types"
-import { canonicalTag, metaTags, readData, writeData } from "./utils"
+import {
+    Config,
+    StringObj,
+    TemplateHTMLOptions,
+    UpdateTimes,
+    WebManifest
+} from "./src/types"
+import {
+    canonicalTag,
+    metaTags,
+    readData,
+    readJSON,
+    writeData
+} from "./src/utils"
 
 const
     build = ({
@@ -46,11 +58,14 @@ const
         htaccessCustom = ``,
         startURI = ``,
         language = `en_GB`,
-        port = 3000,
-        cssDiscardUnused = true,
+        port = 3210,
+        cssDiscardUnused = false,
+        updateServiceWorker = false,
+        onlineIndicatorFile = `https://degreesign.com/assets/images/Degree_Sign_Logo_2022.svg`,
     }: Config) => {
 
         const
+            latestUpdates: UpdateTimes = readJSON(`./updateTimes`) || {},
             dataString = new Date().toISOString(),
             timeNow = Date.now(),
             websiteLink = `https://${websiteDomain}`,
@@ -62,9 +77,15 @@ const
             appIconFile = getImageURI(app_icon),
             favIconFile = getImageURI(fav_icon),
             htmlElements = (() => {
-                const elements: TemplateHTMLOptions = {
-                    headerHTML: `<script>"serviceWorker" in navigator && navigator.serviceWorker.register("/sw.js?v=${timeNow}", { scope: "/" });</script>`
-                };
+                const
+                    swTime = !latestUpdates.serviceWorker || !updateServiceWorker ?
+                        timeNow : latestUpdates.serviceWorker,
+                    elements: TemplateHTMLOptions = {
+                        headerHTML: `<script>`
+                            + `"serviceWorker" in navigator && navigator.serviceWorker?.register(`
+                            + `"/sw.js?v=${swTime}", { scope: "/" }`
+                            + `);</script>`
+                    };
                 if (htmlCommonElements?.length)
                     for (let i = 0; i < htmlCommonElements.length; i++) {
                         const elm = htmlCommonElements[i];
@@ -154,7 +175,13 @@ Sitemap: https://${websiteDomain}/sitemap.xml`,
                 },
                 rootUrl = '/'
             }) => {
-                return `const CACHE_NAME='${cacheName}';const urlsToCache=${JSON.stringify(urlsToCache)};self.addEventListener('install',e=>e.waitUntil(caches.open(CACHE_NAME).then(c=>c.addAll(urlsToCache))));self.addEventListener('activate',e=>e.waitUntil(caches.keys().then(n=>Promise.all(n.map(n=>n!==CACHE_NAME?caches.delete(n):null))).then(()=>self.clients.claim())));self.addEventListener('fetch',e=>e.respondWith(caches.match(e.request).then(r=>r||fetch(e.request).catch(()=>caches.match('${fallbackUrl}')))));self.addEventListener('notificationclick',e=>{e.notification.close();const u=new URL('${rootUrl}',self.location.origin).href;e.waitUntil(clients.matchAll({type:'window',includeUncontrolled:true}).then(c=>{for(const t of c)if(t.url===u&&'focus' in t)return t.focus();if(clients.openWindow)return clients.openWindow(u);}));});self.addEventListener('notificationclose',e=>console.log('Notification closed:',e.notification));self.addEventListener('push',e=>{let d=${JSON.stringify(defaultNotificationData)};if(e.data)d=e.data.json();const o={body:d.body,icon:'${notificationIcon}',badge:'${notificationBadge}',data:{url:new URL('${rootUrl}',self.location.origin).href}};e.waitUntil(self.registration.showNotification(d.title,o));});`;
+                const file = readData(`./sw.js`, true);
+                return file
+                    ?.replaceAll(`APP_URL`, `/${startURI}`)
+                    ?.replaceAll(`APP_ICON`, appIconFile)
+                    ?.replaceAll(`APP_BADGE`, appIconFile)
+                    ?.replaceAll(`NOTIFICATION_URI`, `/${startURI}`)
+                    ?.replaceAll(`REFERENCE_FILE`, onlineIndicatorFile);
             };
 
         let htaccessFile = `# Policies

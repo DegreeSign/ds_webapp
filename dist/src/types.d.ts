@@ -1,7 +1,6 @@
 export interface StringObj {
     [key: string]: string;
 }
-
 interface Page {
     /** URI of the page */
     uri: string;
@@ -32,7 +31,6 @@ interface Page {
     /** Custom body HTML Elements (optional) */
     customHTML?: string[];
 }
-
 export interface Config {
     /** Application mode, either development or production */
     mode: 'development' | 'production';
@@ -99,9 +97,17 @@ export interface Config {
     /** Port Number */
     port?: number;
     /** css Discard Unused */
-    cssDiscardUnused?: boolean
+    cssDiscardUnused?: boolean;
+    /** Update service worker */
+    updateServiceWorker?: boolean;
+    /** Online reference file */
+    onlineIndicatorFile?: string;
 }
-
+/** Update Times */
+export interface UpdateTimes {
+    /** service worker */
+    serviceWorker?: number;
+}
 interface Icon {
     /** Source URL or path to the icon */
     src: string;
@@ -112,7 +118,6 @@ interface Icon {
     /** Purpose of the icon, either maskable or any */
     purpose: 'maskable' | 'any';
 }
-
 interface Shortcut {
     /** Name of the shortcut */
     name: string;
@@ -125,7 +130,6 @@ interface Shortcut {
     /** Array of icons associated with the shortcut */
     icons: Icon[];
 }
-
 export interface WebManifest {
     /** Background color for the application */
     background_color: string;
@@ -148,16 +152,13 @@ export interface WebManifest {
     /** Full name of the application */
     name: string;
 }
-
-type MetaTag = string
-    | false
-    | { [attributeName: string]: string | boolean; };
-
+type MetaTag = string | false | {
+    [attributeName: string]: string | boolean;
+};
 export interface MetaTags {
     /** Dictionary of meta tags, where the key is the tag name and value is the tag content or attributes */
-    [key: string]: MetaTag
+    [key: string]: MetaTag;
 }
-
 export interface MetaTagsInput {
     /** Author of the website */
     author: string;
@@ -188,7 +189,6 @@ export interface MetaTagsInput {
     /** Language of the website */
     language: string;
 }
-
 export interface TemplateHTMLOptions {
     /** HTML for link tags (optional) */
     links?: string;
@@ -205,3 +205,4 @@ export interface TemplateHTMLOptions {
     /** HTML for the footer section (optional) */
     footerHTML?: string;
 }
+export {};

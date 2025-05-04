@@ -19,16 +19,26 @@ const
         };
     },
     /** Read files */
-    readData = (file: string, absolute?: boolean) => {
+    readData = (file: string, internal?: boolean) => {
         try {
             return fs.readFileSync(
-                absolute ? file
+                internal ? file
                     : path.resolve(process.cwd(), file),
                 `utf8`
             );
         } catch (e) {
             console.log(`no data to read at`, file);
             return ``;
+        };
+    },
+    /** Read JSON files */
+    readJSON = (file: string, internal?: boolean) => {
+        try {
+            const data = readData(file, internal);
+            return data ? JSON.parse(data) : undefined;
+        } catch (e) {
+            console.log(`no JSON data to read at`, file);
+            return
         };
     },
     metaTags = ({
@@ -242,4 +252,5 @@ export {
     readData,
     metaTags,
     canonicalTag,
+    readJSON,
 }
