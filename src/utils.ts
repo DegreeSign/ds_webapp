@@ -38,7 +38,7 @@ const
         try {
             const
                 filePath =
-                    internal ? path.resolve(__dirname, file)
+                    internal ? path.join(__dirname, file)
                         : path.resolve(process.cwd(), file),
                 data = fs.readFileSync(
                     filePath,

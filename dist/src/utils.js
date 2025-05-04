@@ -41,7 +41,7 @@ writeJSON = (file, code) => {
 /** Read files */
 readData = (file, internal) => {
     try {
-        const filePath = internal ? path_1.default.resolve(__dirname, file)
+        const filePath = internal ? path_1.default.join(__dirname, file)
             : path_1.default.resolve(process.cwd(), file), data = fs_1.default.readFileSync(filePath, `utf8`);
         if (!data) {
             console.log(`no data to read at path`, filePath);
