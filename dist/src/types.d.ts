@@ -54,10 +54,6 @@ export interface Config {
     coverImage: string;
     /** Description of the cover image */
     coverImageDescription: string;
-    /** Title for notifications */
-    notificationTitle: string;
-    /** Text content for notifications */
-    notificationText: string;
     /** Background color for the application */
     background_color: string;
     /** Theme color for the application */

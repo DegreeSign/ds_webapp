@@ -52,17 +52,21 @@ const terser_webpack_plugin_1 = __importDefault(require("terser-webpack-plugin")
 const utils_1 = require("./src/utils");
 Object.defineProperty(exports, "readData", { enumerable: true, get: function () { return utils_1.readData; } });
 Object.defineProperty(exports, "writeData", { enumerable: true, get: function () { return utils_1.writeData; } });
-const build = ({ mode = `production`, appShortName = `WebApp`, twitterUserName = `degreesign`, websiteName = `DegreeSign WebApp`, websiteDomain = `degreesign.com`, publishedTime = `2025-01-01T00:00:00+00:00`, author = `DegreeSign Team`, websiteTitle = `progressive webapp`, websiteDescription = `Webpack progressive web app`, coverImage = `degreesign_screenshot.webp`, coverImageDescription = `Screenshot of website`, notificationTitle = `New Notification`, notificationText = `You have a new notification!`, background_color = `#fff`, theme_color = '#000', app_icon = `app_icon.png`, fav_icon = `favicon.ico`, orientation = 'portrait', pagesList = [], htmlCommonElements = [], obfuscateON = false, srcDir = `src`, assetsDir = `assets`, commonDir = `common`, imagesDir = `images`, pagesDir = `pages`, pageHome = `home`, productionDir = `public_html`, htaccessCustom = ``, startURI = ``, language = `en_GB`, port = 3210, cssDiscardUnused = false, updateServiceWorker = false, onlineIndicatorFile = `https://degreesign.com/assets/images/Degree_Sign_Logo_2022.svg`, }) => {
-    const latestUpdates = (0, utils_1.readJSON)(`./updateTimes`) || {}, dataString = new Date().toISOString(), timeNow = Date.now(), websiteLink = `https://${websiteDomain}`, getImageURI = (image) => image?.includes(`/`) ? image
+const build = ({ mode = `production`, appShortName = `WebApp`, twitterUserName = `degreesign`, websiteName = `DegreeSign WebApp`, websiteDomain = `degreesign.com`, publishedTime = `2025-01-01T00:00:00+00:00`, author = `DegreeSign Team`, websiteTitle = `progressive webapp`, websiteDescription = `Webpack progressive web app`, coverImage = `degreesign_screenshot.webp`, coverImageDescription = `Screenshot of website`, background_color = `#fff`, theme_color = '#000', app_icon = `app_icon.png`, fav_icon = `favicon.ico`, orientation = 'portrait', pagesList = [], htmlCommonElements = [], obfuscateON = false, srcDir = `src`, assetsDir = `assets`, commonDir = `common`, imagesDir = `images`, pagesDir = `pages`, pageHome = `home`, productionDir = `public_html`, htaccessCustom = ``, startURI = ``, language = `en_GB`, port = 3210, cssDiscardUnused = false, updateServiceWorker = false, onlineIndicatorFile = `https://degreesign.com/assets/images/Degree_Sign_Logo_2022.svg`, }) => {
+    const latestUpdates = (0, utils_1.readJSON)(`./updateTimes.json`) || {}, updateTimes = () => (0, utils_1.writeJSON)(`./updateTimes.json`, latestUpdates), dataString = new Date().toISOString(), timeNow = Date.now(), websiteLink = `https://${websiteDomain}`, getImageURI = (image) => image?.includes(`/`) ? image
         : `/${assetsDir}/${imagesDir}/${image}`, getImageLink = (image) => image?.includes(`/`) ? image
         : `${websiteLink}/${assetsDir}/${imagesDir}/${image}`, coverImageLink = getImageLink(coverImage), appIconFile = getImageURI(app_icon), favIconFile = getImageURI(fav_icon), htmlElements = (() => {
-        const swTime = !latestUpdates.serviceWorker || !updateServiceWorker ?
-            timeNow : latestUpdates.serviceWorker, elements = {
+        const updateSW = !latestUpdates.serviceWorker || !updateServiceWorker, swTime = updateSW ? timeNow : latestUpdates.serviceWorker, elements = {
             headerHTML: `<script>`
                 + `"serviceWorker" in navigator && navigator.serviceWorker?.register(`
                 + `"/sw.js?v=${swTime}", { scope: "/" }`
                 + `);</script>`
         };
+        if (updateSW) {
+            latestUpdates.serviceWorker = timeNow;
+            updateTimes();
+        }
+        ;
         if (htmlCommonElements?.length)
             for (let i = 0; i < htmlCommonElements.length; i++) {
                 const elm = htmlCommonElements[i];
@@ -119,13 +123,10 @@ const build = ({ mode = `production`, appShortName = `WebApp`, twitterUserName =
 Allow: /
 Disallow: /404
 
-Sitemap: https://${websiteDomain}/sitemap.xml`, getServiceWorkerContent = ({ cacheName = websiteName, urlsToCache = ['/', '/index.html', '/app.json'].concat(pagesList.map(pageData => {
-        return `/${pageData?.uri}`;
-    })), fallbackUrl = '/index.html', notificationIcon = `${websiteLink}${appIconFile}`, notificationBadge = `${websiteLink}${appIconFile}`, defaultNotificationData = {
-        title: notificationTitle,
-        body: notificationText,
-    }, rootUrl = '/' }) => {
-        const file = (0, utils_1.readData)(`./sw.js`, true);
+Sitemap: https://${websiteDomain}/sitemap.xml`, getServiceWorkerContent = () => {
+        const urlsToCache = ['/', '/index.html', '/app.json'].concat(pagesList.map(pageData => {
+            return `/${pageData?.uri}`;
+        })), file = (0, utils_1.readData)(`./src/sw.js`, true);
         return file
             ?.replaceAll(`APP_URL`, `/${startURI}`)
             ?.replaceAll(`APP_ICON`, appIconFile)
@@ -201,7 +202,7 @@ ErrorDocument 403 /404
     (0, utils_1.writeData)(`./${productionDir}/robots.txt`, robots);
     (0, utils_1.writeData)(`./${productionDir}/.htaccess`, htaccessFile);
     (0, utils_1.writeData)(`./${productionDir}/app.json`, JSON.stringify(appManifest));
-    (0, utils_1.writeData)(`./${productionDir}/sw.js`, getServiceWorkerContent({}));
+    (0, utils_1.writeData)(`./${productionDir}/sw.js`, getServiceWorkerContent());
     // Environment keys
     dotenv_1.default.config();
     for (const key in process.env)

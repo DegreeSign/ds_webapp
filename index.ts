@@ -22,7 +22,8 @@ import {
     metaTags,
     readData,
     readJSON,
-    writeData
+    writeData,
+    writeJSON
 } from "./src/utils"
 
 const
@@ -38,8 +39,6 @@ const
         websiteDescription = `Webpack progressive web app`,
         coverImage = `degreesign_screenshot.webp`,
         coverImageDescription = `Screenshot of website`,
-        notificationTitle = `New Notification`,
-        notificationText = `You have a new notification!`,
         background_color = `#fff`,
         theme_color = '#000',
         app_icon = `app_icon.png`,
@@ -65,7 +64,8 @@ const
     }: Config) => {
 
         const
-            latestUpdates: UpdateTimes = readJSON(`./updateTimes`) || {},
+            latestUpdates: UpdateTimes = readJSON(`./updateTimes.json`) || {},
+            updateTimes = () => writeJSON(`./updateTimes.json`, latestUpdates),
             dataString = new Date().toISOString(),
             timeNow = Date.now(),
             websiteLink = `https://${websiteDomain}`,
@@ -78,14 +78,18 @@ const
             favIconFile = getImageURI(fav_icon),
             htmlElements = (() => {
                 const
-                    swTime = !latestUpdates.serviceWorker || !updateServiceWorker ?
-                        timeNow : latestUpdates.serviceWorker,
+                    updateSW = !latestUpdates.serviceWorker || !updateServiceWorker,
+                    swTime = updateSW ? timeNow : latestUpdates.serviceWorker,
                     elements: TemplateHTMLOptions = {
                         headerHTML: `<script>`
                             + `"serviceWorker" in navigator && navigator.serviceWorker?.register(`
                             + `"/sw.js?v=${swTime}", { scope: "/" }`
                             + `);</script>`
                     };
+                if (updateSW) {
+                    latestUpdates.serviceWorker = timeNow;
+                    updateTimes();
+                };
                 if (htmlCommonElements?.length)
                     for (let i = 0; i < htmlCommonElements.length; i++) {
                         const elm = htmlCommonElements[i];
@@ -161,21 +165,12 @@ Allow: /
 Disallow: /404
 
 Sitemap: https://${websiteDomain}/sitemap.xml`,
-            getServiceWorkerContent = ({
-                cacheName = websiteName,
-                urlsToCache = ['/', '/index.html', '/app.json'].concat(pagesList.map(pageData => {
-                    return `/${pageData?.uri}`
-                })),
-                fallbackUrl = '/index.html',
-                notificationIcon = `${websiteLink}${appIconFile}`,
-                notificationBadge = `${websiteLink}${appIconFile}`,
-                defaultNotificationData = {
-                    title: notificationTitle,
-                    body: notificationText,
-                },
-                rootUrl = '/'
-            }) => {
-                const file = readData(`./sw.js`, true);
+            getServiceWorkerContent = () => {
+                const
+                    urlsToCache = ['/', '/index.html', '/app.json'].concat(pagesList.map(pageData => {
+                        return `/${pageData?.uri}`
+                    })),
+                    file = readData(`./src/sw.js`, true);
                 return file
                     ?.replaceAll(`APP_URL`, `/${startURI}`)
                     ?.replaceAll(`APP_ICON`, appIconFile)
@@ -254,7 +249,7 @@ ErrorDocument 403 /404
         writeData(`./${productionDir}/robots.txt`, robots);
         writeData(`./${productionDir}/.htaccess`, htaccessFile);
         writeData(`./${productionDir}/app.json`, JSON.stringify(appManifest));
-        writeData(`./${productionDir}/sw.js`, getServiceWorkerContent({}));
+        writeData(`./${productionDir}/sw.js`, getServiceWorkerContent());
 
         // Environment keys
         dotenv.config();

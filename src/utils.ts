@@ -4,7 +4,7 @@ import path from "path"
 
 const
     /** Write to files */
-    writeData = (file: string, code: any) => {
+    writeData = (file: string, code: string) => {
         try {
             return code ? (
                 fs.writeFileSync(path.resolve(process.cwd(), file), code, `utf8`),
@@ -14,20 +14,43 @@ const
                 false
             )
         } catch (e) {
-            console.log(`failed to write to`, file);
+            console.log(`failed to write data to`, file);
+            return false
+        };
+    },
+    /** Write JSON files */
+    writeJSON = (file: string, code: any) => {
+        try {
+            if (!code) {
+                console.log(`no JSON data to write to`, file);
+                return false
+            };
+            const data = JSON.stringify(code);
+            writeData(file, data);
+            return true
+        } catch (e) {
+            console.log(`failed to write JSON at`, file);
             return false
         };
     },
     /** Read files */
     readData = (file: string, internal?: boolean) => {
         try {
-            return fs.readFileSync(
-                internal ? file
-                    : path.resolve(process.cwd(), file),
-                `utf8`
-            );
+            const
+                filePath =
+                    internal ? path.resolve(__dirname, file)
+                        : path.resolve(process.cwd(), file),
+                data = fs.readFileSync(
+                    filePath,
+                    `utf8`
+                );
+            if (!data) {
+                console.log(`no data to read at path`, filePath);
+                return ``;
+            };
+            return data
         } catch (e) {
-            console.log(`no data to read at`, file);
+            console.log(`failed to read data at`, file);
             return ``;
         };
     },
@@ -37,7 +60,7 @@ const
             const data = readData(file, internal);
             return data ? JSON.parse(data) : undefined;
         } catch (e) {
-            console.log(`no JSON data to read at`, file);
+            console.log(`failed to read JSON at`, file);
             return
         };
     },
@@ -249,8 +272,9 @@ const
 
 export {
     writeData,
+    writeJSON,
     readData,
+    readJSON,
     metaTags,
     canonicalTag,
-    readJSON,
 }

@@ -1,7 +1,9 @@
 import { MetaTags, MetaTagsInput } from "./types";
 declare const 
 /** Write to files */
-writeData: (file: string, code: any) => boolean, 
+writeData: (file: string, code: string) => boolean, 
+/** Write JSON files */
+writeJSON: (file: string, code: any) => boolean, 
 /** Read files */
 readData: (file: string, internal?: boolean) => string, 
 /** Read JSON files */
@@ -10,4 +12,4 @@ readJSON: (file: string, internal?: boolean) => any, metaTags: ({ author, websit
     websiteDomain: string;
     page: string;
 }) => string;
-export { writeData, readData, metaTags, canonicalTag, readJSON, };
+export { writeData, writeJSON, readData, readJSON, metaTags, canonicalTag, };

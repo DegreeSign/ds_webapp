@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.readJSON = exports.canonicalTag = exports.metaTags = exports.readData = exports.writeData = void 0;
+exports.canonicalTag = exports.metaTags = exports.readJSON = exports.readData = exports.writeJSON = exports.writeData = void 0;
 const fs_1 = __importDefault(require("fs"));
 const path_1 = __importDefault(require("path"));
 const 
@@ -15,7 +15,25 @@ writeData = (file, code) => {
             false);
     }
     catch (e) {
-        console.log(`failed to write to`, file);
+        console.log(`failed to write data to`, file);
+        return false;
+    }
+    ;
+}, 
+/** Write JSON files */
+writeJSON = (file, code) => {
+    try {
+        if (!code) {
+            console.log(`no JSON data to write to`, file);
+            return false;
+        }
+        ;
+        const data = JSON.stringify(code);
+        writeData(file, data);
+        return true;
+    }
+    catch (e) {
+        console.log(`failed to write JSON at`, file);
         return false;
     }
     ;
@@ -23,11 +41,17 @@ writeData = (file, code) => {
 /** Read files */
 readData = (file, internal) => {
     try {
-        return fs_1.default.readFileSync(internal ? file
-            : path_1.default.resolve(process.cwd(), file), `utf8`);
+        const filePath = internal ? path_1.default.resolve(__dirname, file)
+            : path_1.default.resolve(process.cwd(), file), data = fs_1.default.readFileSync(filePath, `utf8`);
+        if (!data) {
+            console.log(`no data to read at path`, filePath);
+            return ``;
+        }
+        ;
+        return data;
     }
     catch (e) {
-        console.log(`no data to read at`, file);
+        console.log(`failed to read data at`, file);
         return ``;
     }
     ;
@@ -39,7 +63,7 @@ readJSON = (file, internal) => {
         return data ? JSON.parse(data) : undefined;
     }
     catch (e) {
-        console.log(`no JSON data to read at`, file);
+        console.log(`failed to read JSON at`, file);
         return;
     }
     ;
@@ -225,6 +249,7 @@ readJSON = (file, internal) => {
 }, canonicalTag = ({ websiteDomain, page, coverImageLink, }) => `<link href="${coverImageLink}" rel="image_src">
         <link rel="canonical" href="https://${websiteDomain}${page}">`;
 exports.writeData = writeData;
+exports.writeJSON = writeJSON;
 exports.readData = readData;
 exports.readJSON = readJSON;
 exports.metaTags = metaTags;
