@@ -340,7 +340,7 @@ ErrorDocument 403 /404
                             coverImageLink: coverImageLinkNew,
                             coverImageDescription: (coverImagePage ? coverImageDescriptionPage : coverImageDescription) || ``,
                             publishedTime,
-                            websiteLink: isHome ? websiteLink : `${websiteLink}/fileName`,
+                            websiteLink: isHome ? websiteLink : `${websiteLink}/${fileName}`,
                             dataString,
                             theme_color,
                             twitterUserName,

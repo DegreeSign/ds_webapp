@@ -81,9 +81,11 @@ const
         language,
     }: MetaTagsInput): MetaTags => {
         return {
-            noindexTag: noindex ? {
-                name: `robots`,
-                content: `noindex`,
+            ...noindex ? {
+                noindexTag: {
+                    name: `robots`,
+                    content: `noindex`,
+                },
             } : {},
             author,
             robots: `index, follow`,
