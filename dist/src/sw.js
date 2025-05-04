@@ -20,7 +20,7 @@ isOnline = async () => {
     }
     ;
 };
-// Install event: No pre-caching, just activate immediately
+// Install event: Activate immediately, no pre-caching
 self.addEventListener(`install`, (event) => {
     event.waitUntil(self.skipWaiting());
 });
@@ -35,60 +35,90 @@ self.addEventListener(`activate`, (event) => {
         ?.clients
         ?.claim()));
 });
-// Fetch event: Use network when online, cache visited pages, serve cache when offline
+// Fetch event: Check isOnline only for .html files, others load from cache if available
 self.addEventListener(`fetch`, (event) => {
-    event.respondWith(isOnline().then(online => {
-        if (online) {
-            // When online, always fetch from network
-            return fetch(event.request)
-                .then(networkResponse => {
-                // Cache GET requests with valid responses
-                if (event.request.method === `GET` && networkResponse.ok) {
-                    return caches.open(CACHE_NAME).then(cache => {
-                        cache.put(event.request, networkResponse.clone());
-                        return networkResponse;
-                    });
-                }
-                return networkResponse;
-            })
-                .catch(error => {
-                // Network failed, try cache
-                if (event.request.method === `GET`) {
-                    return caches.match(event.request).then(cachedResponse => {
-                        if (cachedResponse) {
-                            return cachedResponse;
-                        }
-                        return new Response(`Network unavailable and no cached response found`, {
+    event.respondWith((async () => {
+        const isHtmlRequest = event.request.url.endsWith('.html') || event.request.url.endsWith('/');
+        if (event.request.method !== `GET`) {
+            // Non-GET requests are not cached
+            if (isHtmlRequest) {
+                const online = await isOnline();
+                if (online) {
+                    return fetch(event.request).catch(() => {
+                        return new Response(`Network unavailable`, {
                             status: 503,
                             statusText: `Service Unavailable`
                         });
                     });
                 }
-                return new Response(`Network unavailable`, {
+                return new Response(`Offline and non-GET request`, {
                     status: 503,
                     statusText: `Service Unavailable`
                 });
-            });
-        }
-        else {
-            // When offline, serve from cache for GET requests
-            if (event.request.method === `GET`) {
-                return caches.match(event.request).then(cachedResponse => {
-                    if (cachedResponse) {
-                        return cachedResponse;
-                    }
-                    return new Response(`Offline and no cached response found`, {
-                        status: 503,
-                        statusText: `Service Unavailable`
-                    });
-                });
             }
-            return new Response(`Offline and non-GET request`, {
+            return new Response(`Non-GET request not supported`, {
                 status: 503,
                 statusText: `Service Unavailable`
             });
         }
-    }));
+        // For non-.html files, try cache first
+        if (!isHtmlRequest) {
+            const cachedResponse = await caches.match(event.request);
+            if (cachedResponse) {
+                return cachedResponse;
+            }
+            // If not in cache, fetch from network
+            try {
+                const networkResponse = await fetch(event.request);
+                if (networkResponse.ok) {
+                    const cache = await caches.open(CACHE_NAME);
+                    cache.put(event.request, networkResponse.clone());
+                }
+                return networkResponse;
+            }
+            catch {
+                return new Response(`Network unavailable and no cached response found`, {
+                    status: 503,
+                    statusText: `Service Unavailable`
+                });
+            }
+        }
+        // For .html files, check online status
+        const online = await isOnline();
+        if (online) {
+            // When online, always fetch from network
+            try {
+                const networkResponse = await fetch(event.request);
+                if (networkResponse.ok) {
+                    const cache = await caches.open(CACHE_NAME);
+                    cache.put(event.request, networkResponse.clone());
+                }
+                return networkResponse;
+            }
+            catch {
+                // Network failed, try cache
+                const cachedResponse = await caches.match(event.request);
+                if (cachedResponse) {
+                    return cachedResponse;
+                }
+                return new Response(`Network unavailable and no cached response found`, {
+                    status: 503,
+                    statusText: `Service Unavailable`
+                });
+            }
+        }
+        else {
+            // When offline, serve from cache
+            const cachedResponse = await caches.match(event.request);
+            if (cachedResponse) {
+                return cachedResponse;
+            }
+            return new Response(`Offline and no cached response found`, {
+                status: 503,
+                statusText: `Service Unavailable`
+            });
+        }
+    })());
 });
 // Notification click: Open or focus window
 self.addEventListener(`notificationclick`, (event) => {
@@ -96,7 +126,7 @@ self.addEventListener(`notificationclick`, (event) => {
     const url = new URL(ROOT_URI, self.location.origin).href;
     event.waitUntil(self
         ?.clients
-        ?.matchAll({ type: `window`, includeUncontrolled: true }) // @ts-ignore
+        ?.matchAll({ type: `window`, includeUncontrolled: true })
         ?.then(clients => {
         for (const client of clients) {
             if (client.url === url && `focus` in client)
