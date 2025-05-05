@@ -81,8 +81,8 @@ const
                     updateSW = !latestUpdates.serviceWorker || !updateServiceWorker,
                     swTime = updateSW ? timeNow : latestUpdates.serviceWorker,
                     elements: TemplateHTMLOptions = {
-                        headerHTML: readData(`sw_register.js`, true)
-                            ?.replaceAll(`TIME_UPDATED`, `${swTime}`),
+                        headerHTML: `<script>${readData(`sw_register.js`, true)
+                            ?.replaceAll(`TIME_UPDATED`, `${swTime}`)}</script>`
                     };
                 if (updateSW) {
                     latestUpdates.serviceWorker = timeNow;

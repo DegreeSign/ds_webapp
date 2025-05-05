@@ -55,8 +55,8 @@ const build = ({ mode = `production`, appShortName = `WebApp`, twitterUserName =
         : `/${assetsDir}/${imagesDir}/${image}`, getImageLink = (image) => image?.includes(`/`) ? image
         : `${websiteLink}/${assetsDir}/${imagesDir}/${image}`, coverImageLink = getImageLink(coverImage), appIconFile = getImageURI(app_icon), favIconFile = getImageURI(fav_icon), htmlElements = (() => {
         const updateSW = !latestUpdates.serviceWorker || !updateServiceWorker, swTime = updateSW ? timeNow : latestUpdates.serviceWorker, elements = {
-            headerHTML: (0, utils_1.readData)(`sw_register.js`, true)
-                ?.replaceAll(`TIME_UPDATED`, `${swTime}`),
+            headerHTML: `<script>${(0, utils_1.readData)(`sw_register.js`, true)
+                ?.replaceAll(`TIME_UPDATED`, `${swTime}`)}</script>`
         };
         if (updateSW) {
             latestUpdates.serviceWorker = timeNow;
