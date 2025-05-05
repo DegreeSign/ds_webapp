@@ -369,29 +369,15 @@ ErrorDocument 403 /404
                     })
                 }),
                 ...obfuscateON ? [new WebpackObfuscator({
-                    compact: true, // Minify the output
-                    stringArray: true, // Enable string array transformation
-                    stringArrayRotate: false, // Disable rotation to avoid potential issues
-                    stringArrayShuffle: false, // Disable shuffling for stability
-                    stringArrayThreshold: 1, // Obfuscate all strings
-                    splitStrings: true, // Split strings into chunks
-                    splitStringsChunkLength: 4, // chunk length
-                    identifierNamesGenerator: 'hexadecimal', // Use hexadecimal names for identifiers
-                    numbersToExpressions: true, // Convert numbers to expressions
-                    simplify: true, // Simplify code structure
-                    controlFlowFlattening: false, // Disable control flow flattening to avoid errors
-                    deadCodeInjection: false, // Disable dead code injection
-                    debugProtection: false, // Disable debug protection
-                    disableConsoleOutput: false, // Allow console output
-                    renameGlobals: false, // Avoid renaming global variables
-                    selfDefending: false, // Disable self-defending code
-                    stringArrayEncoding: [], // No encoding for string array
-                    stringArrayIndexShift: false, // Disable index shifting
-                    stringArrayWrappersCount: 1, // Match wrapper count
-                    stringArrayWrappersChainedCalls: false, // Disable chained calls
-                    stringArrayWrappersParametersMaxCount: 2, // Match max parameters
-                    stringArrayWrappersType: 'variable', // Use variable wrappers
-                    unicodeEscapeSequence: false // Disable unicode escape sequences
+                    rotateStringArray: false, // Disable to avoid potential runtime issues
+                    stringArray: true, // Keep string array transformation for basic obfuscation
+                    stringArrayThreshold: 0.5, // Reduce to obfuscate fewer strings, lowering risk of errors
+                    stringArrayEncoding: 'base64', // Use base64 encoding for safer string handling
+                    stringArrayIndexesType: ['integer'], // Use integer indexes for stability
+                    stringArrayWrappersCount: 1, // Limit wrappers to avoid excessive complexity
+                    deadCodeInjection: false, // Disable to prevent injecting problematic code
+                    selfDefending: false, // Disable to avoid aggressive tamper-proofing
+                    debugProtection: false, // Disable to avoid debugger interference
                 })] : [],
                 new SitemapPlugin.default({
                     base: websiteLink, // Replace with your site base URL
