@@ -201,4 +201,8 @@ export interface TemplateHTMLOptions {
     /** HTML for the footer section (optional) */
     footerHTML?: string;
 }
+export interface HtmlContent {
+    id: string;
+    content: string;
+}
 export {};

@@ -370,13 +370,31 @@ ErrorDocument 403 /404
                         templateContent,
                     })
                 }),
-                ...obfuscateON ? [new WebpackObfuscator(
-                    {
-                        rotateStringArray: true,
-                        stringArray: true,
-                        stringArrayThreshold: 0.8, // Percentage of strings to obfuscate
-                    },
-                )] : [],
+                ...obfuscateON ? [new WebpackObfuscator({
+                    compact: true, // Minify the output
+                    stringArray: true, // Enable string array transformation
+                    stringArrayRotate: false, // Disable rotation to avoid potential issues
+                    stringArrayShuffle: false, // Disable shuffling for stability
+                    stringArrayThreshold: 1, // Obfuscate all strings
+                    splitStrings: true, // Split strings into chunks
+                    splitStringsChunkLength: 4, // chunk length
+                    identifierNamesGenerator: 'hexadecimal', // Use hexadecimal names for identifiers
+                    numbersToExpressions: true, // Convert numbers to expressions
+                    simplify: true, // Simplify code structure
+                    controlFlowFlattening: false, // Disable control flow flattening to avoid errors
+                    deadCodeInjection: false, // Disable dead code injection
+                    debugProtection: false, // Disable debug protection
+                    disableConsoleOutput: false, // Allow console output
+                    renameGlobals: false, // Avoid renaming global variables
+                    selfDefending: false, // Disable self-defending code
+                    stringArrayEncoding: [], // No encoding for string array
+                    stringArrayIndexShift: false, // Disable index shifting
+                    stringArrayWrappersCount: 1, // Match wrapper count
+                    stringArrayWrappersChainedCalls: false, // Disable chained calls
+                    stringArrayWrappersParametersMaxCount: 2, // Match max parameters
+                    stringArrayWrappersType: 'variable', // Use variable wrappers
+                    unicodeEscapeSequence: false // Disable unicode escape sequences
+                })] : [],
                 new SitemapPlugin.default({
                     base: websiteLink, // Replace with your site base URL
                     paths: siteMap,

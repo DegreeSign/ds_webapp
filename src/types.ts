@@ -99,7 +99,7 @@ export interface Config {
     /** Update service worker */
     updateServiceWorker?: boolean;
     /** Online reference file */
-    onlineIndicatorFile?:string;
+    onlineIndicatorFile?: string;
 }
 
 /** Update Times */
@@ -210,4 +210,10 @@ export interface TemplateHTMLOptions {
     pageBody?: string;
     /** HTML for the footer section (optional) */
     footerHTML?: string;
+}
+
+// Interface for HTML content with an identifier (e.g., for labeling output)
+export interface HtmlContent {
+    id: string; // Identifier for the HTML content (e.g., "index", "about")
+    content: string; // HTML content as a string
 }
