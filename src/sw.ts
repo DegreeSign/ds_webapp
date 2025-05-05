@@ -53,90 +53,90 @@ const
 
 // Fetch event: Check isOnline only for .html files, others load from cache if available
 (self as unknown as ServiceWorkerGlobalScope).addEventListener(`fetch`, (event: FetchEvent) => {
-    event.respondWith(
-        (async () => {
-            const isHtmlRequest = event.request.url.endsWith('.html') || event.request.url.endsWith('/');
+    // event.respondWith(
+    //     (async () => {
+    //     const isHtmlRequest = event.request.url.endsWith('.html') || event.request.url.endsWith('/');
 
-            if (event.request.method !== `GET`) {
-                // Non-GET requests are not cached
-                if (isHtmlRequest) {
-                    const online = await isOnline();
-                    if (online) {
-                        return fetch(event.request).catch(() => {
-                            return new Response(`Network unavailable`, {
-                                status: 503,
-                                statusText: `Service Unavailable`
-                            });
-                        });
-                    }
-                    return new Response(`Offline and non-GET request`, {
-                        status: 503,
-                        statusText: `Service Unavailable`
-                    });
-                }
-                return new Response(`Non-GET request not supported`, {
-                    status: 503,
-                    statusText: `Service Unavailable`
-                });
-            }
+    //     if (event.request.method !== `GET`) {
+    //         // Non-GET requests are not cached
+    //         if (isHtmlRequest) {
+    //             const online = await isOnline();
+    //             if (online) {
+    //                 return fetch(event.request).catch(() => {
+    //                     return new Response(`Network unavailable`, {
+    //                         status: 503,
+    //                         statusText: `Service Unavailable`
+    //                     });
+    //                 });
+    //             }
+    //             return new Response(`Offline and non-GET request`, {
+    //                 status: 503,
+    //                 statusText: `Service Unavailable`
+    //             });
+    //         }
+    //         return new Response(`Non-GET request not supported`, {
+    //             status: 503,
+    //             statusText: `Service Unavailable`
+    //         });
+    //     }
 
-            // For non-.html files, try cache first
-            if (!isHtmlRequest) {
-                const cachedResponse = await caches.match(event.request);
-                if (cachedResponse) {
-                    return cachedResponse;
-                }
-                // If not in cache, fetch from network
-                try {
-                    const networkResponse = await fetch(event.request);
-                    if (networkResponse.ok) {
-                        const cache = await caches.open(CACHE_NAME);
-                        cache.put(event.request, networkResponse.clone());
-                    }
-                    return networkResponse;
-                } catch {
-                    return new Response(`Network unavailable and no cached response found`, {
-                        status: 503,
-                        statusText: `Service Unavailable`
-                    });
-                }
-            }
+    //     // For non-.html files, try cache first
+    //     if (!isHtmlRequest) {
+    //         const cachedResponse = await caches.match(event.request);
+    //         if (cachedResponse) {
+    //             return cachedResponse;
+    //         }
+    //         // If not in cache, fetch from network
+    //         try {
+    //             const networkResponse = await fetch(event.request);
+    //             if (networkResponse.ok) {
+    //                 const cache = await caches.open(CACHE_NAME);
+    //                 cache.put(event.request, networkResponse.clone());
+    //             }
+    //             return networkResponse;
+    //         } catch {
+    //             return new Response(`Network unavailable and no cached response found`, {
+    //                 status: 503,
+    //                 statusText: `Service Unavailable`
+    //             });
+    //         }
+    //     }
 
-            // For .html files, check online status
-            const online = await isOnline();
-            if (online) {
-                // When online, always fetch from network
-                try {
-                    const networkResponse = await fetch(event.request);
-                    if (networkResponse.ok) {
-                        const cache = await caches.open(CACHE_NAME);
-                        cache.put(event.request, networkResponse.clone());
-                    }
-                    return networkResponse;
-                } catch {
-                    // Network failed, try cache
-                    const cachedResponse = await caches.match(event.request);
-                    if (cachedResponse) {
-                        return cachedResponse;
-                    }
-                    return new Response(`Network unavailable and no cached response found`, {
-                        status: 503,
-                        statusText: `Service Unavailable`
-                    });
-                }
-            } else {
-                // When offline, serve from cache
-                const cachedResponse = await caches.match(event.request);
-                if (cachedResponse) {
-                    return cachedResponse;
-                }
-                return new Response(`Offline and no cached response found`, {
-                    status: 503,
-                    statusText: `Service Unavailable`
-                });
-            }
-        })()
-    );
+    //     // For .html files, check online status
+    //     const online = await isOnline();
+    //     if (online) {
+    //         // When online, always fetch from network
+    //         try {
+    //             const networkResponse = await fetch(event.request);
+    //             if (networkResponse.ok) {
+    //                 const cache = await caches.open(CACHE_NAME);
+    //                 cache.put(event.request, networkResponse.clone());
+    //             }
+    //             return networkResponse;
+    //         } catch {
+    //             // Network failed, try cache
+    //             const cachedResponse = await caches.match(event.request);
+    //             if (cachedResponse) {
+    //                 return cachedResponse;
+    //             }
+    //             return new Response(`Network unavailable and no cached response found`, {
+    //                 status: 503,
+    //                 statusText: `Service Unavailable`
+    //             });
+    //         }
+    //     } else {
+    //         // When offline, serve from cache
+    //         const cachedResponse = await caches.match(event.request);
+    //         if (cachedResponse) {
+    //             return cachedResponse;
+    //         }
+    //         return new Response(`Offline and no cached response found`, {
+    //             status: 503,
+    //             statusText: `Service Unavailable`
+    //         });
+    //     }
+    // })()
+    // );
 });
 
 // Notification click: Open or focus window
