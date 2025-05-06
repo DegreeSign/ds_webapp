@@ -24,32 +24,32 @@ const
         };
     };
 
-// Install event: Activate immediately, no pre-caching
-(self as unknown as ServiceWorkerGlobalScope).addEventListener(`install`, (event: ExtendableEvent) => {
-    event.waitUntil(
-        (self as unknown as ServiceWorkerGlobalScope).skipWaiting()
-    );
-});
+// // Install event: Activate immediately, no pre-caching
+// (self as unknown as ServiceWorkerGlobalScope).addEventListener(`install`, (event: ExtendableEvent) => {
+//     event.waitUntil(
+//         (self as unknown as ServiceWorkerGlobalScope).skipWaiting()
+//     );
+// });
 
-// Activate event: Clean up old caches
-(self as unknown as ServiceWorkerGlobalScope).addEventListener(`activate`, (event: ExtendableEvent) => {
-    event.waitUntil(
-        caches.keys().then(cacheNames =>
-            Promise.all(
-                cacheNames.map(name => {
-                    if (name !== CACHE_NAME) {
-                        return caches.delete(name);
-                    }
-                    return null;
-                })
-            )
-        ).then(() =>
-            (self as unknown as ServiceWorkerGlobalScope)
-                ?.clients
-                ?.claim()
-        )
-    );
-});
+// // Activate event: Clean up old caches
+// (self as unknown as ServiceWorkerGlobalScope).addEventListener(`activate`, (event: ExtendableEvent) => {
+//     event.waitUntil(
+//         caches.keys().then(cacheNames =>
+//             Promise.all(
+//                 cacheNames.map(name => {
+//                     if (name !== CACHE_NAME) {
+//                         return caches.delete(name);
+//                     }
+//                     return null;
+//                 })
+//             )
+//         ).then(() =>
+//             (self as unknown as ServiceWorkerGlobalScope)
+//                 ?.clients
+//                 ?.claim()
+//         )
+//     );
+// });
 
 // Fetch event: Check isOnline only for .html files, others load from cache if available
 (self as unknown as ServiceWorkerGlobalScope).addEventListener(`fetch`, (event: FetchEvent) => {
@@ -160,7 +160,7 @@ const
 
 // Notification close: Log event
 (self as unknown as ServiceWorkerGlobalScope).addEventListener(`notificationclose`, (event: NotificationEvent) => {
-    console.log(`Notification closed:`, event.notification);
+    // console.log(`Notification closed:`, event.notification);
 });
 
 // Push event: Show notification

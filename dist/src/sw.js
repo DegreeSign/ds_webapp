@@ -20,21 +20,31 @@ isOnline = async () => {
     }
     ;
 };
-// Install event: Activate immediately, no pre-caching
-self.addEventListener(`install`, (event) => {
-    event.waitUntil(self.skipWaiting());
-});
-// Activate event: Clean up old caches
-self.addEventListener(`activate`, (event) => {
-    event.waitUntil(caches.keys().then(cacheNames => Promise.all(cacheNames.map(name => {
-        if (name !== CACHE_NAME) {
-            return caches.delete(name);
-        }
-        return null;
-    }))).then(() => self
-        ?.clients
-        ?.claim()));
-});
+// // Install event: Activate immediately, no pre-caching
+// (self as unknown as ServiceWorkerGlobalScope).addEventListener(`install`, (event: ExtendableEvent) => {
+//     event.waitUntil(
+//         (self as unknown as ServiceWorkerGlobalScope).skipWaiting()
+//     );
+// });
+// // Activate event: Clean up old caches
+// (self as unknown as ServiceWorkerGlobalScope).addEventListener(`activate`, (event: ExtendableEvent) => {
+//     event.waitUntil(
+//         caches.keys().then(cacheNames =>
+//             Promise.all(
+//                 cacheNames.map(name => {
+//                     if (name !== CACHE_NAME) {
+//                         return caches.delete(name);
+//                     }
+//                     return null;
+//                 })
+//             )
+//         ).then(() =>
+//             (self as unknown as ServiceWorkerGlobalScope)
+//                 ?.clients
+//                 ?.claim()
+//         )
+//     );
+// });
 // Fetch event: Check isOnline only for .html files, others load from cache if available
 self.addEventListener(`fetch`, (event) => {
     // event.respondWith(
@@ -138,7 +148,7 @@ self.addEventListener(`notificationclick`, (event) => {
 });
 // Notification close: Log event
 self.addEventListener(`notificationclose`, (event) => {
-    console.log(`Notification closed:`, event.notification);
+    // console.log(`Notification closed:`, event.notification);
 });
 // Push event: Show notification
 self.addEventListener(`push`, (event) => {
