@@ -316,12 +316,12 @@ ErrorDocument 403 /404
                     disableConsoleOutput: false, // Allow console output
                     identifierNamesGenerator: 'hexadecimal', // Use hexadecimal names for identifiers
                     log: false,
-                    numbersToExpressions: true, // Convert numbers to expressions
+                    numbersToExpressions: false, // Disable numbers to expressions to reduce bloat
                     renameGlobals: false, // Avoid renaming global variables
                     selfDefending: false, // Disable self-defending code
                     simplify: true, // Simplify code structure
                     splitStrings: true, // Split strings into chunks
-                    splitStringsChunkLength: 4, // chunk length
+                    splitStringsChunkLength: 8, // chunk length
                     stringArray: true, // Enable string array transformation
                     stringArrayCallsTransform: false,
                     stringArrayEncoding: [], // No encoding for string array
