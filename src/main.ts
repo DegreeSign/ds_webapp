@@ -234,7 +234,7 @@ ErrorDocument 403 /404
     Header set Content-Type "text/html"
 </Files>
 `
-            if (!pageData.noindex)
+            if (!pageData.noindex && pageData.uri != pageHome)
                 siteMap.push({
                     path: `/${pageData.uri}`,
                     priority: 0.8,
