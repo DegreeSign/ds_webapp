@@ -118,6 +118,7 @@ const build = ({ mode = `production`, appShortName = `WebApp`, twitterUserName =
     }, robots = `User-agent: *
 Allow: /
 Disallow: /404
+${pagesList?.map(page => page.noindex ? `Disallow: /${page.uri}` : ``)?.join(`\n`)}
 
 Sitemap: https://${websiteDomain}/sitemap.xml`, getServiceWorkerContent = () => {
         const urlsToCache = ['/', '/index.html', '/app.json'].concat(pagesList.map(pageData => {

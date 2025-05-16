@@ -161,6 +161,7 @@ const
             robots = `User-agent: *
 Allow: /
 Disallow: /404
+${pagesList?.map(page => page.noindex ? `Disallow: /${page.uri}` : ``)?.join(`\n`)}
 
 Sitemap: https://${websiteDomain}/sitemap.xml`,
             getServiceWorkerContent = () => {
