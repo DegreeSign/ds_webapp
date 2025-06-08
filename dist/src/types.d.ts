@@ -69,7 +69,9 @@ export interface Config {
     /** Array of common HTML elements to include */
     htmlCommonElements: (`header` | `footer` | `menu`)[];
     /** Flag to enable or disable obfuscation */
-    obfuscateON: boolean;
+    obfuscateON?: boolean;
+    /** Flag to enable or disable JS code minimisation */
+    minimiseON?: boolean;
     /** Source directory path */
     srcDir: string;
     /** Assets directory path */

@@ -47,6 +47,7 @@ const
         pagesList = [],
         htmlCommonElements = [],
         obfuscateON = false,
+        minimiseON = true,
         srcDir = `src`,
         assetsDir = `assets`,
         commonDir = `common`,
@@ -318,6 +319,9 @@ ErrorDocument 403 /404
                             uri: fileName,
                             coverImage: coverImagePage,
                             coverImageDescription: coverImageDescriptionPage,
+                            description,
+                            name: pageTitle,
+                            publishDate,
                         } = pageData,
                         isHome = pageHome == fileName,
                         coverImageLinkNew = coverImagePage ? getImageURI(coverImagePage) : coverImageLink;
@@ -334,12 +338,12 @@ ErrorDocument 403 /404
                         filename: isHome ? `index.html` : fileName,
                         meta: metaTags({
                             author,
-                            websiteDescription,
                             websiteName,
-                            websiteTitle,
+                            websiteTitle: pageTitle || websiteTitle,
+                            websiteDescription: description || websiteDescription,
                             coverImageLink: coverImageLinkNew,
                             coverImageDescription: (coverImagePage ? coverImageDescriptionPage : coverImageDescription) || ``,
-                            publishedTime,
+                            publishedTime: publishDate || publishedTime,
                             websiteLink: isHome ? websiteLink : `${websiteLink}/${fileName}`,
                             dataString,
                             theme_color,
@@ -407,7 +411,7 @@ ErrorDocument 403 /404
                 new HtmlInlineCssWebpackPlugin.default(), // Inline CSS into the HTML
             ],
             optimization: {
-                minimize: true, // Enable minimization
+                minimize: minimiseON, // Enable minimization
                 minimizer: [
 
                     // Minify JavaScript

@@ -50,7 +50,7 @@ const HtmlInlineCssWebpackPlugin = __importStar(require("html-inline-css-webpack
 const mini_css_extract_plugin_1 = __importDefault(require("mini-css-extract-plugin"));
 const terser_webpack_plugin_1 = __importDefault(require("terser-webpack-plugin"));
 const utils_1 = require("./utils");
-const build = ({ mode = `production`, appShortName = `WebApp`, twitterUserName = `degreesign`, websiteName = `DegreeSign WebApp`, websiteDomain = `degreesign.com`, publishedTime = `2025-01-01T00:00:00+00:00`, author = `DegreeSign Team`, websiteTitle = `progressive webapp`, websiteDescription = `Webpack progressive web app`, coverImage = `degreesign_screenshot.webp`, coverImageDescription = `Screenshot of website`, background_color = `#fff`, theme_color = '#000', app_icon = `app_icon.png`, fav_icon = `favicon.ico`, orientation = 'portrait', pagesList = [], htmlCommonElements = [], obfuscateON = false, srcDir = `src`, assetsDir = `assets`, commonDir = `common`, imagesDir = `images`, pagesDir = `pages`, pageHome = `home`, productionDir = `public_html`, htaccessCustom = ``, startURI = ``, language = `en_GB`, port = 3210, cssDiscardUnused = false, updateServiceWorker = false, onlineIndicatorFile = `https://degreesign.com/assets/images/Degree_Sign_Logo_2022.svg`, }) => {
+const build = ({ mode = `production`, appShortName = `WebApp`, twitterUserName = `degreesign`, websiteName = `DegreeSign WebApp`, websiteDomain = `degreesign.com`, publishedTime = `2025-01-01T00:00:00+00:00`, author = `DegreeSign Team`, websiteTitle = `progressive webapp`, websiteDescription = `Webpack progressive web app`, coverImage = `degreesign_screenshot.webp`, coverImageDescription = `Screenshot of website`, background_color = `#fff`, theme_color = '#000', app_icon = `app_icon.png`, fav_icon = `favicon.ico`, orientation = 'portrait', pagesList = [], htmlCommonElements = [], obfuscateON = false, minimiseON = true, srcDir = `src`, assetsDir = `assets`, commonDir = `common`, imagesDir = `images`, pagesDir = `pages`, pageHome = `home`, productionDir = `public_html`, htaccessCustom = ``, startURI = ``, language = `en_GB`, port = 3210, cssDiscardUnused = false, updateServiceWorker = false, onlineIndicatorFile = `https://degreesign.com/assets/images/Degree_Sign_Logo_2022.svg`, }) => {
     const latestUpdates = (0, utils_1.readJSON)(`./updateTimes.json`) || {}, updateTimes = () => (0, utils_1.writeJSON)(`./updateTimes.json`, latestUpdates), dataString = new Date().toISOString(), timeNow = Date.now(), websiteLink = `https://${websiteDomain}`, getImageURI = (image) => image?.includes(`/`) ? image
         : `/${assetsDir}/${imagesDir}/${image}`, getImageLink = (image) => image?.includes(`/`) ? image
         : `${websiteLink}/${assetsDir}/${imagesDir}/${image}`, coverImageLink = getImageLink(coverImage), appIconFile = getImageURI(app_icon), favIconFile = getImageURI(fav_icon), htmlElements = (() => {
@@ -261,7 +261,7 @@ ErrorDocument 403 /404
                 ],
             }),
             ...pagesList.map(pageData => {
-                const { noindex, uri: fileName, coverImage: coverImagePage, coverImageDescription: coverImageDescriptionPage, } = pageData, isHome = pageHome == fileName, coverImageLinkNew = coverImagePage ? getImageURI(coverImagePage) : coverImageLink;
+                const { noindex, uri: fileName, coverImage: coverImagePage, coverImageDescription: coverImageDescriptionPage, description, name: pageTitle, publishDate, } = pageData, isHome = pageHome == fileName, coverImageLinkNew = coverImagePage ? getImageURI(coverImagePage) : coverImageLink;
                 return new html_webpack_plugin_1.default({
                     chunks: [fileName],
                     title: isHome ? `${websiteName || ``} | ${websiteTitle || ``}`
@@ -275,12 +275,12 @@ ErrorDocument 403 /404
                     filename: isHome ? `index.html` : fileName,
                     meta: (0, utils_1.metaTags)({
                         author,
-                        websiteDescription,
                         websiteName,
-                        websiteTitle,
+                        websiteTitle: pageTitle || websiteTitle,
+                        websiteDescription: description || websiteDescription,
                         coverImageLink: coverImageLinkNew,
                         coverImageDescription: (coverImagePage ? coverImageDescriptionPage : coverImageDescription) || ``,
-                        publishedTime,
+                        publishedTime: publishDate || publishedTime,
                         websiteLink: isHome ? websiteLink : `${websiteLink}/${fileName}`,
                         dataString,
                         theme_color,
@@ -346,7 +346,7 @@ ErrorDocument 403 /404
             new HtmlInlineCssWebpackPlugin.default(), // Inline CSS into the HTML
         ],
         optimization: {
-            minimize: true, // Enable minimization
+            minimize: minimiseON, // Enable minimization
             minimizer: [
                 // Minify JavaScript
                 new terser_webpack_plugin_1.default({
