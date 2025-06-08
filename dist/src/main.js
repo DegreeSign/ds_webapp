@@ -288,6 +288,7 @@ ErrorDocument 403 /404
                         appIconFile,
                         noindex,
                         language,
+                        isHome,
                     }),
                     ...htmlElements,
                     ...pageData.headerHTML ? {

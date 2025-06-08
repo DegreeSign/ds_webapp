@@ -195,6 +195,8 @@ export interface MetaTagsInput {
     noindex?: boolean;
     /** Language of the website */
     language: string;
+    /** check if home */
+    isHome: boolean;
 }
 
 export interface TemplateHTMLOptions {

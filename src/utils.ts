@@ -79,7 +79,10 @@ const
         appIconFile,
         noindex,
         language,
+        isHome,
     }: MetaTagsInput): MetaTags => {
+        const titleText = isHome ? `${websiteName} | ${websiteTitle}`
+            : `${websiteTitle} | ${websiteName}`;
         return {
             ...noindex ? {
                 noindexTag: {
@@ -99,7 +102,7 @@ const
             'twitter:card': `summary_large_image`,
             'twitter:title': {
                 property: 'twitter:title',
-                content: `${websiteName} | ${websiteTitle}`
+                content: titleText
             },
             'twitter:description': {
                 property: 'twitter:description',
@@ -136,7 +139,7 @@ const
             },
             'og:title': {
                 property: 'og:title',
-                content: `${websiteName} | ${websiteTitle}`,
+                content: titleText,
                 name: `title`,
             },
             'og:description': {

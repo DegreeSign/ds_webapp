@@ -67,7 +67,9 @@ readJSON = (file, internal) => {
         return;
     }
     ;
-}, metaTags = ({ author, websiteDescription, websiteName, websiteTitle, coverImageLink, coverImageDescription, publishedTime, websiteLink, dataString, theme_color, twitterUserName, appIconFile, noindex, language, }) => {
+}, metaTags = ({ author, websiteDescription, websiteName, websiteTitle, coverImageLink, coverImageDescription, publishedTime, websiteLink, dataString, theme_color, twitterUserName, appIconFile, noindex, language, isHome, }) => {
+    const titleText = isHome ? `${websiteName} | ${websiteTitle}`
+        : `${websiteTitle} | ${websiteName}`;
     return {
         ...noindex ? {
             noindexTag: {
@@ -87,7 +89,7 @@ readJSON = (file, internal) => {
         'twitter:card': `summary_large_image`,
         'twitter:title': {
             property: 'twitter:title',
-            content: `${websiteName} | ${websiteTitle}`
+            content: titleText
         },
         'twitter:description': {
             property: 'twitter:description',
@@ -124,7 +126,7 @@ readJSON = (file, internal) => {
         },
         'og:title': {
             property: 'og:title',
-            content: `${websiteName} | ${websiteTitle}`,
+            content: titleText,
             name: `title`,
         },
         'og:description': {
