@@ -332,14 +332,7 @@ ErrorDocument 403 /404
                     return new HtmlWebpackPlugin({
                         chunks: [fileName],
                         title: isHome ? `${websiteName || ``} | ${websiteTitle || ``}`
-                            : `${pageData?.name} | ${websiteName || ``}`,
-                        links: canonicalTag({
-                            websiteDomain,
-                            page: isHome ? `` : `/${fileName}`,
-                            coverImageLink: coverImageLinkNew,
-                        }),
-                        pageBody: readData(`./${srcDir}/${pagesDir}/${fileName}/${fileName}.html`),
-                        filename: isHome ? `index.html` : fileName,
+                        : `${pageData?.name} | ${websiteName || ``}`,
                         meta: metaTags({
                             author,
                             websiteName,
@@ -357,6 +350,13 @@ ErrorDocument 403 /404
                             language,
                             isHome,
                         }),
+                        links: canonicalTag({
+                            websiteDomain,
+                            page: isHome ? `` : `/${fileName}`,
+                            coverImageLink: coverImageLinkNew,
+                        }),
+                        pageBody: readData(`./${srcDir}/${pagesDir}/${fileName}/${fileName}.html`),
+                        filename: isHome ? `index.html` : fileName,
                         ...htmlElements,
                         ...pageData.headerHTML ? {
                             headerHTML: pageData.headerHTML

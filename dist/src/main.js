@@ -267,13 +267,6 @@ ErrorDocument 403 /404
                     chunks: [fileName],
                     title: isHome ? `${websiteName || ``} | ${websiteTitle || ``}`
                         : `${pageData?.name} | ${websiteName || ``}`,
-                    links: (0, utils_1.canonicalTag)({
-                        websiteDomain,
-                        page: isHome ? `` : `/${fileName}`,
-                        coverImageLink: coverImageLinkNew,
-                    }),
-                    pageBody: (0, utils_1.readData)(`./${srcDir}/${pagesDir}/${fileName}/${fileName}.html`),
-                    filename: isHome ? `index.html` : fileName,
                     meta: (0, utils_1.metaTags)({
                         author,
                         websiteName,
@@ -291,6 +284,13 @@ ErrorDocument 403 /404
                         language,
                         isHome,
                     }),
+                    links: (0, utils_1.canonicalTag)({
+                        websiteDomain,
+                        page: isHome ? `` : `/${fileName}`,
+                        coverImageLink: coverImageLinkNew,
+                    }),
+                    pageBody: (0, utils_1.readData)(`./${srcDir}/${pagesDir}/${fileName}/${fileName}.html`),
+                    filename: isHome ? `index.html` : fileName,
                     ...htmlElements,
                     ...pageData.headerHTML ? {
                         headerHTML: pageData.headerHTML

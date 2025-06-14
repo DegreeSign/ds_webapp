@@ -84,6 +84,7 @@ const
         const titleText = isHome ? `${websiteName} | ${websiteTitle}`
             : `${websiteTitle} | ${websiteName}`;
         return {
+            charset: { charset: `UTF-8` },
             ...noindex ? {
                 noindexTag: {
                     name: `robots`,
@@ -94,7 +95,6 @@ const
             robots: `index, follow`,
             description: websiteDescription,
             viewport: `width=device-width, initial-scale=1.0`,
-            charset: { charset: `UTF-8` },
             'http-equiv:X-UA-Compatible': {
                 'http-equiv': `X-UA-Compatible`,
                 content: `ie=edge`,
