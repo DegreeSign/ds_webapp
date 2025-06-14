@@ -229,16 +229,6 @@ ErrorDocument 403 /404
         },
         module: {
             rules: [{
-                    test: /\.html$/,
-                    use: [
-                        {
-                            loader: 'html-loader',
-                            options: {
-                                removeComments: false, // Preserve HTML comments
-                            },
-                        },
-                    ],
-                }, {
                     test: /\.ts$/,
                     exclude: /node_modules/,
                     use: `ts-loader`,
@@ -319,6 +309,10 @@ ErrorDocument 403 /404
                         bodyHTML: pageData.customHTML.map(elm => (0, utils_1.readData)(`./${srcDir}/${commonDir}/${elm}.html`))?.join(``),
                     } : {},
                     templateContent,
+                    minify: {
+                        collapseWhitespace: true,
+                        removeComments: false, // Preserve comments during minification
+                    },
                 });
             }),
             ...obfuscateON ? [new webpack_obfuscator_1.default({
