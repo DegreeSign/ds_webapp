@@ -84,7 +84,6 @@ const
         const titleText = isHome ? `${websiteName} | ${websiteTitle}`
             : `${websiteTitle} | ${websiteName}`;
         return {
-            charset: { charset: `UTF-8` },
             ...noindex ? {
                 noindexTag: {
                     name: `robots`,

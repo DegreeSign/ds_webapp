@@ -147,6 +147,7 @@ const
                     <!-- Last Published: ${new Date().toUTCString()}+0000 (Coordinated Universal Time) -->
                     <html lang="en" prefix="og: https://ogp.me/">
                     <head>
+                        <meta charset="UTF-8">
                         <link rel="manifest" href="/app.json?v=${timeNow}">
                         <link rel="icon" href="${favIconFile}" type="image/x-icon">
                         ${links || ``}
@@ -283,6 +284,16 @@ ErrorDocument 403 /404
             },
             module: {
                 rules: [{
+                    test: /\.html$/,
+                    use: [
+                        {
+                            loader: 'html-loader',
+                            options: {
+                                removeComments: false, // Preserve HTML comments
+                            },
+                        },
+                    ],
+                }, {
                     test: /\.ts$/,
                     exclude: /node_modules/,
                     use: `ts-loader`,
@@ -332,7 +343,7 @@ ErrorDocument 403 /404
                     return new HtmlWebpackPlugin({
                         chunks: [fileName],
                         title: isHome ? `${websiteName || ``} | ${websiteTitle || ``}`
-                        : `${pageData?.name} | ${websiteName || ``}`,
+                            : `${pageData?.name} | ${websiteName || ``}`,
                         meta: metaTags({
                             author,
                             websiteName,
