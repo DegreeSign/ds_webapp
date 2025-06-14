@@ -310,7 +310,7 @@ ErrorDocument 403 /404
                 }),
                 new webpack.DefinePlugin(envKeys),
                 new CleanWebpackPlugin({
-                    cleanOnceBeforeBuildPatterns: ['code/*.js'],
+                    cleanOnceBeforeBuildPatterns: ['code/*.js', 'code/*.js.LICENSE.txt'],
                 }),
                 new CopyWebpackPlugin({
                     patterns: [

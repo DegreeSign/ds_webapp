@@ -255,7 +255,7 @@ ErrorDocument 403 /404
             }),
             new webpack_1.default.DefinePlugin(envKeys),
             new clean_webpack_plugin_1.CleanWebpackPlugin({
-                cleanOnceBeforeBuildPatterns: ['code/*.js'],
+                cleanOnceBeforeBuildPatterns: ['code/*.js', 'code/*.js.LICENSE.txt'],
             }),
             new copy_webpack_plugin_1.default({
                 patterns: [
