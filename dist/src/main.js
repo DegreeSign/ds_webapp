@@ -50,8 +50,8 @@ const HtmlInlineCssWebpackPlugin = __importStar(require("html-inline-css-webpack
 const mini_css_extract_plugin_1 = __importDefault(require("mini-css-extract-plugin"));
 const terser_webpack_plugin_1 = __importDefault(require("terser-webpack-plugin"));
 const utils_1 = require("./utils");
-const build = ({ mode = `production`, appShortName = `WebApp`, twitterUserName = `degreesign`, websiteName = `DegreeSign WebApp`, websiteDomain = `degreesign.com`, publishedTime = `2025-01-01T00:00:00+00:00`, author = `DegreeSign Team`, websiteTitle = `progressive webapp`, websiteDescription = `Webpack progressive web app`, coverImage = `degreesign_screenshot.webp`, coverImageDescription = `Screenshot of website`, background_color = `#fff`, theme_color = '#000', app_icon = `app_icon.png`, fav_icon = `favicon.ico`, orientation = 'portrait', pagesList = [], htmlCommonElements = [], obfuscateON = false, minimiseON = true, srcDir = `src`, assetsDir = `assets`, commonDir = `common`, imagesDir = `images`, pagesDir = `pages`, pageHome = `home`, productionDir = `public_html`, htaccessCustom = ``, startURI = ``, language = `en_GB`, port = 3210, cssDiscardUnused = false, updateServiceWorker = false, onlineIndicatorFile = `https://degreesign.com/assets/images/Degree_Sign_Logo_2022.svg`, }) => {
-    const latestUpdates = (0, utils_1.readJSON)(`./updateTimes.json`) || {}, updateTimes = () => (0, utils_1.writeJSON)(`./updateTimes.json`, latestUpdates), dataString = new Date().toISOString(), timeNow = Date.now(), websiteLink = `https://${websiteDomain}`, getImageURI = (image) => image?.includes(`/`) ? image
+const build = ({ mode = `production`, appShortName = `WebApp`, twitterUserName = `degreesign`, websiteName = `DegreeSign WebApp`, websiteDomain = `degreesign.com`, publishedTime = `2025-01-01T00:00:00+00:00`, author = `DegreeSign Team`, websiteTitle = `progressive webapp`, websiteDescription = `Webpack progressive web app`, coverImage = `degreesign_screenshot.webp`, coverImageDescription = `Screenshot of website`, background_color = `#fff`, theme_color = '#000', app_icon = `app_icon.png`, fav_icon = `favicon.ico`, orientation = 'portrait', pagesList = [], htmlCommonElements = [], obfuscateON = false, minimiseON = true, srcDir = `src`, assetsDir = `assets`, commonDir = `common`, imagesDir = `images`, pagesDir = `pages`, pageHome = `home`, productionDir = `public_html`, htaccessCustom = ``, startURI = ``, language = `en_GB`, port = 3210, cssDiscardUnused = false, updateServiceWorker = false, onlineIndicatorFile = `https://degreesign.com/assets/images/Degree_Sign_Logo_2022.svg`, maxFileSizeMB = 2, resolveOptions = {}, }) => {
+    const fileSize = maxFileSizeMB * 1024 ** 2, latestUpdates = (0, utils_1.readJSON)(`./updateTimes.json`) || {}, updateTimes = () => (0, utils_1.writeJSON)(`./updateTimes.json`, latestUpdates), dataString = new Date().toISOString(), timeNow = Date.now(), websiteLink = `https://${websiteDomain}`, getImageURI = (image) => image?.includes(`/`) ? image
         : `/${assetsDir}/${imagesDir}/${image}`, getImageLink = (image) => image?.includes(`/`) ? image
         : `${websiteLink}/${assetsDir}/${imagesDir}/${image}`, coverImageLink = getImageLink(coverImage), appIconFile = getImageURI(app_icon), favIconFile = getImageURI(fav_icon), htmlElements = (() => {
         const updateSW = !latestUpdates.serviceWorker || !updateServiceWorker, swTime = updateSW ? timeNow : latestUpdates.serviceWorker, elements = {
@@ -184,7 +184,7 @@ ErrorDocument 403 /404
         }
         ;
         htaccessFile += `<Files ${pageData.uri}>
-    Header set Content-Type "text/html"
+    Header set Content-Type "text/html; charset=UTF-8"
 </Files>
 `;
         if (!pageData.noindex && pageData.uri != pageHome)
@@ -214,8 +214,8 @@ ErrorDocument 403 /404
     return {
         entry: entryPoints,
         performance: {
-            maxAssetSize: 2 * 1024 ** 2,
-            maxEntrypointSize: 2 * 1024 ** 2,
+            maxAssetSize: fileSize,
+            maxEntrypointSize: fileSize,
         },
         output: {
             path: path_1.default.resolve(process.cwd(), productionDir),
@@ -223,7 +223,8 @@ ErrorDocument 403 /404
             publicPath: '/', // Ensures assets are referenced with absolute paths starting from the root
         },
         resolve: {
-            extensions: [`.ts`, `.js`, `.json`], // Resolve files
+            extensions: [`.tsx`, `.ts`, `.js`, `.json`], // Resolve files
+            ...resolveOptions,
         },
         module: {
             rules: [{
@@ -364,7 +365,7 @@ ErrorDocument 403 /404
                     },
                 }),
             ],
-        },
+        }, // @ts-ignore
         devServer: {
             static: {
                 directory: path_1.default.join(process.cwd(), productionDir),

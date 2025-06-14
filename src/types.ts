@@ -1,3 +1,5 @@
+import { ResolveOptions } from "webpack";
+
 export interface StringObj {
     [key: string]: string;
 }
@@ -102,6 +104,10 @@ export interface Config {
     updateServiceWorker?: boolean;
     /** Online reference file */
     onlineIndicatorFile?: string;
+    /** File Size (MB) */
+    maxFileSizeMB?: number;
+    /** Resolve Options */
+    resolveOptions?: ResolveOptions;
 }
 
 /** Update Times */

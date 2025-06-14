@@ -1,5 +1,5 @@
 import path from "path"
-import webpack from "webpack"
+import webpack, { Configuration } from "webpack"
 import HtmlWebpackPlugin from "html-webpack-plugin"
 import { CleanWebpackPlugin } from "clean-webpack-plugin"
 import WebpackObfuscator from "webpack-obfuscator"
@@ -62,9 +62,12 @@ const
         cssDiscardUnused = false,
         updateServiceWorker = false,
         onlineIndicatorFile = `https://degreesign.com/assets/images/Degree_Sign_Logo_2022.svg`,
-    }: Config) => {
+        maxFileSizeMB = 2,
+        resolveOptions = {},
+    }: Config): Configuration => {
 
         const
+            fileSize = maxFileSizeMB * 1024 ** 2,
             latestUpdates: UpdateTimes = readJSON(`./updateTimes.json`) || {},
             updateTimes = () => writeJSON(`./updateTimes.json`, latestUpdates),
             dataString = new Date().toISOString(),
@@ -233,7 +236,7 @@ ErrorDocument 403 /404
             };
 
             htaccessFile += `<Files ${pageData.uri}>
-    Header set Content-Type "text/html"
+    Header set Content-Type "text/html; charset=UTF-8"
 </Files>
 `
             if (!pageData.noindex && pageData.uri != pageHome)
@@ -266,8 +269,8 @@ ErrorDocument 403 /404
         return {
             entry: entryPoints,
             performance: {
-                maxAssetSize: 2 * 1024 ** 2,
-                maxEntrypointSize: 2 * 1024 ** 2,
+                maxAssetSize: fileSize,
+                maxEntrypointSize: fileSize,
             },
             output: {
                 path: path.resolve(process.cwd(), productionDir),
@@ -275,7 +278,8 @@ ErrorDocument 403 /404
                 publicPath: '/', // Ensures assets are referenced with absolute paths starting from the root
             },
             resolve: {
-                extensions: [`.ts`, `.js`, `.json`], // Resolve files
+                extensions: [`.tsx`, `.ts`, `.js`, `.json`], // Resolve files
+                ...resolveOptions,
             },
             module: {
                 rules: [{
@@ -431,7 +435,7 @@ ErrorDocument 403 /404
                         },
                     }),
                 ],
-            },
+            }, // @ts-ignore
             devServer: {
                 static: {
                     directory: path.join(process.cwd(), productionDir),
