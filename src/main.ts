@@ -91,6 +91,10 @@ const build = (params: ConfigBuild): Configuration => {
                     exclude: /node_modules/,
                     use: `ts-loader`,
                 },
+                ...isWebApp ? [] : [{
+                    test: /\.node$/,
+                    loader: 'node-loader',
+                }],
                 ...customWebRules
             ],
         },

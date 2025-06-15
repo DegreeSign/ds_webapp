@@ -66,6 +66,10 @@ const build = (params) => {
                     exclude: /node_modules/,
                     use: `ts-loader`,
                 },
+                ...isWebApp ? [] : [{
+                        test: /\.node$/,
+                        loader: 'node-loader',
+                    }],
                 ...customWebRules
             ],
         },
