@@ -4,7 +4,8 @@ import CssMinimizerPlugin from "css-minimizer-webpack-plugin";
 import CopyWebpackPlugin from "copy-webpack-plugin"
 import HtmlWebpackPlugin from "html-webpack-plugin";
 import MiniCssExtractPlugin from "mini-css-extract-plugin";
-import SitemapWebpackPlugin, * as SitemapPlugin from "sitemap-webpack-plugin"
+import * as SitemapPlugin from "sitemap-webpack-plugin"
+import * as HtmlInlineCssWebpackPlugin from "html-inline-css-webpack-plugin"
 import {
     ConfigWebApp,
     StringObj,
@@ -25,11 +26,6 @@ import {
 export const webConfig = (params: ConfigWebApp): WebConfig => {
 
     const
-        entryPoints: StringObj = {},
-        imageRules: ModuleOptions["rules"] = [],
-        configWebPlugins: Configuration["plugins"] = [],
-        siteMapData: SitemapWebpackPlugin[] = [],
-        cssMinimise: CssMinimizerPlugin<CssMinimizerPlugin.CssNanoOptionsExtended>[] = [],
         {
             srcDir = `src`,
             productionDir = `public_html`,
@@ -242,106 +238,116 @@ ErrorDocument 403 /404
     writeData(`./${productionDir}/app.json`, JSON.stringify(appManifest));
     writeData(`./${productionDir}/sw.js`, getServiceWorkerContent());
 
-    const pagesHTML: HtmlWebpackPlugin[] = pagesList.map(pageData => {
-        const
-            {
-                noindex,
-                uri: fileName,
-                coverImage: coverImagePage,
-                coverImageDescription: coverImageDescriptionPage,
-                description,
-                name: pageTitle,
-                publishDate,
-            } = pageData,
-            isHome = pageHome == fileName,
-            coverImageLinkNew = coverImagePage ? getImageURI(coverImagePage) : coverImageLink;
-        return new HtmlWebpackPlugin({
-            chunks: [fileName],
-            title: isHome ? `${websiteName || ``} | ${websiteTitle || ``}`
-                : `${pageData?.name} | ${websiteName || ``}`,
-            meta: metaTags({
-                author,
-                websiteName,
-                websiteTitle: pageTitle || websiteTitle,
-                websiteDescription: description || websiteDescription,
-                coverImageLink: coverImageLinkNew,
-                coverImageDescription: (coverImagePage ? coverImageDescriptionPage : coverImageDescription) || ``,
-                publishedTime: publishDate || publishedTime,
-                websiteLink: isHome ? websiteLink : `${websiteLink}/${fileName}`,
-                dataString,
-                theme_color,
-                twitterUserName,
-                appIconFile,
-                noindex,
-                language,
-                isHome,
+    const
+        pagesHTML: HtmlWebpackPlugin[] = pagesList.map(pageData => {
+            const
+                {
+                    noindex,
+                    uri: fileName,
+                    coverImage: coverImagePage,
+                    coverImageDescription: coverImageDescriptionPage,
+                    description,
+                    name: pageTitle,
+                    publishDate,
+                } = pageData,
+                isHome = pageHome == fileName,
+                coverImageLinkNew = coverImagePage ? getImageURI(coverImagePage) : coverImageLink;
+            return new HtmlWebpackPlugin({
+                chunks: [fileName],
+                title: isHome ? `${websiteName || ``} | ${websiteTitle || ``}`
+                    : `${pageData?.name} | ${websiteName || ``}`,
+                meta: metaTags({
+                    author,
+                    websiteName,
+                    websiteTitle: pageTitle || websiteTitle,
+                    websiteDescription: description || websiteDescription,
+                    coverImageLink: coverImageLinkNew,
+                    coverImageDescription: (coverImagePage ? coverImageDescriptionPage : coverImageDescription) || ``,
+                    publishedTime: publishDate || publishedTime,
+                    websiteLink: isHome ? websiteLink : `${websiteLink}/${fileName}`,
+                    dataString,
+                    theme_color,
+                    twitterUserName,
+                    appIconFile,
+                    noindex,
+                    language,
+                    isHome,
+                }),
+                links: canonicalTag({
+                    websiteDomain,
+                    page: isHome ? `` : `/${fileName}`,
+                    coverImageLink: coverImageLinkNew,
+                }),
+                pageBody: readData(`./${srcDir}/${pagesDir}/${fileName}/${fileName}.html`),
+                filename: isHome ? `index.html` : fileName,
+                ...htmlElements,
+                ...pageData.headerHTML ? {
+                    headerHTML: pageData.headerHTML
+                        + (htmlElements.headerHTML || ``)
+                } : {},
+                ...pageData.menuHTML ? {
+                    menuHTML: pageData.menuHTML
+                        + (htmlElements.menuHTML || ``)
+                } : {},
+                ...pageData.footerHTML ? {
+                    footerHTML: pageData.footerHTML
+                        + (htmlElements.footerHTML || ``)
+                } : {},
+                ...pageData.customHTML?.length ? {
+                    bodyHTML: pageData.customHTML.map(
+                        elm => readData(`./${srcDir}/${commonDir}/${elm}.html`)
+                    )?.join(``),
+                } : {},
+                templateContent,
+                minify: {
+                    collapseWhitespace: true,
+                    removeComments: false, // Preserve comments during minification
+                },
+            })
+        }),
+        configWebPlugins: Configuration["plugins"] = [
+            ...pagesHTML,
+            new SitemapPlugin.default({
+                base: websiteLink, // Replace with your site base URL
+                paths: siteMap,
+                options: {
+                    filename: `sitemap.xml`, // The name of the generated sitemap
+                },
             }),
-            links: canonicalTag({
-                websiteDomain,
-                page: isHome ? `` : `/${fileName}`,
-                coverImageLink: coverImageLinkNew,
+            new CopyWebpackPlugin({
+                patterns: [
+                    { from: `${srcDir}/${assetsDir}`, to: `${assetsDir}` },
+                ],
             }),
-            pageBody: readData(`./${srcDir}/${pagesDir}/${fileName}/${fileName}.html`),
-            filename: isHome ? `index.html` : fileName,
-            ...htmlElements,
-            ...pageData.headerHTML ? {
-                headerHTML: pageData.headerHTML
-                    + (htmlElements.headerHTML || ``)
-            } : {},
-            ...pageData.menuHTML ? {
-                menuHTML: pageData.menuHTML
-                    + (htmlElements.menuHTML || ``)
-            } : {},
-            ...pageData.footerHTML ? {
-                footerHTML: pageData.footerHTML
-                    + (htmlElements.footerHTML || ``)
-            } : {},
-            ...pageData.customHTML?.length ? {
-                bodyHTML: pageData.customHTML.map(
-                    elm => readData(`./${srcDir}/${commonDir}/${elm}.html`)
-                )?.join(``),
-            } : {},
-            templateContent,
-            minify: {
-                collapseWhitespace: true,
-                removeComments: false, // Preserve comments during minification
-            },
-        })
-    });
-
-    siteMapData.push(new SitemapPlugin.default({
-        base: websiteLink, // Replace with your site base URL
-        paths: siteMap,
-        options: {
-            filename: `sitemap.xml`, // The name of the generated sitemap
-        },
-    }));
-
-    configWebPlugins.push(new CopyWebpackPlugin({
-        patterns: [
-            { from: `${srcDir}/${assetsDir}`, to: `${assetsDir}` },
+            new MiniCssExtractPlugin({
+                filename: `styles/styles.css`, // Output CSS file with original name
+            }),
+            new HtmlInlineCssWebpackPlugin.default() // Inline CSS into the HTML
         ],
-    }));
-
-    configWebPlugins.push(new MiniCssExtractPlugin({
-        filename: `styles/styles.css`, // Output CSS file with original name
-    }));
-
-    imageRules.push({
-        test: /\.(png|jpe?g|gif|svg|ico)$/, // For images
-        exclude: /node_modules/,
-        type: `${assetsDir}/${imagesDir}`,
-        include: path.resolve(process.cwd(), `${srcDir}/${assetsDir}/${imagesDir}`), // Only include files from the assets folder
-        generator: {
-            filename: `${assetsDir}/${imagesDir}/[name][ext][query]`, // Output to dist/assets folder
-        },
-    });
-
-    cssMinimise.push(new CssMinimizerPlugin({ // Add the CSS minimizer plugin
-        minimizerOptions: {
-            preset: ['default', { discardUnused: cssDiscardUnused }], // Prevent removing unused styles
-        },
-    }));
+        customWebRules: ModuleOptions["rules"] = [{
+            test: /\.(png|jpe?g|gif|svg|ico)$/, // For images
+            exclude: /node_modules/,
+            type: `${assetsDir}/${imagesDir}`,
+            include: path.resolve(process.cwd(), `${srcDir}/${assetsDir}/${imagesDir}`), // Only include files from the assets folder
+            generator: {
+                filename: `${assetsDir}/${imagesDir}/[name][ext][query]`, // Output to dist/assets folder
+            },
+        }, {
+            test: /\.css$/, // For CSS files
+            exclude: /node_modules/,
+            use: [
+                MiniCssExtractPlugin.loader, // Extract CSS into files
+                `css-loader`, // Process CSS files
+            ],
+        }],
+        cssMinimise: CssMinimizerPlugin<
+            CssMinimizerPlugin.CssNanoOptionsExtended
+        >[] = [new CssMinimizerPlugin({ // Add the CSS minimizer plugin
+            minimizerOptions: {
+                preset: ['default', { discardUnused: cssDiscardUnused }], // Prevent removing unused styles
+            },
+        })],
+        entryPoints: StringObj = {};
 
     // entry points
     entryPoints[`${pageHome}`] = `./${srcDir}/${pagesDir}/${pageHome}/${pageHome}.ts`;
@@ -353,10 +359,8 @@ ErrorDocument 403 /404
 
     return {
         entryPoints,
-        pagesHTML,
-        imageRules,
+        customWebRules,
         configWebPlugins,
-        siteMapData,
-        cssMinimise
-    }
+        cssMinimise,
+    };
 };

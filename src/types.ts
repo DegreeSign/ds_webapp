@@ -56,6 +56,8 @@ export interface ConfigBase {
     maxFileSizeMB?: number;
     /** Resolve Options */
     resolveOptions?: ResolveOptions;
+    /** License Text */
+    licenseText?: string;
 }
 
 export interface ConfigWebApp extends ConfigBase {
@@ -245,9 +247,7 @@ export interface HtmlContent {
 
 export interface WebConfig {
     entryPoints: StringObj;
-    pagesHTML: HtmlWebpackPlugin[];
-    imageRules:ModuleOptions["rules"] ;
+    customWebRules: ModuleOptions["rules"];
     configWebPlugins: Configuration["plugins"];
-    siteMapData: SitemapWebpackPlugin[];
     cssMinimise: CssMinimizerPlugin<CssMinimizerPlugin.CssNanoOptionsExtended>[];
 }

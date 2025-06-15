@@ -1,8 +1,6 @@
 import path from "path"
 import webpack, { Configuration } from "webpack"
 import { CleanWebpackPlugin } from "clean-webpack-plugin"
-import * as HtmlInlineCssWebpackPlugin from "html-inline-css-webpack-plugin"
-import MiniCssExtractPlugin from "mini-css-extract-plugin"
 import TerserPlugin from "terser-webpack-plugin"
 import {
     ConfigBuild,
@@ -26,16 +24,15 @@ const build = (params: ConfigBuild): Configuration => {
             port = 3210,
             maxFileSizeMB = 2,
             resolveOptions = {},
+            licenseText = ``,
         } = params,
         {
             filesList = [],
         } = isWebApp ? {} : params,
         {
             entryPoints = {},
-            pagesHTML = [],
-            imageRules = [],
+            customWebRules = [],
             configWebPlugins = [],
-            siteMapData = [],
             cssMinimise = []
         } = isWebApp ? webConfig(params) : {},
         fileSize = maxFileSizeMB * 1024 ** 2,
@@ -61,11 +58,30 @@ const build = (params: ConfigBuild): Configuration => {
         },
         output: {
             path: path.resolve(process.cwd(), productionDir),
-            filename: `code/[name].[contenthash].js`,
-            publicPath: '/', // Ensures assets are referenced with absolute paths starting from the root
+            ...isWebApp ? {
+                filename: `code/[name].[contenthash].js`,
+                publicPath: '/', // Ensures assets are referenced with absolute paths starting from the root
+            } : {
+                filename: `[name].js`,
+                libraryTarget: `commonjs`, // CommonJS for Node.js
+                globalObject: `typeof globalThis !== 'undefined' ? globalThis : (typeof self !== 'undefined' ? self : this)`,
+            },
+        },
+        ...isWebApp ? {} : {
+            target: 'node', // Target Node.js environment
+            node: {
+                __dirname: false, // Prevent Webpack from mocking __dirname
+                __filename: false, // Prevent Webpack from mocking __filename
+            },
         },
         resolve: {
             extensions: [`.tsx`, `.ts`, `.js`, `.json`], // Resolve files
+            ...isWebApp ? {} : {
+                mainFields: [`module`, `main`],
+                conditionNames: [`import`, `default`],
+                aliasFields: [],
+                preferRelative: true,
+            },
             ...resolveOptions,
         },
         module: {
@@ -75,26 +91,19 @@ const build = (params: ConfigBuild): Configuration => {
                     exclude: /node_modules/,
                     use: `ts-loader`,
                 },
-                {
-                    test: /\.css$/, // For CSS files
-                    exclude: /node_modules/,
-                    use: [
-                        MiniCssExtractPlugin.loader, // Extract CSS into files
-                        `css-loader`, // Process CSS files
-                    ],
-                },
-                ...imageRules
+                ...customWebRules
             ],
         },
         plugins: [
             new webpack.DefinePlugin(envKeys),
+            ...licenseText ? [new webpack.BannerPlugin({
+                banner: licenseText,
+                raw: true,
+            })] : [],
             new CleanWebpackPlugin({
                 cleanOnceBeforeBuildPatterns: ['code/*.js', 'code/*.js.LICENSE.txt'],
             }),
             ...obfuscateON ? [obfuscationSettings] : [],
-            new HtmlInlineCssWebpackPlugin.default(), // Inline CSS into the HTML
-            ...pagesHTML,
-            ...siteMapData,
             ...configWebPlugins,
         ],
         optimization: {
@@ -109,6 +118,10 @@ const build = (params: ConfigBuild): Configuration => {
                 }),
                 ...cssMinimise,
             ],
+            ...isWebApp ? {} : {
+                usedExports: true,        // Enable tree-shaking
+                sideEffects: false,       // Mark the project as free of side effects
+            },
         }, // @ts-ignore
         devServer: {
             static: {

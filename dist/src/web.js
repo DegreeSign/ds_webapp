@@ -43,9 +43,10 @@ const copy_webpack_plugin_1 = __importDefault(require("copy-webpack-plugin"));
 const html_webpack_plugin_1 = __importDefault(require("html-webpack-plugin"));
 const mini_css_extract_plugin_1 = __importDefault(require("mini-css-extract-plugin"));
 const SitemapPlugin = __importStar(require("sitemap-webpack-plugin"));
+const HtmlInlineCssWebpackPlugin = __importStar(require("html-inline-css-webpack-plugin"));
 const utils_1 = require("./utils");
 const webConfig = (params) => {
-    const entryPoints = {}, imageRules = [], configWebPlugins = [], siteMapData = [], cssMinimise = [], { srcDir = `src`, productionDir = `public_html`, appShortName = `WebApp`, twitterUserName = `degreesign`, websiteName = `DegreeSign WebApp`, websiteDomain = `degreesign.com`, publishedTime = `2025-01-01T00:00:00+00:00`, author = `DegreeSign Team`, websiteTitle = `progressive webapp`, websiteDescription = `Webpack progressive web app`, coverImage = `degreesign_screenshot.webp`, coverImageDescription = `Screenshot of website`, background_color = `#fff`, theme_color = '#000', app_icon = `app_icon.png`, fav_icon = `favicon.ico`, orientation = 'portrait', pagesList = [], htmlCommonElements = [], assetsDir = `assets`, commonDir = `common`, imagesDir = `images`, pagesDir = `pages`, pageHome = `home`, htaccessCustom = ``, startURI = ``, language = `en_GB`, cssDiscardUnused = false, updateServiceWorker = false, onlineIndicatorFile = `https://degreesign.com/assets/images/Degree_Sign_Logo_2022.svg`, } = params || {};
+    const { srcDir = `src`, productionDir = `public_html`, appShortName = `WebApp`, twitterUserName = `degreesign`, websiteName = `DegreeSign WebApp`, websiteDomain = `degreesign.com`, publishedTime = `2025-01-01T00:00:00+00:00`, author = `DegreeSign Team`, websiteTitle = `progressive webapp`, websiteDescription = `Webpack progressive web app`, coverImage = `degreesign_screenshot.webp`, coverImageDescription = `Screenshot of website`, background_color = `#fff`, theme_color = '#000', app_icon = `app_icon.png`, fav_icon = `favicon.ico`, orientation = 'portrait', pagesList = [], htmlCommonElements = [], assetsDir = `assets`, commonDir = `common`, imagesDir = `images`, pagesDir = `pages`, pageHome = `home`, htaccessCustom = ``, startURI = ``, language = `en_GB`, cssDiscardUnused = false, updateServiceWorker = false, onlineIndicatorFile = `https://degreesign.com/assets/images/Degree_Sign_Logo_2022.svg`, } = params || {};
     const latestUpdates = (0, utils_1.readJSON)(`./updateTimes.json`) || {}, updateTimes = () => (0, utils_1.writeJSON)(`./updateTimes.json`, latestUpdates), dataString = new Date().toISOString(), timeNow = Date.now(), websiteLink = `https://${websiteDomain}`, getImageURI = (image) => image?.includes(`/`) ? image
         : `/${assetsDir}/${imagesDir}/${image}`, getImageLink = (image) => image?.includes(`/`) ? image
         : `${websiteLink}/${assetsDir}/${imagesDir}/${image}`, coverImageLink = getImageLink(coverImage), appIconFile = getImageURI(app_icon), favIconFile = getImageURI(fav_icon), htmlElements = (() => {
@@ -246,36 +247,44 @@ ErrorDocument 403 /404
                 removeComments: false, // Preserve comments during minification
             },
         });
-    });
-    siteMapData.push(new SitemapPlugin.default({
-        base: websiteLink, // Replace with your site base URL
-        paths: siteMap,
-        options: {
-            filename: `sitemap.xml`, // The name of the generated sitemap
-        },
-    }));
-    configWebPlugins.push(new copy_webpack_plugin_1.default({
-        patterns: [
-            { from: `${srcDir}/${assetsDir}`, to: `${assetsDir}` },
-        ],
-    }));
-    configWebPlugins.push(new mini_css_extract_plugin_1.default({
-        filename: `styles/styles.css`, // Output CSS file with original name
-    }));
-    imageRules.push({
-        test: /\.(png|jpe?g|gif|svg|ico)$/, // For images
-        exclude: /node_modules/,
-        type: `${assetsDir}/${imagesDir}`,
-        include: path_1.default.resolve(process.cwd(), `${srcDir}/${assetsDir}/${imagesDir}`), // Only include files from the assets folder
-        generator: {
-            filename: `${assetsDir}/${imagesDir}/[name][ext][query]`, // Output to dist/assets folder
-        },
-    });
-    cssMinimise.push(new css_minimizer_webpack_plugin_1.default({
-        minimizerOptions: {
-            preset: ['default', { discardUnused: cssDiscardUnused }], // Prevent removing unused styles
-        },
-    }));
+    }), configWebPlugins = [
+        ...pagesHTML,
+        new SitemapPlugin.default({
+            base: websiteLink, // Replace with your site base URL
+            paths: siteMap,
+            options: {
+                filename: `sitemap.xml`, // The name of the generated sitemap
+            },
+        }),
+        new copy_webpack_plugin_1.default({
+            patterns: [
+                { from: `${srcDir}/${assetsDir}`, to: `${assetsDir}` },
+            ],
+        }),
+        new mini_css_extract_plugin_1.default({
+            filename: `styles/styles.css`, // Output CSS file with original name
+        }),
+        new HtmlInlineCssWebpackPlugin.default() // Inline CSS into the HTML
+    ], customWebRules = [{
+            test: /\.(png|jpe?g|gif|svg|ico)$/, // For images
+            exclude: /node_modules/,
+            type: `${assetsDir}/${imagesDir}`,
+            include: path_1.default.resolve(process.cwd(), `${srcDir}/${assetsDir}/${imagesDir}`), // Only include files from the assets folder
+            generator: {
+                filename: `${assetsDir}/${imagesDir}/[name][ext][query]`, // Output to dist/assets folder
+            },
+        }, {
+            test: /\.css$/, // For CSS files
+            exclude: /node_modules/,
+            use: [
+                mini_css_extract_plugin_1.default.loader, // Extract CSS into files
+                `css-loader`, // Process CSS files
+            ],
+        }], cssMinimise = [new css_minimizer_webpack_plugin_1.default({
+            minimizerOptions: {
+                preset: ['default', { discardUnused: cssDiscardUnused }], // Prevent removing unused styles
+            },
+        })], entryPoints = {};
     // entry points
     entryPoints[`${pageHome}`] = `./${srcDir}/${pagesDir}/${pageHome}/${pageHome}.ts`;
     for (let i = 0; i < pagesList.length; i++) {
@@ -286,11 +295,9 @@ ErrorDocument 403 /404
     ;
     return {
         entryPoints,
-        pagesHTML,
-        imageRules,
+        customWebRules,
         configWebPlugins,
-        siteMapData,
-        cssMinimise
+        cssMinimise,
     };
 };
 exports.webConfig = webConfig;

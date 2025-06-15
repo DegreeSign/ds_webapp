@@ -29,6 +29,9 @@ Add file `package.json` as following
     "start": "webpack serve --config webpack.web.ts",
     "build_server": "webpack --config webpack.server.ts",
     "start_server": "webpack serve --config webpack.server.ts"
+  },
+  "devDependencies": {
+    "degreesign": "latest"
   }
 }
 ```
