@@ -124,6 +124,9 @@ const build = (params: ConfigBuild): Configuration => {
                             drop_console: false, // Do not remove console logs
                         },
                     },
+                    ...isWebApp ? {} : {
+                        extractComments: false, // Prevent duplicate comments for external modules
+                    },
                 }),
                 ...cssMinimise,
             ],
