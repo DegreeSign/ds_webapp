@@ -1,17 +1,16 @@
 import path from "path"
-import webpack, { Configuration } from "webpack"
+import webpack, { Configuration, ModuleOptions, RuleSetRule, WebpackPluginInstance } from "webpack"
 import HtmlWebpackPlugin from "html-webpack-plugin"
 import { CleanWebpackPlugin } from "clean-webpack-plugin"
 import WebpackObfuscator from "webpack-obfuscator"
 import CopyWebpackPlugin from "copy-webpack-plugin"
-import * as SitemapPlugin from "sitemap-webpack-plugin"
-import dotenv from "dotenv"
+import SitemapWebpackPlugin, * as SitemapPlugin from "sitemap-webpack-plugin"
 import CssMinimizerPlugin from "css-minimizer-webpack-plugin"
 import * as HtmlInlineCssWebpackPlugin from "html-inline-css-webpack-plugin"
 import MiniCssExtractPlugin from "mini-css-extract-plugin"
 import TerserPlugin from "terser-webpack-plugin"
 import {
-    Config,
+    ConfigBuild,
     StringObj,
     TemplateHTMLOptions,
     UpdateTimes,
@@ -25,53 +24,82 @@ import {
     writeData,
     writeJSON
 } from "./utils"
+import dotenv from "dotenv"
+dotenv.config();
 
-const
-    build = ({
-        mode = `production`,
-        appShortName = `WebApp`,
-        twitterUserName = `degreesign`,
-        websiteName = `DegreeSign WebApp`,
-        websiteDomain = `degreesign.com`,
-        publishedTime = `2025-01-01T00:00:00+00:00`,
-        author = `DegreeSign Team`,
-        websiteTitle = `progressive webapp`,
-        websiteDescription = `Webpack progressive web app`,
-        coverImage = `degreesign_screenshot.webp`,
-        coverImageDescription = `Screenshot of website`,
-        background_color = `#fff`,
-        theme_color = '#000',
-        app_icon = `app_icon.png`,
-        fav_icon = `favicon.ico`,
-        orientation = 'portrait',
-        pagesList = [],
-        htmlCommonElements = [],
-        obfuscateON = false,
-        minimiseON = true,
-        srcDir = `src`,
-        assetsDir = `assets`,
-        commonDir = `common`,
-        imagesDir = `images`,
-        pagesDir = `pages`,
-        pageHome = `home`,
-        productionDir = `public_html`,
-        htaccessCustom = ``,
-        startURI = ``,
-        language = `en_GB`,
-        port = 3210,
-        cssDiscardUnused = false,
-        updateServiceWorker = false,
-        onlineIndicatorFile = `https://degreesign.com/assets/images/Degree_Sign_Logo_2022.svg`,
-        maxFileSizeMB = 2,
-        resolveOptions = {},
-    }: Config): Configuration => {
+const build = (params: ConfigBuild): Configuration => {
+
+    const
+        isWebApp = params.type != `server`,
+        {
+            mode = `production`,
+            obfuscateON = false,
+            minimiseON = true,
+            srcDir = `src`,
+            productionDir = `public_html`,
+            port = 3210,
+            maxFileSizeMB = 2,
+            resolveOptions = {},
+        } = params,
+        {
+            filesList = [],
+        } = isWebApp ? {} : params;
+
+    const
+        fileSize = maxFileSizeMB * 1024 ** 2,
+        latestUpdates: UpdateTimes = readJSON(`./updateTimes.json`) || {},
+        updateTimes = () => writeJSON(`./updateTimes.json`, latestUpdates),
+        dataString = new Date().toISOString(),
+        timeNow = Date.now(),
+        envKeys: StringObj = {},
+        entryPoints: StringObj = {},
+
+        // webapp
+        imageRules: ModuleOptions["rules"] = [],
+        configWebPlugins: Configuration["plugins"] = [],
+        siteMapData: SitemapWebpackPlugin[] = [],
+        cssMinimise: CssMinimizerPlugin<CssMinimizerPlugin.CssNanoOptionsExtended>[] = [];
+    let pagesHTML: HtmlWebpackPlugin[] = [];
+
+    // Environment keys
+    for (const key in process.env)
+        envKeys[`process.env.${key}`] = JSON.stringify(process.env[key]);
+
+    if (isWebApp) {
+
+
+        const {
+            appShortName = `WebApp`,
+            twitterUserName = `degreesign`,
+            websiteName = `DegreeSign WebApp`,
+            websiteDomain = `degreesign.com`,
+            publishedTime = `2025-01-01T00:00:00+00:00`,
+            author = `DegreeSign Team`,
+            websiteTitle = `progressive webapp`,
+            websiteDescription = `Webpack progressive web app`,
+            coverImage = `degreesign_screenshot.webp`,
+            coverImageDescription = `Screenshot of website`,
+            background_color = `#fff`,
+            theme_color = '#000',
+            app_icon = `app_icon.png`,
+            fav_icon = `favicon.ico`,
+            orientation = 'portrait',
+            pagesList = [],
+            htmlCommonElements = [],
+            assetsDir = `assets`,
+            commonDir = `common`,
+            imagesDir = `images`,
+            pagesDir = `pages`,
+            pageHome = `home`,
+            htaccessCustom = ``,
+            startURI = ``,
+            language = `en_GB`,
+            cssDiscardUnused = false,
+            updateServiceWorker = false,
+            onlineIndicatorFile = `https://degreesign.com/assets/images/Degree_Sign_Logo_2022.svg`,
+        } = isWebApp ? params : {};
 
         const
-            fileSize = maxFileSizeMB * 1024 ** 2,
-            latestUpdates: UpdateTimes = readJSON(`./updateTimes.json`) || {},
-            updateTimes = () => writeJSON(`./updateTimes.json`, latestUpdates),
-            dataString = new Date().toISOString(),
-            timeNow = Date.now(),
             websiteLink = `https://${websiteDomain}`,
             getImageURI = (image: string) => image?.includes(`/`) ? image
                 : `/${assetsDir}/${imagesDir}/${image}`,
@@ -101,13 +129,6 @@ const
                     };
                 return elements
             })(),
-
-            envKeys: StringObj = {},
-
-            entryPoints = {
-                [`${pageHome}`]: `./${srcDir}/${pagesDir}/${pageHome}/${pageHome}.ts`, // Entry file for TypeScript
-            },
-
             appManifest: WebManifest = {
                 background_color,
                 theme_color,
@@ -131,7 +152,6 @@ const
                 name: websiteName
             },
             siteMap = [{ path: `/`, priority: 1.0, lastmod: dataString }],
-
             templateContent = ({ htmlWebpackPlugin }: any) => {
                 const {
                     links,
@@ -162,7 +182,6 @@ const
                     </body>
                     </html>`
             },
-
             robots = `User-agent: *
 Allow: /
 Disallow: /404
@@ -255,202 +274,219 @@ ErrorDocument 403 /404
         writeData(`./${productionDir}/app.json`, JSON.stringify(appManifest));
         writeData(`./${productionDir}/sw.js`, getServiceWorkerContent());
 
-        // Environment keys
-        dotenv.config();
-        for (const key in process.env)
-            envKeys[`process.env.${key}`] = JSON.stringify(process.env[key]);
+        pagesHTML = pagesList.map(pageData => {
+            const
+                {
+                    noindex,
+                    uri: fileName,
+                    coverImage: coverImagePage,
+                    coverImageDescription: coverImageDescriptionPage,
+                    description,
+                    name: pageTitle,
+                    publishDate,
+                } = pageData,
+                isHome = pageHome == fileName,
+                coverImageLinkNew = coverImagePage ? getImageURI(coverImagePage) : coverImageLink;
+            return new HtmlWebpackPlugin({
+                chunks: [fileName],
+                title: isHome ? `${websiteName || ``} | ${websiteTitle || ``}`
+                    : `${pageData?.name} | ${websiteName || ``}`,
+                meta: metaTags({
+                    author,
+                    websiteName,
+                    websiteTitle: pageTitle || websiteTitle,
+                    websiteDescription: description || websiteDescription,
+                    coverImageLink: coverImageLinkNew,
+                    coverImageDescription: (coverImagePage ? coverImageDescriptionPage : coverImageDescription) || ``,
+                    publishedTime: publishDate || publishedTime,
+                    websiteLink: isHome ? websiteLink : `${websiteLink}/${fileName}`,
+                    dataString,
+                    theme_color,
+                    twitterUserName,
+                    appIconFile,
+                    noindex,
+                    language,
+                    isHome,
+                }),
+                links: canonicalTag({
+                    websiteDomain,
+                    page: isHome ? `` : `/${fileName}`,
+                    coverImageLink: coverImageLinkNew,
+                }),
+                pageBody: readData(`./${srcDir}/${pagesDir}/${fileName}/${fileName}.html`),
+                filename: isHome ? `index.html` : fileName,
+                ...htmlElements,
+                ...pageData.headerHTML ? {
+                    headerHTML: pageData.headerHTML
+                        + (htmlElements.headerHTML || ``)
+                } : {},
+                ...pageData.menuHTML ? {
+                    menuHTML: pageData.menuHTML
+                        + (htmlElements.menuHTML || ``)
+                } : {},
+                ...pageData.footerHTML ? {
+                    footerHTML: pageData.footerHTML
+                        + (htmlElements.footerHTML || ``)
+                } : {},
+                ...pageData.customHTML?.length ? {
+                    bodyHTML: pageData.customHTML.map(
+                        elm => readData(`./${srcDir}/${commonDir}/${elm}.html`)
+                    )?.join(``),
+                } : {},
+                templateContent,
+                minify: {
+                    collapseWhitespace: true,
+                    removeComments: false, // Preserve comments during minification
+                },
+            })
+        });
+
+        siteMapData.push(new SitemapPlugin.default({
+            base: websiteLink, // Replace with your site base URL
+            paths: siteMap,
+            options: {
+                filename: `sitemap.xml`, // The name of the generated sitemap
+            },
+        }));
+
+        configWebPlugins.push(new CopyWebpackPlugin({
+            patterns: [
+                { from: `${srcDir}/${assetsDir}`, to: `${assetsDir}` },
+            ],
+        }));
+
+        configWebPlugins.push(new MiniCssExtractPlugin({
+            filename: `styles/styles.css`, // Output CSS file with original name
+        }));
+
+        imageRules.push({
+            test: /\.(png|jpe?g|gif|svg|ico)$/, // For images
+            exclude: /node_modules/,
+            type: `${assetsDir}/${imagesDir}`,
+            include: path.resolve(process.cwd(), `${srcDir}/${assetsDir}/${imagesDir}`), // Only include files from the assets folder
+            generator: {
+                filename: `${assetsDir}/${imagesDir}/[name][ext][query]`, // Output to dist/assets folder
+            },
+        });
+
+        cssMinimise.push(new CssMinimizerPlugin({ // Add the CSS minimizer plugin
+            minimizerOptions: {
+                preset: ['default', { discardUnused: cssDiscardUnused }], // Prevent removing unused styles
+            },
+        }));
 
         // entry points
+        entryPoints[`${pageHome}`] = `./${srcDir}/${pagesDir}/${pageHome}/${pageHome}.ts`;
         for (let i = 0; i < pagesList.length; i++) {
             const { uri: fileName } = pagesList[i];
             entryPoints[fileName] =
                 `./${srcDir}/${pagesDir}/${fileName}/${fileName}.ts`;
         };
 
-        return {
-            entry: entryPoints,
-            performance: {
-                maxAssetSize: fileSize,
-                maxEntrypointSize: fileSize,
-            },
-            output: {
-                path: path.resolve(process.cwd(), productionDir),
-                filename: `code/[name].[contenthash].js`,
-                publicPath: '/', // Ensures assets are referenced with absolute paths starting from the root
-            },
-            resolve: {
-                extensions: [`.tsx`, `.ts`, `.js`, `.json`], // Resolve files
-                ...resolveOptions,
-            },
-            module: {
-                rules: [{
+    } else {
+
+        // entry points
+        for (let i = 0; i < filesList.length; i++) {
+            const fileName = filesList[i];
+            entryPoints[fileName] =
+                `./${srcDir}/${fileName}.ts`;
+        };
+    };
+
+    return {
+        entry: entryPoints,
+        performance: {
+            maxAssetSize: fileSize,
+            maxEntrypointSize: fileSize,
+        },
+        output: {
+            path: path.resolve(process.cwd(), productionDir),
+            filename: `code/[name].[contenthash].js`,
+            publicPath: '/', // Ensures assets are referenced with absolute paths starting from the root
+        },
+        resolve: {
+            extensions: [`.tsx`, `.ts`, `.js`, `.json`], // Resolve files
+            ...resolveOptions,
+        },
+        module: {
+            rules: [
+                {
                     test: /\.ts$/,
                     exclude: /node_modules/,
                     use: `ts-loader`,
-                }, {
+                },
+                {
                     test: /\.css$/, // For CSS files
                     exclude: /node_modules/,
                     use: [
                         MiniCssExtractPlugin.loader, // Extract CSS into files
                         `css-loader`, // Process CSS files
                     ],
-                }, {
-                    test: /\.(png|jpe?g|gif|svg|ico)$/, // For images
-                    exclude: /node_modules/,
-                    type: `${assetsDir}/${imagesDir}`,
-                    include: path.resolve(process.cwd(), `${srcDir}/${assetsDir}/${imagesDir}`), // Only include files from the assets folder
-                    generator: {
-                        filename: `${assetsDir}/${imagesDir}/[name][ext][query]`, // Output to dist/assets folder
-                    },
-                }],
-            },
-            plugins: [
-                new MiniCssExtractPlugin({
-                    filename: `styles/styles.css`, // Output CSS file with original name
-                }),
-                new webpack.DefinePlugin(envKeys),
-                new CleanWebpackPlugin({
-                    cleanOnceBeforeBuildPatterns: ['code/*.js', 'code/*.js.LICENSE.txt'],
-                }),
-                new CopyWebpackPlugin({
-                    patterns: [
-                        { from: `${srcDir}/${assetsDir}`, to: `${assetsDir}` },
-                    ],
-                }),
-                ...pagesList.map(pageData => {
-                    const
-                        {
-                            noindex,
-                            uri: fileName,
-                            coverImage: coverImagePage,
-                            coverImageDescription: coverImageDescriptionPage,
-                            description,
-                            name: pageTitle,
-                            publishDate,
-                        } = pageData,
-                        isHome = pageHome == fileName,
-                        coverImageLinkNew = coverImagePage ? getImageURI(coverImagePage) : coverImageLink;
-                    return new HtmlWebpackPlugin({
-                        chunks: [fileName],
-                        title: isHome ? `${websiteName || ``} | ${websiteTitle || ``}`
-                            : `${pageData?.name} | ${websiteName || ``}`,
-                        meta: metaTags({
-                            author,
-                            websiteName,
-                            websiteTitle: pageTitle || websiteTitle,
-                            websiteDescription: description || websiteDescription,
-                            coverImageLink: coverImageLinkNew,
-                            coverImageDescription: (coverImagePage ? coverImageDescriptionPage : coverImageDescription) || ``,
-                            publishedTime: publishDate || publishedTime,
-                            websiteLink: isHome ? websiteLink : `${websiteLink}/${fileName}`,
-                            dataString,
-                            theme_color,
-                            twitterUserName,
-                            appIconFile,
-                            noindex,
-                            language,
-                            isHome,
-                        }),
-                        links: canonicalTag({
-                            websiteDomain,
-                            page: isHome ? `` : `/${fileName}`,
-                            coverImageLink: coverImageLinkNew,
-                        }),
-                        pageBody: readData(`./${srcDir}/${pagesDir}/${fileName}/${fileName}.html`),
-                        filename: isHome ? `index.html` : fileName,
-                        ...htmlElements,
-                        ...pageData.headerHTML ? {
-                            headerHTML: pageData.headerHTML
-                                + (htmlElements.headerHTML || ``)
-                        } : {},
-                        ...pageData.menuHTML ? {
-                            menuHTML: pageData.menuHTML
-                                + (htmlElements.menuHTML || ``)
-                        } : {},
-                        ...pageData.footerHTML ? {
-                            footerHTML: pageData.footerHTML
-                                + (htmlElements.footerHTML || ``)
-                        } : {},
-                        ...pageData.customHTML?.length ? {
-                            bodyHTML: pageData.customHTML.map(
-                                elm => readData(`./${srcDir}/${commonDir}/${elm}.html`)
-                            )?.join(``),
-                        } : {},
-                        templateContent,
-                        minify: {
-                            collapseWhitespace: true,
-                            removeComments: false, // Preserve comments during minification
-                        },
-                    })
-                }),
-                ...obfuscateON ? [new WebpackObfuscator({
-                    compact: true, // Minify the output
-                    controlFlowFlattening: false, // Disable control flow flattening to avoid errors
-                    deadCodeInjection: false, // Disable dead code injection
-                    debugProtection: false, // Disable debug protection
-                    debugProtectionInterval: 0,
-                    disableConsoleOutput: false, // Allow console output
-                    identifierNamesGenerator: 'hexadecimal', // Use hexadecimal names for identifiers
-                    log: false,
-                    numbersToExpressions: false, // Disable numbers to expressions to reduce bloat
-                    renameGlobals: false, // Avoid renaming global variables
-                    selfDefending: false, // Disable self-defending code
-                    simplify: true, // Simplify code structure
-                    splitStrings: true, // Split strings into chunks
-                    splitStringsChunkLength: 8, // chunk length
-                    stringArray: true, // Enable string array transformation
-                    stringArrayCallsTransform: false,
-                    stringArrayEncoding: [], // No encoding for string array
-                    stringArrayIndexShift: false, // Disable index shifting
-                    stringArrayRotate: false, // Disable rotation to avoid potential issues
-                    stringArrayShuffle: false, // Disable shuffling for stability
-                    stringArrayWrappersCount: 1, // Match wrapper count
-                    stringArrayWrappersChainedCalls: false, // Disable chained calls
-                    stringArrayWrappersParametersMaxCount: 2, // Match max parameters
-                    stringArrayWrappersType: `variable`, // Use variable wrappers
-                    stringArrayThreshold: 1, // Obfuscate all strings
-                    unicodeEscapeSequence: false // Disable unicode escape sequences
-                })] : [],
-                new SitemapPlugin.default({
-                    base: websiteLink, // Replace with your site base URL
-                    paths: siteMap,
-                    options: {
-                        filename: `sitemap.xml`, // The name of the generated sitemap
-                    },
-                }),
-                new HtmlInlineCssWebpackPlugin.default(), // Inline CSS into the HTML
-            ],
-            optimization: {
-                minimize: minimiseON, // Enable minimization
-                minimizer: [
-
-                    // Minify JavaScript
-                    new TerserPlugin({
-                        terserOptions: {
-                            compress: {
-                                drop_console: false, // Do not remove console logs
-                            },
-                        },
-                    }),
-
-                    // Add the CSS minimizer plugin
-                    new CssMinimizerPlugin({
-                        minimizerOptions: {
-                            preset: ['default', { discardUnused: cssDiscardUnused }], // Prevent removing unused styles
-                        },
-                    }),
-                ],
-            }, // @ts-ignore
-            devServer: {
-                static: {
-                    directory: path.join(process.cwd(), productionDir),
                 },
-                port, // Specify your desired port
-                open: true, // Automatically open the browser
-                compress: true, // Enable gzip compression for files served
+                ...imageRules
+            ],
+        },
+        plugins: [
+            new webpack.DefinePlugin(envKeys),
+            new CleanWebpackPlugin({
+                cleanOnceBeforeBuildPatterns: ['code/*.js', 'code/*.js.LICENSE.txt'],
+            }),
+            ...obfuscateON ? [new WebpackObfuscator({
+                compact: true, // Minify the output
+                controlFlowFlattening: false, // Disable control flow flattening to avoid errors
+                deadCodeInjection: false, // Disable dead code injection
+                debugProtection: false, // Disable debug protection
+                debugProtectionInterval: 0,
+                disableConsoleOutput: false, // Allow console output
+                identifierNamesGenerator: 'hexadecimal', // Use hexadecimal names for identifiers
+                log: false,
+                numbersToExpressions: false, // Disable numbers to expressions to reduce bloat
+                renameGlobals: false, // Avoid renaming global variables
+                selfDefending: false, // Disable self-defending code
+                simplify: true, // Simplify code structure
+                splitStrings: true, // Split strings into chunks
+                splitStringsChunkLength: 8, // chunk length
+                stringArray: true, // Enable string array transformation
+                stringArrayCallsTransform: false,
+                stringArrayEncoding: [], // No encoding for string array
+                stringArrayIndexShift: false, // Disable index shifting
+                stringArrayRotate: false, // Disable rotation to avoid potential issues
+                stringArrayShuffle: false, // Disable shuffling for stability
+                stringArrayWrappersCount: 1, // Match wrapper count
+                stringArrayWrappersChainedCalls: false, // Disable chained calls
+                stringArrayWrappersParametersMaxCount: 2, // Match max parameters
+                stringArrayWrappersType: `variable`, // Use variable wrappers
+                stringArrayThreshold: 1, // Obfuscate all strings
+                unicodeEscapeSequence: false // Disable unicode escape sequences
+            })] : [],
+            new HtmlInlineCssWebpackPlugin.default(), // Inline CSS into the HTML
+            ...pagesHTML,
+            ...siteMapData,
+            ...configWebPlugins,
+        ],
+        optimization: {
+            minimize: minimiseON, // Enable minimization
+            minimizer: [
+                new TerserPlugin({ // Minify JavaScript
+                    terserOptions: {
+                        compress: {
+                            drop_console: false, // Do not remove console logs
+                        },
+                    },
+                }),
+                ...cssMinimise,
+            ],
+        }, // @ts-ignore
+        devServer: {
+            static: {
+                directory: path.join(process.cwd(), productionDir),
             },
-            mode
-        };
+            port, // Specify your desired port
+            open: true, // Automatically open the browser
+            compress: true, // Enable gzip compression for files served
+        },
+        mode
     };
+};
 
 export { build };

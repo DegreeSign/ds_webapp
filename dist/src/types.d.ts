@@ -32,17 +32,33 @@ interface Page {
     /** Custom body HTML Elements (optional) */
     customHTML?: string[];
 }
-export interface Config {
+export interface ConfigBase {
+    /** Source directory path */
+    srcDir: string;
+    /** Production directory path */
+    productionDir: string;
     /** Application mode, either development or production */
-    mode: 'development' | 'production';
-    /** Short name of the application */
-    appShortName: string;
-    /** Twitter username associated with the application */
-    twitterUserName: string;
+    mode?: 'development' | 'production';
+    /** Flag to enable or disable obfuscation */
+    obfuscateON?: boolean;
+    /** Flag to enable or disable JS code minimisation */
+    minimiseON?: boolean;
+    /** Port Number */
+    port?: number;
+    /** File Size (MB) */
+    maxFileSizeMB?: number;
+    /** Resolve Options */
+    resolveOptions?: ResolveOptions;
+}
+export interface ConfigWebApp extends ConfigBase {
     /** Name of the website */
     websiteName: string;
     /** Domain of the website */
     websiteDomain: string;
+    /** Short name of the application */
+    appShortName: string;
+    /** Twitter username associated with the application */
+    twitterUserName: string;
     /** Publication time of the website */
     publishedTime: string;
     /** Author of the website */
@@ -68,13 +84,7 @@ export interface Config {
     /** Pages list array */
     pagesList: Page[];
     /** Array of common HTML elements to include */
-    htmlCommonElements: (`header` | `footer` | `menu`)[];
-    /** Flag to enable or disable obfuscation */
-    obfuscateON?: boolean;
-    /** Flag to enable or disable JS code minimisation */
-    minimiseON?: boolean;
-    /** Source directory path */
-    srcDir: string;
+    htmlCommonElements?: (`header` | `footer` | `menu`)[];
     /** Assets directory path */
     assetsDir: string;
     /** Common directory path */
@@ -85,27 +95,28 @@ export interface Config {
     pagesDir: string;
     /** Home page identifier or path */
     pageHome: string;
-    /** Production directory path */
-    productionDir: string;
     /** Added to end of htaccess */
     htaccessCustom: string;
     /** App start URI */
     startURI?: string;
     /** App Language */
     language?: string;
-    /** Port Number */
-    port?: number;
     /** css Discard Unused */
     cssDiscardUnused?: boolean;
     /** Update service worker */
     updateServiceWorker?: boolean;
     /** Online reference file */
     onlineIndicatorFile?: string;
-    /** File Size (MB) */
-    maxFileSizeMB?: number;
-    /** Resolve Options */
-    resolveOptions?: ResolveOptions;
 }
+export interface ConfigServer extends ConfigBase {
+    /** Server Files list */
+    filesList: string[];
+}
+export type ConfigBuild = {
+    type: `webapp`;
+} & ConfigWebApp | {
+    type: `server`;
+} & ConfigServer;
 /** Update Times */
 export interface UpdateTimes {
     /** service worker */

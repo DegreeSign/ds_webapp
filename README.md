@@ -1,5 +1,4 @@
 # DegreeSign WebApp
-
 The progressive web application template built with Webpack and TypeScript. Leverage `degreesign` package for streamlined configuration and deployment.
 
 ## Features
@@ -20,7 +19,24 @@ The progressive web application template built with Webpack and TypeScript. Leve
    - Ensure a TypeScript configuration (`tsconfig.json`) is set up.
 5. **IDE**: Use VS Code or any TypeScript-compatible editor for best experience.
 
-## Folder Structure
+## Package File
+Add file `package.json` as following
+```json
+{
+  "license": "MIT",
+  "scripts": {
+    "build": "webpack --config webpack.web.ts",
+    "start": "webpack serve --config webpack.web.ts",
+    "build_server": "webpack --config webpack.server.ts",
+    "start_server": "webpack serve --config webpack.server.ts"
+  }
+}
+```
+
+## WebApp FrontEnd
+WebApp front-end website configuration
+
+### Folder Structure
 ```
 app_folder/
 ├── public_html/                 # Output directory for production build
@@ -31,25 +47,25 @@ app_folder/
 │   │   │   ├── app_icon.png     # App icon for PWA
 │   │   │   └── app_cover_image.webp  # Cover image for SEO
 │   ├── code/                    # Utility scripts
-│   │   └── utils.ts             # Shared TypeScript utilities
+│   │   └── utils.ts             # Shared TypeScript utilities (optional)
 │   ├── pages/                   # Page-specific files
 │   │   ├── home/                # Home page
 │   │   │   ├── home.ts          # Home page logic
 │   │   │   └── home.html        # Home page template
 │   └── styles.css               # Global styles
-├── webpack.config.ts            # Webpack configuration
+├── webpack.web.ts            # Webpack configuration
 ├── .env                         # Environment variables
 ├── tsconfig.json                # TypeScript configuration
 └── package.json                 # Project metadata and scripts
 ```
 
-## Webpack Configuration
-The `webpack.config.ts` file is the core of the build process, utilising the `degreesign` package for simplified setup. Below is the configuration:
-
-```
+### Configuration
+Add `webpack.web.ts` file as the core of the webapp build process as following
+```typescript
 import { build } from "degreesign";
 
 module.exports = build({
+  type: "webapp",
   websiteDomain: "example.com",
   websiteName: "Your App Name",
   appShortName: "AppName",
@@ -60,15 +76,15 @@ module.exports = build({
   websiteDescription: "A brief description of your app.",
   coverImage: "app_cover_image.webp",
   coverImageDescription: "A descriptive alt text for the cover image.",
-  notificationTitle: "New Notification",
-  notificationText: "You have a new notification!",
   background_color: "#ffffff",
   theme_color: "#000000",
   app_icon: "app_icon.png",
   fav_icon: "favicon.ico",
   orientation: "portrait",
   pagesList: [{
-    
+    uri: `home`,
+    name: `HomePage`,
+    description: `Progressive Web App (PWA) HomePage`,
   }],
   htmlCommonElements: [],
   obfuscateON: false,
@@ -86,37 +102,77 @@ module.exports = build({
 });
 ```
 
-### Key Configuration Notes
+## WebApp BackEnd
+WebApp back-end server configuration
+
+### Folder Structure
+```
+app_folder/
+├── server_build/                # Output directory for production build
+├── server/                      # Source files
+│   ├── code/                    # Utility scripts
+│   │   └── utils.ts             # Shared TypeScript utilities (optional)
+│   └── main.ts                  # Main server file
+├── webpack.server.ts            # Webpack configuration
+├── .env                         # Environment variables
+├── tsconfig.json                # TypeScript configuration
+└── package.json                 # Project metadata and scripts
+```
+
+### Configuration
+Add `webpack.server.ts` file as the core of the server build process as following
+```typescript
+import { build } from "degreesign";
+
+module.exports = build({
+    type: `server`,
+    obfuscateON: true,
+    srcDir: `server`,
+    productionDir: `server_build`,
+    filesList: [`main`],
+    port: 3211,
+});
+```
+
+## Key Configuration Notes
 - **Environment Variables**: Use `.env` to securely store sensitive data.
+- **Development Server**: Runs on `port: 3210` by default.
 - **PWA Support**: Customise `app_icon`, `fav_icon`, and `orientation` for a native-like experience.
 - **SEO Optimisation**: Set `websiteTitle`, `websiteDescription`, and `coverImage` for better search visibility.
 - **Pages**: Add all pages to `pagesList`.
-- **Development Server**: Runs on `port: 3210` by default.
 
 ## Getting Started
 1. **Clone the Repository**:
    ```bash
-   git clone <repository-url>
-   cd degreesign_webapp
+   git clone https://github.com/DegreeSign/ds_webapp.git
+   cd ds_webapp
    ```
 2. **Install Dependencies**:
    ```bash
-   npm install
+   yarn install
    ```
-3. **Run Development Server**:
+3. **Create Folders Structure**:
+   Create folder structure for webapp, server, or both and add necessary files as explained above.
+4. **Run Development Server**:
+   *For WebApp*
    ```bash
-   npm run start
+   yarn start
    ```
-4. **Build for Production**:
+   *For Server*
    ```bash
-   npm run build
+   yarn start_server
+   ```
+5. **Build for Production**:
+   *For WebApp*
+   ```bash
+   yarn build
    ```
    Output will be in the `public_html/` directory.
-
-## Scripts
-- `npm run start`: Starts the development server.
-- `npm run build`: Builds the app for production.
-- `npm run lint`: Runs TypeScript and ESLint checks (if configured).
+   *For Server*
+   ```bash
+   yarn build_server
+   ```
+   Output will be in the `server_build/` directory.
 
 ## Contributing
 1. Fork the repository.

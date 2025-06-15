@@ -44,60 +44,69 @@ const clean_webpack_plugin_1 = require("clean-webpack-plugin");
 const webpack_obfuscator_1 = __importDefault(require("webpack-obfuscator"));
 const copy_webpack_plugin_1 = __importDefault(require("copy-webpack-plugin"));
 const SitemapPlugin = __importStar(require("sitemap-webpack-plugin"));
-const dotenv_1 = __importDefault(require("dotenv"));
 const css_minimizer_webpack_plugin_1 = __importDefault(require("css-minimizer-webpack-plugin"));
 const HtmlInlineCssWebpackPlugin = __importStar(require("html-inline-css-webpack-plugin"));
 const mini_css_extract_plugin_1 = __importDefault(require("mini-css-extract-plugin"));
 const terser_webpack_plugin_1 = __importDefault(require("terser-webpack-plugin"));
 const utils_1 = require("./utils");
-const build = ({ mode = `production`, appShortName = `WebApp`, twitterUserName = `degreesign`, websiteName = `DegreeSign WebApp`, websiteDomain = `degreesign.com`, publishedTime = `2025-01-01T00:00:00+00:00`, author = `DegreeSign Team`, websiteTitle = `progressive webapp`, websiteDescription = `Webpack progressive web app`, coverImage = `degreesign_screenshot.webp`, coverImageDescription = `Screenshot of website`, background_color = `#fff`, theme_color = '#000', app_icon = `app_icon.png`, fav_icon = `favicon.ico`, orientation = 'portrait', pagesList = [], htmlCommonElements = [], obfuscateON = false, minimiseON = true, srcDir = `src`, assetsDir = `assets`, commonDir = `common`, imagesDir = `images`, pagesDir = `pages`, pageHome = `home`, productionDir = `public_html`, htaccessCustom = ``, startURI = ``, language = `en_GB`, port = 3210, cssDiscardUnused = false, updateServiceWorker = false, onlineIndicatorFile = `https://degreesign.com/assets/images/Degree_Sign_Logo_2022.svg`, maxFileSizeMB = 2, resolveOptions = {}, }) => {
-    const fileSize = maxFileSizeMB * 1024 ** 2, latestUpdates = (0, utils_1.readJSON)(`./updateTimes.json`) || {}, updateTimes = () => (0, utils_1.writeJSON)(`./updateTimes.json`, latestUpdates), dataString = new Date().toISOString(), timeNow = Date.now(), websiteLink = `https://${websiteDomain}`, getImageURI = (image) => image?.includes(`/`) ? image
-        : `/${assetsDir}/${imagesDir}/${image}`, getImageLink = (image) => image?.includes(`/`) ? image
-        : `${websiteLink}/${assetsDir}/${imagesDir}/${image}`, coverImageLink = getImageLink(coverImage), appIconFile = getImageURI(app_icon), favIconFile = getImageURI(fav_icon), htmlElements = (() => {
-        const updateSW = !latestUpdates.serviceWorker || !updateServiceWorker, swTime = updateSW ? timeNow : latestUpdates.serviceWorker, elements = {
-            headerHTML: `<script>${(0, utils_1.readData)(`sw_register.js`, true)
-                ?.replaceAll(`TIME_UPDATED`, `${swTime}`)}</script>`
-        };
-        if (updateSW) {
-            latestUpdates.serviceWorker = timeNow;
-            updateTimes();
-        }
-        ;
-        if (htmlCommonElements?.length)
-            for (let i = 0; i < htmlCommonElements.length; i++) {
-                const elm = htmlCommonElements[i];
-                elements[`${elm}HTML`] =
-                    (elm == `header` ? elements.headerHTML : ``)
-                        + (0, utils_1.readData)(`./${srcDir}/${commonDir}/${elm}.html`);
+const dotenv_1 = __importDefault(require("dotenv"));
+dotenv_1.default.config();
+const build = (params) => {
+    const isWebApp = params.type != `server`, { mode = `production`, obfuscateON = false, minimiseON = true, srcDir = `src`, productionDir = `public_html`, port = 3210, maxFileSizeMB = 2, resolveOptions = {}, } = params, { filesList = [], } = isWebApp ? {} : params;
+    const fileSize = maxFileSizeMB * 1024 ** 2, latestUpdates = (0, utils_1.readJSON)(`./updateTimes.json`) || {}, updateTimes = () => (0, utils_1.writeJSON)(`./updateTimes.json`, latestUpdates), dataString = new Date().toISOString(), timeNow = Date.now(), envKeys = {}, entryPoints = {}, 
+    // webapp
+    imageRules = [], configWebPlugins = [], siteMapData = [], cssMinimise = [];
+    let pagesHTML = [];
+    // Environment keys
+    for (const key in process.env)
+        envKeys[`process.env.${key}`] = JSON.stringify(process.env[key]);
+    if (isWebApp) {
+        const { appShortName = `WebApp`, twitterUserName = `degreesign`, websiteName = `DegreeSign WebApp`, websiteDomain = `degreesign.com`, publishedTime = `2025-01-01T00:00:00+00:00`, author = `DegreeSign Team`, websiteTitle = `progressive webapp`, websiteDescription = `Webpack progressive web app`, coverImage = `degreesign_screenshot.webp`, coverImageDescription = `Screenshot of website`, background_color = `#fff`, theme_color = '#000', app_icon = `app_icon.png`, fav_icon = `favicon.ico`, orientation = 'portrait', pagesList = [], htmlCommonElements = [], assetsDir = `assets`, commonDir = `common`, imagesDir = `images`, pagesDir = `pages`, pageHome = `home`, htaccessCustom = ``, startURI = ``, language = `en_GB`, cssDiscardUnused = false, updateServiceWorker = false, onlineIndicatorFile = `https://degreesign.com/assets/images/Degree_Sign_Logo_2022.svg`, } = isWebApp ? params : {};
+        const websiteLink = `https://${websiteDomain}`, getImageURI = (image) => image?.includes(`/`) ? image
+            : `/${assetsDir}/${imagesDir}/${image}`, getImageLink = (image) => image?.includes(`/`) ? image
+            : `${websiteLink}/${assetsDir}/${imagesDir}/${image}`, coverImageLink = getImageLink(coverImage), appIconFile = getImageURI(app_icon), favIconFile = getImageURI(fav_icon), htmlElements = (() => {
+            const updateSW = !latestUpdates.serviceWorker || !updateServiceWorker, swTime = updateSW ? timeNow : latestUpdates.serviceWorker, elements = {
+                headerHTML: `<script>${(0, utils_1.readData)(`sw_register.js`, true)
+                    ?.replaceAll(`TIME_UPDATED`, `${swTime}`)}</script>`
+            };
+            if (updateSW) {
+                latestUpdates.serviceWorker = timeNow;
+                updateTimes();
             }
-        ;
-        return elements;
-    })(), envKeys = {}, entryPoints = {
-        [`${pageHome}`]: `./${srcDir}/${pagesDir}/${pageHome}/${pageHome}.ts`, // Entry file for TypeScript
-    }, appManifest = {
-        background_color,
-        theme_color,
-        icons: [{
-                src: appIconFile,
-                type: 'image/png',
-                sizes: '512x512',
-                purpose: 'maskable'
-            }, {
-                src: appIconFile,
-                type: 'image/png',
-                sizes: '512x512',
-                purpose: 'any'
-            }],
-        shortcuts: [],
-        display: 'standalone',
-        orientation,
-        short_name: appShortName,
-        start_url: `/${startURI}`,
-        description: websiteDescription,
-        name: websiteName
-    }, siteMap = [{ path: `/`, priority: 1.0, lastmod: dataString }], templateContent = ({ htmlWebpackPlugin }) => {
-        const { links, headerHTML, title, menuHTML, bodyHTML, pageBody, footerHTML, } = htmlWebpackPlugin.options || {};
-        return `<!-- Copyright © ${new Date(publishedTime).getFullYear()}-present ${websiteName}, All rights reserved. -->
+            ;
+            if (htmlCommonElements?.length)
+                for (let i = 0; i < htmlCommonElements.length; i++) {
+                    const elm = htmlCommonElements[i];
+                    elements[`${elm}HTML`] =
+                        (elm == `header` ? elements.headerHTML : ``)
+                            + (0, utils_1.readData)(`./${srcDir}/${commonDir}/${elm}.html`);
+                }
+            ;
+            return elements;
+        })(), appManifest = {
+            background_color,
+            theme_color,
+            icons: [{
+                    src: appIconFile,
+                    type: 'image/png',
+                    sizes: '512x512',
+                    purpose: 'maskable'
+                }, {
+                    src: appIconFile,
+                    type: 'image/png',
+                    sizes: '512x512',
+                    purpose: 'any'
+                }],
+            shortcuts: [],
+            display: 'standalone',
+            orientation,
+            short_name: appShortName,
+            start_url: `/${startURI}`,
+            description: websiteDescription,
+            name: websiteName
+        }, siteMap = [{ path: `/`, priority: 1.0, lastmod: dataString }], templateContent = ({ htmlWebpackPlugin }) => {
+            const { links, headerHTML, title, menuHTML, bodyHTML, pageBody, footerHTML, } = htmlWebpackPlugin.options || {};
+            return `<!-- Copyright © ${new Date(publishedTime).getFullYear()}-present ${websiteName}, All rights reserved. -->
                     <!DOCTYPE html>
                     <!-- Last Published: ${new Date().toUTCString()}+0000 (Coordinated Universal Time) -->
                     <html lang="en" prefix="og: https://ogp.me/">
@@ -116,23 +125,23 @@ const build = ({ mode = `production`, appShortName = `WebApp`, twitterUserName =
                         ${footerHTML || ``}
                     </body>
                     </html>`;
-    }, robots = `User-agent: *
+        }, robots = `User-agent: *
 Allow: /
 Disallow: /404
 ${pagesList?.map(page => page.noindex ? `Disallow: /${page.uri}` : ``)?.join(`\n`)}
 
 Sitemap: https://${websiteDomain}/sitemap.xml`, getServiceWorkerContent = () => {
-        const urlsToCache = ['/', '/index.html', '/app.json'].concat(pagesList.map(pageData => {
-            return `/${pageData?.uri}`;
-        })), file = (0, utils_1.readData)(`sw.js`, true);
-        return file
-            ?.replaceAll(`APP_URL`, `/${startURI}`)
-            ?.replaceAll(`APP_ICON`, appIconFile)
-            ?.replaceAll(`APP_BADGE`, appIconFile)
-            ?.replaceAll(`NOTIFICATION_URI`, `/${startURI}`)
-            ?.replaceAll(`REFERENCE_FILE`, onlineIndicatorFile);
-    };
-    let htaccessFile = `# Policies
+            const urlsToCache = ['/', '/index.html', '/app.json'].concat(pagesList.map(pageData => {
+                return `/${pageData?.uri}`;
+            })), file = (0, utils_1.readData)(`sw.js`, true);
+            return file
+                ?.replaceAll(`APP_URL`, `/${startURI}`)
+                ?.replaceAll(`APP_ICON`, appIconFile)
+                ?.replaceAll(`APP_BADGE`, appIconFile)
+                ?.replaceAll(`NOTIFICATION_URI`, `/${startURI}`)
+                ?.replaceAll(`REFERENCE_FILE`, onlineIndicatorFile);
+        };
+        let htaccessFile = `# Policies
 <IfModule mod_headers.c>
   SetEnvIf Origin ^*\\.${websiteDomain?.replaceAll(`.`, `\\.`)}$ ORIGIN=$0
   Header always set Access-Control-Allow-Origin %{ORIGIN}e env=ORIGIN
@@ -158,58 +167,148 @@ ErrorDocument 403 /404
 
 # Add content type
 `;
-    for (let i = 0; i < pagesList.length; i++) {
-        const pageData = pagesList[i];
-        if (pageData.shortcut) {
-            const icon = pageData.icon ?
-                pageData.icon?.includes(`/`) ? pageData.icon
-                    : `/${assetsDir}/${imagesDir}/${pageData.icon}`
-                : appIconFile;
-            appManifest.shortcuts.push({
-                name: pageData.name,
-                short_name: pageData.short_name || pageData.name,
-                description: pageData.description,
-                url: `/${pageData.uri}`,
-                icons: [{
-                        src: icon,
-                        type: 'image/png',
-                        sizes: '512x512',
-                        purpose: 'maskable'
-                    }, {
-                        src: icon,
-                        type: 'image/png',
-                        sizes: '512x512',
-                        purpose: 'any'
-                    }]
-            });
-        }
-        ;
-        htaccessFile += `<Files ${pageData.uri}>
+        for (let i = 0; i < pagesList.length; i++) {
+            const pageData = pagesList[i];
+            if (pageData.shortcut) {
+                const icon = pageData.icon ?
+                    pageData.icon?.includes(`/`) ? pageData.icon
+                        : `/${assetsDir}/${imagesDir}/${pageData.icon}`
+                    : appIconFile;
+                appManifest.shortcuts.push({
+                    name: pageData.name,
+                    short_name: pageData.short_name || pageData.name,
+                    description: pageData.description,
+                    url: `/${pageData.uri}`,
+                    icons: [{
+                            src: icon,
+                            type: 'image/png',
+                            sizes: '512x512',
+                            purpose: 'maskable'
+                        }, {
+                            src: icon,
+                            type: 'image/png',
+                            sizes: '512x512',
+                            purpose: 'any'
+                        }]
+                });
+            }
+            ;
+            htaccessFile += `<Files ${pageData.uri}>
     Header set Content-Type "text/html; charset=UTF-8"
 </Files>
 `;
-        if (!pageData.noindex && pageData.uri != pageHome)
-            siteMap.push({
-                path: `/${pageData.uri}`,
-                priority: 0.8,
-                lastmod: dataString
+            if (!pageData.noindex && pageData.uri != pageHome)
+                siteMap.push({
+                    path: `/${pageData.uri}`,
+                    priority: 0.8,
+                    lastmod: dataString
+                });
+        }
+        ;
+        htaccessFile += htaccessCustom;
+        (0, utils_1.writeData)(`./${productionDir}/robots.txt`, robots);
+        (0, utils_1.writeData)(`./${productionDir}/.htaccess`, htaccessFile);
+        (0, utils_1.writeData)(`./${productionDir}/app.json`, JSON.stringify(appManifest));
+        (0, utils_1.writeData)(`./${productionDir}/sw.js`, getServiceWorkerContent());
+        pagesHTML = pagesList.map(pageData => {
+            const { noindex, uri: fileName, coverImage: coverImagePage, coverImageDescription: coverImageDescriptionPage, description, name: pageTitle, publishDate, } = pageData, isHome = pageHome == fileName, coverImageLinkNew = coverImagePage ? getImageURI(coverImagePage) : coverImageLink;
+            return new html_webpack_plugin_1.default({
+                chunks: [fileName],
+                title: isHome ? `${websiteName || ``} | ${websiteTitle || ``}`
+                    : `${pageData?.name} | ${websiteName || ``}`,
+                meta: (0, utils_1.metaTags)({
+                    author,
+                    websiteName,
+                    websiteTitle: pageTitle || websiteTitle,
+                    websiteDescription: description || websiteDescription,
+                    coverImageLink: coverImageLinkNew,
+                    coverImageDescription: (coverImagePage ? coverImageDescriptionPage : coverImageDescription) || ``,
+                    publishedTime: publishDate || publishedTime,
+                    websiteLink: isHome ? websiteLink : `${websiteLink}/${fileName}`,
+                    dataString,
+                    theme_color,
+                    twitterUserName,
+                    appIconFile,
+                    noindex,
+                    language,
+                    isHome,
+                }),
+                links: (0, utils_1.canonicalTag)({
+                    websiteDomain,
+                    page: isHome ? `` : `/${fileName}`,
+                    coverImageLink: coverImageLinkNew,
+                }),
+                pageBody: (0, utils_1.readData)(`./${srcDir}/${pagesDir}/${fileName}/${fileName}.html`),
+                filename: isHome ? `index.html` : fileName,
+                ...htmlElements,
+                ...pageData.headerHTML ? {
+                    headerHTML: pageData.headerHTML
+                        + (htmlElements.headerHTML || ``)
+                } : {},
+                ...pageData.menuHTML ? {
+                    menuHTML: pageData.menuHTML
+                        + (htmlElements.menuHTML || ``)
+                } : {},
+                ...pageData.footerHTML ? {
+                    footerHTML: pageData.footerHTML
+                        + (htmlElements.footerHTML || ``)
+                } : {},
+                ...pageData.customHTML?.length ? {
+                    bodyHTML: pageData.customHTML.map(elm => (0, utils_1.readData)(`./${srcDir}/${commonDir}/${elm}.html`))?.join(``),
+                } : {},
+                templateContent,
+                minify: {
+                    collapseWhitespace: true,
+                    removeComments: false, // Preserve comments during minification
+                },
             });
+        });
+        siteMapData.push(new SitemapPlugin.default({
+            base: websiteLink, // Replace with your site base URL
+            paths: siteMap,
+            options: {
+                filename: `sitemap.xml`, // The name of the generated sitemap
+            },
+        }));
+        configWebPlugins.push(new copy_webpack_plugin_1.default({
+            patterns: [
+                { from: `${srcDir}/${assetsDir}`, to: `${assetsDir}` },
+            ],
+        }));
+        configWebPlugins.push(new mini_css_extract_plugin_1.default({
+            filename: `styles/styles.css`, // Output CSS file with original name
+        }));
+        imageRules.push({
+            test: /\.(png|jpe?g|gif|svg|ico)$/, // For images
+            exclude: /node_modules/,
+            type: `${assetsDir}/${imagesDir}`,
+            include: path_1.default.resolve(process.cwd(), `${srcDir}/${assetsDir}/${imagesDir}`), // Only include files from the assets folder
+            generator: {
+                filename: `${assetsDir}/${imagesDir}/[name][ext][query]`, // Output to dist/assets folder
+            },
+        });
+        cssMinimise.push(new css_minimizer_webpack_plugin_1.default({
+            minimizerOptions: {
+                preset: ['default', { discardUnused: cssDiscardUnused }], // Prevent removing unused styles
+            },
+        }));
+        // entry points
+        entryPoints[`${pageHome}`] = `./${srcDir}/${pagesDir}/${pageHome}/${pageHome}.ts`;
+        for (let i = 0; i < pagesList.length; i++) {
+            const { uri: fileName } = pagesList[i];
+            entryPoints[fileName] =
+                `./${srcDir}/${pagesDir}/${fileName}/${fileName}.ts`;
+        }
+        ;
     }
-    ;
-    htaccessFile += htaccessCustom;
-    (0, utils_1.writeData)(`./${productionDir}/robots.txt`, robots);
-    (0, utils_1.writeData)(`./${productionDir}/.htaccess`, htaccessFile);
-    (0, utils_1.writeData)(`./${productionDir}/app.json`, JSON.stringify(appManifest));
-    (0, utils_1.writeData)(`./${productionDir}/sw.js`, getServiceWorkerContent());
-    // Environment keys
-    dotenv_1.default.config();
-    for (const key in process.env)
-        envKeys[`process.env.${key}`] = JSON.stringify(process.env[key]);
-    // entry points
-    for (let i = 0; i < pagesList.length; i++) {
-        const { uri: fileName } = pagesList[i];
-        entryPoints[fileName] =
-            `./${srcDir}/${pagesDir}/${fileName}/${fileName}.ts`;
+    else {
+        // entry points
+        for (let i = 0; i < filesList.length; i++) {
+            const fileName = filesList[i];
+            entryPoints[fileName] =
+                `./${srcDir}/${fileName}.ts`;
+        }
+        ;
     }
     ;
     return {
@@ -228,92 +327,27 @@ ErrorDocument 403 /404
             ...resolveOptions,
         },
         module: {
-            rules: [{
+            rules: [
+                {
                     test: /\.ts$/,
                     exclude: /node_modules/,
                     use: `ts-loader`,
-                }, {
+                },
+                {
                     test: /\.css$/, // For CSS files
                     exclude: /node_modules/,
                     use: [
                         mini_css_extract_plugin_1.default.loader, // Extract CSS into files
                         `css-loader`, // Process CSS files
                     ],
-                }, {
-                    test: /\.(png|jpe?g|gif|svg|ico)$/, // For images
-                    exclude: /node_modules/,
-                    type: `${assetsDir}/${imagesDir}`,
-                    include: path_1.default.resolve(process.cwd(), `${srcDir}/${assetsDir}/${imagesDir}`), // Only include files from the assets folder
-                    generator: {
-                        filename: `${assetsDir}/${imagesDir}/[name][ext][query]`, // Output to dist/assets folder
-                    },
-                }],
+                },
+                ...imageRules
+            ],
         },
         plugins: [
-            new mini_css_extract_plugin_1.default({
-                filename: `styles/styles.css`, // Output CSS file with original name
-            }),
             new webpack_1.default.DefinePlugin(envKeys),
             new clean_webpack_plugin_1.CleanWebpackPlugin({
                 cleanOnceBeforeBuildPatterns: ['code/*.js', 'code/*.js.LICENSE.txt'],
-            }),
-            new copy_webpack_plugin_1.default({
-                patterns: [
-                    { from: `${srcDir}/${assetsDir}`, to: `${assetsDir}` },
-                ],
-            }),
-            ...pagesList.map(pageData => {
-                const { noindex, uri: fileName, coverImage: coverImagePage, coverImageDescription: coverImageDescriptionPage, description, name: pageTitle, publishDate, } = pageData, isHome = pageHome == fileName, coverImageLinkNew = coverImagePage ? getImageURI(coverImagePage) : coverImageLink;
-                return new html_webpack_plugin_1.default({
-                    chunks: [fileName],
-                    title: isHome ? `${websiteName || ``} | ${websiteTitle || ``}`
-                        : `${pageData?.name} | ${websiteName || ``}`,
-                    meta: (0, utils_1.metaTags)({
-                        author,
-                        websiteName,
-                        websiteTitle: pageTitle || websiteTitle,
-                        websiteDescription: description || websiteDescription,
-                        coverImageLink: coverImageLinkNew,
-                        coverImageDescription: (coverImagePage ? coverImageDescriptionPage : coverImageDescription) || ``,
-                        publishedTime: publishDate || publishedTime,
-                        websiteLink: isHome ? websiteLink : `${websiteLink}/${fileName}`,
-                        dataString,
-                        theme_color,
-                        twitterUserName,
-                        appIconFile,
-                        noindex,
-                        language,
-                        isHome,
-                    }),
-                    links: (0, utils_1.canonicalTag)({
-                        websiteDomain,
-                        page: isHome ? `` : `/${fileName}`,
-                        coverImageLink: coverImageLinkNew,
-                    }),
-                    pageBody: (0, utils_1.readData)(`./${srcDir}/${pagesDir}/${fileName}/${fileName}.html`),
-                    filename: isHome ? `index.html` : fileName,
-                    ...htmlElements,
-                    ...pageData.headerHTML ? {
-                        headerHTML: pageData.headerHTML
-                            + (htmlElements.headerHTML || ``)
-                    } : {},
-                    ...pageData.menuHTML ? {
-                        menuHTML: pageData.menuHTML
-                            + (htmlElements.menuHTML || ``)
-                    } : {},
-                    ...pageData.footerHTML ? {
-                        footerHTML: pageData.footerHTML
-                            + (htmlElements.footerHTML || ``)
-                    } : {},
-                    ...pageData.customHTML?.length ? {
-                        bodyHTML: pageData.customHTML.map(elm => (0, utils_1.readData)(`./${srcDir}/${commonDir}/${elm}.html`))?.join(``),
-                    } : {},
-                    templateContent,
-                    minify: {
-                        collapseWhitespace: true,
-                        removeComments: false, // Preserve comments during minification
-                    },
-                });
             }),
             ...obfuscateON ? [new webpack_obfuscator_1.default({
                     compact: true, // Minify the output
@@ -343,19 +377,14 @@ ErrorDocument 403 /404
                     stringArrayThreshold: 1, // Obfuscate all strings
                     unicodeEscapeSequence: false // Disable unicode escape sequences
                 })] : [],
-            new SitemapPlugin.default({
-                base: websiteLink, // Replace with your site base URL
-                paths: siteMap,
-                options: {
-                    filename: `sitemap.xml`, // The name of the generated sitemap
-                },
-            }),
             new HtmlInlineCssWebpackPlugin.default(), // Inline CSS into the HTML
+            ...pagesHTML,
+            ...siteMapData,
+            ...configWebPlugins,
         ],
         optimization: {
             minimize: minimiseON, // Enable minimization
             minimizer: [
-                // Minify JavaScript
                 new terser_webpack_plugin_1.default({
                     terserOptions: {
                         compress: {
@@ -363,12 +392,7 @@ ErrorDocument 403 /404
                         },
                     },
                 }),
-                // Add the CSS minimizer plugin
-                new css_minimizer_webpack_plugin_1.default({
-                    minimizerOptions: {
-                        preset: ['default', { discardUnused: cssDiscardUnused }], // Prevent removing unused styles
-                    },
-                }),
+                ...cssMinimise,
             ],
         }, // @ts-ignore
         devServer: {
