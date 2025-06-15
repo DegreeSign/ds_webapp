@@ -8,6 +8,7 @@ const path_1 = __importDefault(require("path"));
 const webpack_1 = __importDefault(require("webpack"));
 const clean_webpack_plugin_1 = require("clean-webpack-plugin");
 const terser_webpack_plugin_1 = __importDefault(require("terser-webpack-plugin"));
+const webpack_node_externals_1 = __importDefault(require("webpack-node-externals"));
 const dotenv_1 = __importDefault(require("dotenv"));
 const web_1 = require("./web");
 const obfuscate_1 = require("./obfuscate");
@@ -48,6 +49,7 @@ const build = (params) => {
                 __dirname: false, // Prevent Webpack from mocking __dirname
                 __filename: false, // Prevent Webpack from mocking __filename
             },
+            externals: [(0, webpack_node_externals_1.default)()], // Externalize all node_modules
         },
         resolve: {
             extensions: [`.tsx`, `.ts`, `.js`, `.json`], // Resolve files
@@ -69,6 +71,9 @@ const build = (params) => {
                 ...isWebApp ? [] : [{
                         test: /\.node$/,
                         loader: 'node-loader',
+                        options: {
+                            name: '[name].[ext]',
+                        },
                     }],
                 ...customWebRules
             ],

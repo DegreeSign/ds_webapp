@@ -2,6 +2,7 @@ import path from "path"
 import webpack, { Configuration } from "webpack"
 import { CleanWebpackPlugin } from "clean-webpack-plugin"
 import TerserPlugin from "terser-webpack-plugin"
+import nodeExternals from "webpack-node-externals"
 import {
     ConfigBuild,
     StringObj,
@@ -73,6 +74,7 @@ const build = (params: ConfigBuild): Configuration => {
                 __dirname: false, // Prevent Webpack from mocking __dirname
                 __filename: false, // Prevent Webpack from mocking __filename
             },
+            externals: [nodeExternals()], // Externalize all node_modules
         },
         resolve: {
             extensions: [`.tsx`, `.ts`, `.js`, `.json`], // Resolve files
@@ -94,6 +96,9 @@ const build = (params: ConfigBuild): Configuration => {
                 ...isWebApp ? [] : [{
                     test: /\.node$/,
                     loader: 'node-loader',
+                    options: {
+                        name: '[name].[ext]',
+                    },
                 }],
                 ...customWebRules
             ],
