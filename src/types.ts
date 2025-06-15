@@ -1,4 +1,8 @@
 import { ResolveOptions } from "webpack";
+import { Configuration, ModuleOptions } from "webpack"
+import CssMinimizerPlugin from "css-minimizer-webpack-plugin";
+import HtmlWebpackPlugin from "html-webpack-plugin";
+import SitemapWebpackPlugin from "sitemap-webpack-plugin"
 
 export interface StringObj {
     [key: string]: string;
@@ -237,4 +241,13 @@ export interface TemplateHTMLOptions {
 export interface HtmlContent {
     id: string; // Identifier for the HTML content (e.g., "index", "about")
     content: string; // HTML content as a string
+}
+
+export interface WebConfig {
+    entryPoints: StringObj;
+    pagesHTML: HtmlWebpackPlugin[];
+    imageRules:ModuleOptions["rules"] ;
+    configWebPlugins: Configuration["plugins"];
+    siteMapData: SitemapWebpackPlugin[];
+    cssMinimise: CssMinimizerPlugin<CssMinimizerPlugin.CssNanoOptionsExtended>[];
 }
