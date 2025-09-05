@@ -9,6 +9,7 @@ const webpack_1 = __importDefault(require("webpack"));
 const clean_webpack_plugin_1 = require("clean-webpack-plugin");
 const terser_webpack_plugin_1 = __importDefault(require("terser-webpack-plugin"));
 const webpack_node_externals_1 = __importDefault(require("webpack-node-externals"));
+const webpack_bundle_analyzer_1 = require("webpack-bundle-analyzer");
 const dotenv_1 = __importDefault(require("dotenv"));
 const web_1 = require("./web");
 const obfuscate_1 = require("./obfuscate");
@@ -79,6 +80,9 @@ const build = (params) => {
             ],
         },
         plugins: [
+            new webpack_bundle_analyzer_1.BundleAnalyzerPlugin({
+                openAnalyzer: params.openAnalyzer ?? false, // Prevents auto-opening the browser
+            }),
             new webpack_1.default.DefinePlugin(envKeys),
             ...licenseText ? [new webpack_1.default.BannerPlugin({
                     banner: licenseText,

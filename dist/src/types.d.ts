@@ -53,6 +53,8 @@ export interface ConfigBase {
     resolveOptions?: ResolveOptions;
     /** License Text */
     licenseText?: string;
+    /** Show Packages Analyser Window */
+    openAnalyzer?: boolean;
 }
 export interface ConfigWebApp extends ConfigBase {
     /** Name of the website */

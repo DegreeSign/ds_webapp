@@ -3,6 +3,7 @@ import webpack, { Configuration } from "webpack"
 import { CleanWebpackPlugin } from "clean-webpack-plugin"
 import TerserPlugin from "terser-webpack-plugin"
 import nodeExternals from "webpack-node-externals"
+import { BundleAnalyzerPlugin } from 'webpack-bundle-analyzer'
 import {
     ConfigBuild,
     StringObj,
@@ -103,7 +104,10 @@ const build = (params: ConfigBuild): Configuration => {
                 ...customWebRules
             ],
         },
-        plugins: [
+        plugins: [ // @ts-ignore
+            new BundleAnalyzerPlugin({
+                openAnalyzer: params.openAnalyzer ?? false, // Prevents auto-opening the browser
+            }),
             new webpack.DefinePlugin(envKeys),
             ...licenseText ? [new webpack.BannerPlugin({
                 banner: licenseText,
