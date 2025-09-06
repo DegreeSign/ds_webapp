@@ -81,7 +81,8 @@ const build = (params) => {
         },
         plugins: [
             new webpack_bundle_analyzer_1.BundleAnalyzerPlugin({
-                openAnalyzer: params.openAnalyzer ?? false, // Prevents auto-opening the browser
+                analyzerMode: params.openAnalyzer == undefined ? `disabled` : `server`,
+                openAnalyzer: params.openAnalyzer || false, // Prevents auto-opening the browser
             }),
             new webpack_1.default.DefinePlugin(envKeys),
             ...licenseText ? [new webpack_1.default.BannerPlugin({

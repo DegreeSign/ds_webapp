@@ -106,7 +106,8 @@ const build = (params: ConfigBuild): Configuration => {
         },
         plugins: [ // @ts-ignore
             new BundleAnalyzerPlugin({
-                openAnalyzer: params.openAnalyzer ?? false, // Prevents auto-opening the browser
+                analyzerMode: params.openAnalyzer == undefined ? `disabled` : `server`,
+                openAnalyzer: params.openAnalyzer || false, // Prevents auto-opening the browser
             }),
             new webpack.DefinePlugin(envKeys),
             ...licenseText ? [new webpack.BannerPlugin({
