@@ -47,9 +47,13 @@ const HtmlInlineCssWebpackPlugin = __importStar(require("html-inline-css-webpack
 const utils_1 = require("./utils");
 const webConfig = (params) => {
     const { srcDir = `src`, productionDir = `public_html`, appShortName = `WebApp`, twitterUserName = `degreesign`, websiteName = `DegreeSign WebApp`, websiteDomain = `degreesign.com`, publishedTime = `2025-01-01T00:00:00+00:00`, author = `DegreeSign Team`, websiteTitle = `progressive webapp`, websiteDescription = `Webpack progressive web app`, coverImage = `degreesign_screenshot.webp`, coverImageDescription = `Screenshot of website`, background_color = `#fff`, theme_color = '#000', app_icon = `app_icon.png`, fav_icon = `favicon.ico`, orientation = 'portrait', pagesList = [], htmlCommonElements = [], assetsDir = `assets`, commonDir = `common`, imagesDir = `images`, pagesDir = `pages`, pageHome = `home`, htaccessCustom = ``, startURI = ``, language = `en_GB`, cssDiscardUnused = false, updateServiceWorker = false, onlineIndicatorFile = `https://degreesign.com/assets/images/Degree_Sign_Logo_2022.svg`, } = params || {};
-    const latestUpdates = (0, utils_1.readJSON)(`./updateTimes.json`) || {}, updateTimes = () => (0, utils_1.writeJSON)(`./updateTimes.json`, latestUpdates), dataString = new Date().toISOString(), timeNow = Date.now(), websiteLink = `https://${websiteDomain}`, getImageURI = (image) => image?.includes(`/`) ? image
-        : `/${assetsDir}/${imagesDir}/${image}`, getImageLink = (image) => image?.includes(`/`) ? image
-        : `${websiteLink}/${assetsDir}/${imagesDir}/${image}`, coverImageLink = getImageLink(coverImage), appIconFile = getImageURI(app_icon), favIconFile = getImageURI(fav_icon), htmlElements = (() => {
+    const latestUpdates = (0, utils_1.readJSON)(`./updateTimes.json`) || {}, updateTimes = () => (0, utils_1.writeJSON)(`./updateTimes.json`, latestUpdates), dataString = new Date().toISOString(), timeNow = Date.now(), websiteLink = `https://${websiteDomain}`, 
+    /** Update Image URL */
+    getImageURI = (image, full) => 
+    // raw link string
+    image?.includes(`/`) || image?.includes(`<`) ? image
+        // assets link
+        : `${full ? websiteLink : ``}/${assetsDir}/${imagesDir}/${image}`, coverImageLink = getImageURI(coverImage, true), appIconFile = getImageURI(app_icon), favIconFile = getImageURI(fav_icon), htmlElements = (() => {
         const updateSW = !latestUpdates.serviceWorker || !updateServiceWorker, swTime = updateSW ? timeNow : latestUpdates.serviceWorker, elements = {
             headerHTML: `<script>${(0, utils_1.readData)(`sw_register.js`, true)
                 ?.replaceAll(`TIME_UPDATED`, `${swTime}`)}</script>`
@@ -96,9 +100,6 @@ const webConfig = (params) => {
                     <!-- Last Published: ${new Date().toUTCString()}+0000 (Coordinated Universal Time) -->
                     <html lang="en" prefix="og: https://ogp.me/">
                     <head>
-                        <meta charset="UTF-8">
-                        <link rel="manifest" href="/app.json?v=${timeNow}">
-                        <link rel="icon" href="${favIconFile}" type="image/x-icon">
                         ${links || ``}
                         ${headerHTML || ``}
                         <title>${title || ``}</title>
@@ -178,10 +179,9 @@ ErrorDocument 403 /404
             });
         }
         ;
-        htaccessFile += `<Files ${pageData.uri}>
-    Header set Content-Type "text/html; charset=UTF-8"
-</Files>
-`;
+        htaccessFile += `<Files ${pageData.uri}>\n`
+            + (pageData?.isPHP ? `SetHandler application/x-httpd-php\n` : ``)
+            + `Header set Content-Type "text/html; charset=UTF-8"\n</Files>\n`;
         if (!pageData.noindex && pageData.uri != pageHome)
             siteMap.push({
                 path: `/${pageData.uri}`,
@@ -217,11 +217,14 @@ ErrorDocument 403 /404
                 noindex,
                 language,
                 isHome,
+                keywords: pageData.keywords,
             }),
-            links: (0, utils_1.canonicalTag)({
-                websiteDomain,
-                page: isHome ? `` : `/${fileName}`,
+            links: (0, utils_1.linkTags)({
+                favIconFile,
+                timeNow,
                 coverImageLink: coverImageLinkNew,
+                canonicalURL: pageData.canonicalURL
+                    || `https://${websiteDomain}${isHome ? `` : `/${fileName}`}`,
             }),
             pageBody: (0, utils_1.readData)(`./${srcDir}/${pagesDir}/${fileName}/${fileName}.html`),
             filename: isHome ? `index.html` : fileName,

@@ -7,9 +7,10 @@ writeJSON: (file: string, code: any) => boolean,
 /** Read files */
 readData: (file: string, internal?: boolean) => string, 
 /** Read JSON files */
-readJSON: (file: string, internal?: boolean) => any, metaTags: ({ author, websiteDescription, websiteName, websiteTitle, coverImageLink, coverImageDescription, publishedTime, websiteLink, dataString, theme_color, twitterUserName, appIconFile, noindex, language, isHome, }: MetaTagsInput) => MetaTags, canonicalTag: ({ websiteDomain, page, coverImageLink, }: {
+readJSON: (file: string, internal?: boolean) => any, metaTags: ({ author, websiteDescription, websiteName, websiteTitle, coverImageLink, coverImageDescription, publishedTime, websiteLink, dataString, theme_color, twitterUserName, appIconFile, noindex, language, isHome, keywords, }: MetaTagsInput) => MetaTags, linkTags: ({ favIconFile, timeNow, coverImageLink, canonicalURL, }: {
     coverImageLink: string;
-    websiteDomain: string;
-    page: string;
+    favIconFile: string;
+    timeNow: number;
+    canonicalURL: string;
 }) => string;
-export { writeData, writeJSON, readData, readJSON, metaTags, canonicalTag, };
+export { writeData, writeJSON, readData, readJSON, metaTags, linkTags, };

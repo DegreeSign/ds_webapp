@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.canonicalTag = exports.metaTags = exports.readJSON = exports.readData = exports.writeJSON = exports.writeData = void 0;
+exports.linkTags = exports.metaTags = exports.readJSON = exports.readData = exports.writeJSON = exports.writeData = void 0;
 const fs_1 = __importDefault(require("fs"));
 const path_1 = __importDefault(require("path"));
 const 
@@ -67,76 +67,59 @@ readJSON = (file, internal) => {
         return;
     }
     ;
-}, metaTags = ({ author, websiteDescription, websiteName, websiteTitle, coverImageLink, coverImageDescription, publishedTime, websiteLink, dataString, theme_color, twitterUserName, appIconFile, noindex, language, isHome, }) => {
+}, metaTags = ({ author, websiteDescription, websiteName, websiteTitle, coverImageLink, coverImageDescription, publishedTime, websiteLink, dataString, theme_color, twitterUserName, appIconFile, noindex, language, isHome, keywords, }) => {
     const titleText = isHome ? `${websiteName} | ${websiteTitle}`
         : `${websiteTitle} | ${websiteName}`;
     return {
-        ...noindex ? {
-            noindexTag: {
-                name: `robots`,
-                content: `noindex`,
-            },
-        } : {},
-        author,
-        robots: `index, follow`,
-        description: websiteDescription,
+        // Character Encoding and Content
+        charset: {
+            charset: 'UTF-8',
+        },
+        "http-equiv:content-type": {
+            "http-equiv": "Content-Type",
+            content: "text/html; charset=UTF-8",
+        },
+        // Viewport and Device Compatibility
         viewport: `width=device-width, initial-scale=1.0`,
         'http-equiv:X-UA-Compatible': {
             'http-equiv': `X-UA-Compatible`,
             content: `ie=edge`,
         },
-        'twitter:card': `summary_large_image`,
-        'twitter:title': {
-            property: 'twitter:title',
-            content: titleText
-        },
-        'twitter:description': {
-            property: 'twitter:description',
-            content: `${websiteDescription}`
-        },
-        'twitter:image': {
-            property: 'twitter:image',
-            content: coverImageLink
-        },
-        'twitter:image:alt': {
-            property: 'twitter:image:alt',
-            content: coverImageDescription
-        },
-        thumbnailUrl: {
-            itemprop: `thumbnailUrl`,
-            content: coverImageLink
-        },
-        image: {
-            itemprop: `image`,
-            content: coverImageLink
-        },
-        'article:published_time': {
-            property: 'article:published_time',
-            content: publishedTime
-        },
-        'article:modified_time': {
-            property: 'article:modified_time',
-            content: dataString
-        },
+        "mobile-web-app-capable": "yes",
+        "apple-mobile-web-app-capable": "yes",
+        "apple-mobile-web-app-status-bar-style": "black",
+        // SEO Indexing
+        robots: noindex ? `noindex` : `index,follow`,
+        referrer: "origin",
+        'googlebot-news': noindex ? `noindex` : `index,follow`,
+        // Name and Title
+        "apple-mobile-web-app-title": websiteName,
+        author,
+        description: websiteDescription,
+        ...keywords ? { keywords, news_keywords: keywords } : {},
+        // Open Graph (OG)
         'og:type': {
             property: 'og:type',
             content: `website`,
             name: `type`,
+        },
+        "og:locale": {
+            property: "og:locale",
+            content: language,
         },
         'og:title': {
             property: 'og:title',
             content: titleText,
             name: `title`,
         },
+        "og:site_name": {
+            property: "og:site_name",
+            content: websiteName,
+        },
         'og:description': {
             property: 'og:description',
             content: `${websiteDescription}`,
             name: `description`,
-        },
-        'og:image': {
-            property: 'og:image',
-            content: coverImageLink,
-            name: `image`,
         },
         'og:publish_date': {
             content: publishedTime,
@@ -153,41 +136,41 @@ readJSON = (file, internal) => {
             property: `og:url`,
             name: `url`,
         },
-        referrer: "origin",
-        "theme-color": theme_color,
-        "twitter:site": `@${twitterUserName}`,
-        "mobile-web-app-capable": "yes",
-        "apple-mobile-web-app-capable": "yes",
-        "apple-mobile-web-app-title": websiteName,
-        "apple-mobile-web-app-status-bar-style": "black",
-        "http-equiv:cache-control": {
-            "http-equiv": "Cache-control",
-            content: "NO-STORE",
+        'og:image': {
+            property: 'og:image',
+            content: coverImageLink,
+            name: `image`,
         },
-        "http-equiv:content-security-policy": {
-            "http-equiv": "Content-Security-Policy",
-            content: "",
+        "og:image:alt": {
+            property: "og:image:alt",
+            content: coverImageDescription,
         },
-        "http-equiv:content-type": {
-            "http-equiv": "Content-Type",
-            content: "text/html; charset=UTF-8",
+        // Twitter Tags
+        'twitter:card': {
+            property: 'twitter:card',
+            content: `summary_large_image`
         },
-        "og:locale": {
-            property: "og:locale",
-            content: language,
+        'twitter:site': {
+            property: 'twitter:site',
+            content: `@${twitterUserName}`,
         },
-        "og:image:width": {
-            property: "og:image:width",
-            content: "1400",
+        'twitter:title': {
+            property: 'twitter:title',
+            content: titleText
         },
-        "og:image:height": {
-            property: "og:image:height",
-            content: "700",
+        'twitter:description': {
+            property: 'twitter:description',
+            content: websiteDescription,
         },
-        "og:site_name": {
-            property: "og:site_name",
-            content: websiteName,
+        'twitter:image': {
+            property: 'twitter:image',
+            content: coverImageLink,
         },
+        'twitter:image:alt': {
+            property: 'twitter:image:alt',
+            content: coverImageDescription,
+        },
+        // App Icons
         "favicon-32": {
             href: appIconFile,
             rel: "icon",
@@ -248,12 +231,43 @@ readJSON = (file, internal) => {
             type: "image/png",
             sizes: "512x512",
         },
+        // Image and Thumbnail
+        'article:published_time': {
+            property: 'article:published_time',
+            content: publishedTime
+        },
+        'article:modified_time': {
+            property: 'article:modified_time',
+            content: dataString
+        },
+        thumbnailUrl: {
+            itemprop: `thumbnailUrl`,
+            content: coverImageLink
+        },
+        image: {
+            itemprop: `image`,
+            content: coverImageLink
+        },
+        // Cache and Security
+        "http-equiv:cache-control": {
+            "http-equiv": "Cache-control",
+            content: "NO-STORE",
+        },
+        "http-equiv:content-security-policy": {
+            "http-equiv": "Content-Security-Policy",
+            content: "",
+        },
+        // Theme
+        "theme-color": theme_color,
     };
-}, canonicalTag = ({ websiteDomain, page, coverImageLink, }) => `<link href="${coverImageLink}" rel="image_src">
-        <link rel="canonical" href="https://${websiteDomain}${page}">`;
+}, linkTags = ({ favIconFile, timeNow, coverImageLink, canonicalURL, }) => `
+        <link rel="icon" href="${favIconFile}" type="image/x-icon">
+        <link rel="manifest" href="/app.json?v=${timeNow}">
+        <link rel="image_src" href="${coverImageLink}">
+        <link rel="canonical" href="${canonicalURL}">\n`;
 exports.writeData = writeData;
 exports.writeJSON = writeJSON;
 exports.readData = readData;
 exports.readJSON = readJSON;
 exports.metaTags = metaTags;
-exports.canonicalTag = canonicalTag;
+exports.linkTags = linkTags;

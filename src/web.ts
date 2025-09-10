@@ -20,7 +20,7 @@ import {
     readData,
     writeData,
     metaTags,
-    canonicalTag
+    linkTags
 } from "./utils";
 
 export const webConfig = (params: ConfigWebApp): WebConfig => {
@@ -65,11 +65,13 @@ export const webConfig = (params: ConfigWebApp): WebConfig => {
         dataString = new Date().toISOString(),
         timeNow = Date.now(),
         websiteLink = `https://${websiteDomain}`,
-        getImageURI = (image: string) => image?.includes(`/`) ? image
-            : `/${assetsDir}/${imagesDir}/${image}`,
-        getImageLink = (image: string) => image?.includes(`/`) ? image
-            : `${websiteLink}/${assetsDir}/${imagesDir}/${image}`,
-        coverImageLink = getImageLink(coverImage),
+        /** Update Image URL */
+        getImageURI = (image: string, full?: boolean) =>
+            // raw link string
+            image?.includes(`/`) || image?.includes(`<`) ? image
+                // assets link
+                : `${full ? websiteLink : ``}/${assetsDir}/${imagesDir}/${image}`,
+        coverImageLink = getImageURI(coverImage, true),
         appIconFile = getImageURI(app_icon),
         favIconFile = getImageURI(fav_icon),
         htmlElements = (() => {
@@ -131,9 +133,6 @@ export const webConfig = (params: ConfigWebApp): WebConfig => {
                     <!-- Last Published: ${new Date().toUTCString()}+0000 (Coordinated Universal Time) -->
                     <html lang="en" prefix="og: https://ogp.me/">
                     <head>
-                        <meta charset="UTF-8">
-                        <link rel="manifest" href="/app.json?v=${timeNow}">
-                        <link rel="icon" href="${favIconFile}" type="image/x-icon">
                         ${links || ``}
                         ${headerHTML || ``}
                         <title>${title || ``}</title>
@@ -219,10 +218,9 @@ ErrorDocument 403 /404
             });
         };
 
-        htaccessFile += `<Files ${pageData.uri}>
-    Header set Content-Type "text/html; charset=UTF-8"
-</Files>
-`
+        htaccessFile += `<Files ${pageData.uri}>\n`
+            + (pageData?.isPHP ? `SetHandler application/x-httpd-php\n` : ``)
+            + `Header set Content-Type "text/html; charset=UTF-8"\n</Files>\n`
         if (!pageData.noindex && pageData.uri != pageHome)
             siteMap.push({
                 path: `/${pageData.uri}`,
@@ -272,11 +270,14 @@ ErrorDocument 403 /404
                     noindex,
                     language,
                     isHome,
+                    keywords: pageData.keywords,
                 }),
-                links: canonicalTag({
-                    websiteDomain,
-                    page: isHome ? `` : `/${fileName}`,
+                links: linkTags({
+                    favIconFile,
+                    timeNow,
                     coverImageLink: coverImageLinkNew,
+                    canonicalURL: pageData.canonicalURL
+                        || `https://${websiteDomain}${isHome ? `` : `/${fileName}`}`,
                 }),
                 pageBody: readData(`./${srcDir}/${pagesDir}/${fileName}/${fileName}.html`),
                 filename: isHome ? `index.html` : fileName,

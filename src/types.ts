@@ -37,6 +37,12 @@ interface Page {
     footerHTML?: string;
     /** Custom body HTML Elements (optional) */
     customHTML?: string[];
+    /** Page code has PHP */
+    isPHP?: boolean;
+    /** Page keywords comma separated (optional) */
+    keywords?: string;
+    /** Custom Canonical URL */
+    canonicalURL?: string;
 }
 
 export interface ConfigBase {
@@ -222,6 +228,8 @@ export interface MetaTagsInput {
     language: string;
     /** check if home */
     isHome: boolean;
+    /** Keywords (optional) */
+    keywords?: string;
 }
 
 export interface TemplateHTMLOptions {
