@@ -4,7 +4,7 @@ import CssMinimizerPlugin from "css-minimizer-webpack-plugin";
 export interface StringObj {
     [key: string]: string;
 }
-interface Page {
+export interface Page {
     /** URI of the page */
     uri: string;
     /** Name of the page */

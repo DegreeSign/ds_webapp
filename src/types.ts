@@ -1,14 +1,12 @@
 import { ResolveOptions } from "webpack";
 import { Configuration, ModuleOptions } from "webpack"
 import CssMinimizerPlugin from "css-minimizer-webpack-plugin";
-import HtmlWebpackPlugin from "html-webpack-plugin";
-import SitemapWebpackPlugin from "sitemap-webpack-plugin"
 
 export interface StringObj {
     [key: string]: string;
 }
 
-interface Page {
+export interface Page {
     /** URI of the page */
     uri: string;
     /** Name of the page */
