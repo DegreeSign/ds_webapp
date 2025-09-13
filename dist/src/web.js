@@ -154,7 +154,8 @@ ErrorDocument 403 /404
 # Add content type
 `;
     for (let i = 0; i < pagesList.length; i++) {
-        const pageData = pagesList[i];
+        const pageData = pagesList[i], pageURI = pageData.uri, isHome = pageHome == pageURI;
+        // app shortcut
         if (pageData.shortcut) {
             const icon = pageData.icon ?
                 pageData.icon?.includes(`/`) ? pageData.icon
@@ -164,7 +165,7 @@ ErrorDocument 403 /404
                 name: pageData.name,
                 short_name: pageData.short_name || pageData.name,
                 description: pageData.description,
-                url: `/${pageData.uri}`,
+                url: isHome ? `/` : `/${pageURI}`,
                 icons: [{
                         src: icon,
                         type: 'image/png',
@@ -179,12 +180,15 @@ ErrorDocument 403 /404
             });
         }
         ;
-        htaccessFile += `<Files ${pageData.uri}>\n`
-            + (pageData?.isPHP ? `SetHandler application/x-httpd-php\n` : ``)
-            + `Header set Content-Type "text/html; charset=UTF-8"\n</Files>\n`;
-        if (!pageData.noindex && pageData.uri != pageHome)
+        // file type (includes all children)
+        htaccessFile += `<Files ${isHome ? "index.html" : pageURI}>
+    ${pageData?.isPHP ? `SetHandler application/x-httpd-php
+    ` : ``}Header set Content-Type "text/html; charset=UTF-8"
+</Files>\n`;
+        // site map
+        if (!pageData.noindex && !isHome)
             siteMap.push({
-                path: `/${pageData.uri}`,
+                path: `/${pageURI}`,
                 priority: 0.8,
                 lastmod: dataString
             });
@@ -199,7 +203,7 @@ ErrorDocument 403 /404
         const { noindex, uri: fileName, coverImage: coverImagePage, coverImageDescription: coverImageDescriptionPage, description, name: pageTitle, publishDate, } = pageData, isHome = pageHome == fileName, coverImageLinkNew = coverImagePage ? getImageURI(coverImagePage) : coverImageLink;
         return new html_webpack_plugin_1.default({
             chunks: [fileName],
-            title: isHome ? `${websiteName || ``} | ${websiteTitle || ``}`
+            title: isHome ? `${websiteName || ``} | ${pageData?.name || websiteTitle || ``}`
                 : `${pageData?.name} | ${websiteName || ``}`,
             meta: (0, utils_1.metaTags)({
                 author,
