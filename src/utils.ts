@@ -280,7 +280,7 @@ const
                 "http-equiv": "Content-Security-Policy",
                 content: "",
             },
-            
+
             // Theme
             "theme-color": theme_color,
         }
@@ -299,7 +299,9 @@ const
         <link rel="icon" href="${favIconFile}" type="image/x-icon">
         <link rel="manifest" href="/app.json?v=${timeNow}">
         <link rel="image_src" href="${coverImageLink}">
-        <link rel="canonical" href="${canonicalURL}">\n`;
+        <link rel="canonical" href="${canonicalURL}">\n`,
+    /** Check for PHP tag */
+    isPHPTag = (code: string): boolean => code?.includes(`<?php`);
 
 export {
     writeData,
@@ -308,4 +310,5 @@ export {
     readJSON,
     metaTags,
     linkTags,
+    isPHPTag,
 }

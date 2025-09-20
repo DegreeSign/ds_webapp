@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.linkTags = exports.metaTags = exports.readJSON = exports.readData = exports.writeJSON = exports.writeData = void 0;
+exports.isPHPTag = exports.linkTags = exports.metaTags = exports.readJSON = exports.readData = exports.writeJSON = exports.writeData = void 0;
 const fs_1 = __importDefault(require("fs"));
 const path_1 = __importDefault(require("path"));
 const 
@@ -264,10 +264,13 @@ readJSON = (file, internal) => {
         <link rel="icon" href="${favIconFile}" type="image/x-icon">
         <link rel="manifest" href="/app.json?v=${timeNow}">
         <link rel="image_src" href="${coverImageLink}">
-        <link rel="canonical" href="${canonicalURL}">\n`;
+        <link rel="canonical" href="${canonicalURL}">\n`, 
+/** Check for PHP tag */
+isPHPTag = (code) => code?.includes(`<?php`);
 exports.writeData = writeData;
 exports.writeJSON = writeJSON;
 exports.readData = readData;
 exports.readJSON = readJSON;
 exports.metaTags = metaTags;
 exports.linkTags = linkTags;
+exports.isPHPTag = isPHPTag;

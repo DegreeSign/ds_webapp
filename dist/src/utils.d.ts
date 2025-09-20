@@ -12,5 +12,7 @@ readJSON: (file: string, internal?: boolean) => any, metaTags: ({ author, websit
     favIconFile: string;
     timeNow: number;
     canonicalURL: string;
-}) => string;
-export { writeData, writeJSON, readData, readJSON, metaTags, linkTags, };
+}) => string, 
+/** Check for PHP tag */
+isPHPTag: (code: string) => boolean;
+export { writeData, writeJSON, readData, readJSON, metaTags, linkTags, isPHPTag, };

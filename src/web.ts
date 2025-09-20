@@ -20,7 +20,8 @@ import {
     readData,
     writeData,
     metaTags,
-    linkTags
+    linkTags,
+    isPHPTag
 } from "./utils";
 
 export const webConfig = (params: ConfigWebApp): WebConfig => {
@@ -206,9 +207,11 @@ ErrorDocument 403 /404
                     : `/${assetsDir}/${imagesDir}/${pageData.icon}`
                 : appIconFile;
             appManifest.shortcuts.push({
-                name: pageData.name,
+                name: (isPHPTag(pageData.name) ? pageData.short_name : undefined)
+                    || pageData.name,
                 short_name: pageData.short_name || pageData.name,
-                description: pageData.description,
+                description: (isPHPTag(pageData.description) ? pageData.short_name : undefined)
+                    || pageData.description,
                 url: isHome ? `/` : `/${pageURI}`,
                 icons: [{
                     src: icon,

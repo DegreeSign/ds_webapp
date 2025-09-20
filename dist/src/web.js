@@ -162,9 +162,11 @@ ErrorDocument 403 /404
                     : `/${assetsDir}/${imagesDir}/${pageData.icon}`
                 : appIconFile;
             appManifest.shortcuts.push({
-                name: pageData.name,
+                name: ((0, utils_1.isPHPTag)(pageData.name) ? pageData.short_name : undefined)
+                    || pageData.name,
                 short_name: pageData.short_name || pageData.name,
-                description: pageData.description,
+                description: ((0, utils_1.isPHPTag)(pageData.description) ? pageData.short_name : undefined)
+                    || pageData.description,
                 url: isHome ? `/` : `/${pageURI}`,
                 icons: [{
                         src: icon,
