@@ -46,14 +46,14 @@ const SitemapPlugin = __importStar(require("sitemap-webpack-plugin"));
 const HtmlInlineCssWebpackPlugin = __importStar(require("html-inline-css-webpack-plugin"));
 const utils_1 = require("./utils");
 const webConfig = (params) => {
-    const { srcDir = `src`, productionDir = `public_html`, appShortName = `WebApp`, twitterUserName = `degreesign`, websiteName = `DegreeSign WebApp`, websiteDomain = `degreesign.com`, publishedTime = `2025-01-01T00:00:00+00:00`, author = `DegreeSign Team`, websiteTitle = `progressive webapp`, websiteDescription = `Webpack progressive web app`, coverImage = `degreesign_screenshot.webp`, coverImageDescription = `Screenshot of website`, background_color = `#fff`, theme_color = '#000', app_icon = `app_icon.png`, fav_icon = `favicon.ico`, orientation = 'portrait', pagesList = [], htmlCommonElements = [], assetsDir = `assets`, commonDir = `common`, imagesDir = `images`, pagesDir = `pages`, pageHome = `home`, htaccessCustom = ``, startURI = ``, language = `en_GB`, cssDiscardUnused = false, updateServiceWorker = false, onlineIndicatorFile = `https://degreesign.com/assets/images/Degree_Sign_Logo_2022.svg`, } = params || {};
+    const { srcDir = `src`, productionDir = `public_html`, appShortName = `WebApp`, twitterUserName = `degreesign`, websiteName = `DegreeSign WebApp`, websiteDomain = `degreesign.com`, publishedTime = `2025-01-01T00:00:00+00:00`, author = `DegreeSign Team`, websiteTitle = `progressive webapp`, websiteDescription = `Webpack progressive web app`, coverImage = `degreesign_screenshot.webp`, coverImageDescription = `Screenshot of website`, background_color = `#fff`, theme_color = `#000`, appIcon = `app_icon.png`, appIconMaskable = `app_icon_maskable.png`, fav_icon = `favicon.ico`, orientation = `portrait`, pagesList = [], htmlCommonElements = [], assetsDir = `assets`, commonDir = `common`, imagesDir = `images`, pagesDir = `pages`, pageHome = `home`, htaccessCustom = ``, startURI = ``, language = `en_GB`, cssDiscardUnused = false, updateServiceWorker = false, onlineIndicatorFile = `https://degreesign.com/assets/images/Degree_Sign_Logo_2022.svg`, } = params || {};
     const latestUpdates = (0, utils_1.readJSON)(`./updateTimes.json`) || {}, updateTimes = () => (0, utils_1.writeJSON)(`./updateTimes.json`, latestUpdates), dataString = new Date().toISOString(), timeNow = Date.now(), websiteLink = `https://${websiteDomain}`, 
     /** Update Image URL */
     getImageURI = (image, full) => 
     // raw link string
     image?.includes(`/`) || image?.includes(`<`) ? image
         // assets link
-        : `${full ? websiteLink : ``}/${assetsDir}/${imagesDir}/${image}`, coverImageLink = getImageURI(coverImage, true), appIconFile = getImageURI(app_icon), favIconFile = getImageURI(fav_icon), htmlElements = (() => {
+        : `${full ? websiteLink : ``}/${assetsDir}/${imagesDir}/${image}`, coverImageLink = getImageURI(coverImage, true), appIconFile = getImageURI(appIcon), appIconMaskableFile = getImageURI(appIconMaskable ?? appIcon), favIconFile = getImageURI(fav_icon), htmlElements = (() => {
         const updateSW = !latestUpdates.serviceWorker || !updateServiceWorker, swTime = updateSW ? timeNow : latestUpdates.serviceWorker, elements = {
             headerHTML: `<script>${(0, utils_1.readData)(`sw_register.js`, true)
                 ?.replaceAll(`TIME_UPDATED`, `${swTime}`)}</script>`
@@ -76,18 +76,18 @@ const webConfig = (params) => {
         background_color,
         theme_color,
         icons: [{
-                src: appIconFile,
-                type: 'image/png',
-                sizes: '512x512',
-                purpose: 'maskable'
+                src: appIconMaskableFile,
+                type: `image/png`,
+                sizes: `512x512`,
+                purpose: `maskable`
             }, {
                 src: appIconFile,
-                type: 'image/png',
-                sizes: '512x512',
-                purpose: 'any'
+                type: `image/png`,
+                sizes: `512x512`,
+                purpose: `any`
             }],
         shortcuts: [],
-        display: 'standalone',
+        display: `standalone`,
         orientation,
         short_name: appShortName,
         start_url: `/${startURI}`,
@@ -105,12 +105,12 @@ const webConfig = (params) => {
                         <title>${title || ``}</title>
                     </head>
                     <body>
-                        ${menuHTML ? `<nav aria-label="primary">${menuHTML}</nav>` : ''}
-                        <main role="main">
+                        ${menuHTML ? `<nav role="navigation" style="width:100%;">${menuHTML}</nav>` : ``}
+                        <main role="main" style="width:100%;">
                             ${bodyHTML || ``}
                             ${pageBody || ``}
                         </main>
-                        ${footerHTML ? `<footer aria-label="page">${footerHTML}</footer>` : ''}
+                        ${footerHTML ? `<footer role="contentinfo" style="width:100%;">${footerHTML}</footer>` : ``}
                     </body>
                     </html>`;
     }, robots = `User-agent: *
@@ -121,7 +121,7 @@ ${pagesList
         ?.join(`\n`)}
 
 Sitemap: https://${websiteDomain}/sitemap.xml`, getServiceWorkerContent = () => {
-        const urlsToCache = ['/', '/index.html', '/app.json'].concat(pagesList.map(pageData => {
+        const urlsToCache = [`/`, `/index.html`, `/app.json`].concat(pagesList.map(pageData => {
             return `/${pageData?.uri}`;
         })), file = (0, utils_1.readData)(`sw.js`, true);
         return file
@@ -173,15 +173,15 @@ ErrorDocument 403 /404
                     || pageData.description,
                 url: isHome ? `/` : `/${pageURI}`,
                 icons: [{
-                        src: icon,
-                        type: 'image/png',
-                        sizes: '512x512',
-                        purpose: 'maskable'
+                        src: pageData.iconMaskable ?? icon,
+                        type: `image/png`,
+                        sizes: `512x512`,
+                        purpose: `maskable`
                     }, {
                         src: icon,
-                        type: 'image/png',
-                        sizes: '512x512',
-                        purpose: 'any'
+                        type: `image/png`,
+                        sizes: `512x512`,
+                        purpose: `any`
                     }]
             });
         }
@@ -295,7 +295,7 @@ ErrorDocument 403 /404
             ],
         }], cssMinimise = [new css_minimizer_webpack_plugin_1.default({
             minimizerOptions: {
-                preset: ['default', { discardUnused: cssDiscardUnused }], // Prevent removing unused styles
+                preset: [`default`, { discardUnused: cssDiscardUnused }], // Prevent removing unused styles
             },
         })], entryPoints = {};
     // entry points

@@ -17,6 +17,8 @@ export interface Page {
     description: string;
     /** Icon associated with the page (optional) */
     icon?: string;
+    /** [Maskable] Icon associated with the page (optional) */
+    iconMaskable?: string;
     /** Flag to indicate if the page is a shortcut (optional) */
     shortcut?: boolean;
     /** Flag to indicate if the page should be excluded from indexing (optional) */
@@ -92,7 +94,9 @@ export interface ConfigWebApp extends ConfigBase {
     /** Theme color for the application */
     theme_color: string;
     /** Path to the application icon */
-    app_icon: string;
+    appIcon: string;
+    /** Path to the application icon (maskable) */
+    appIconMaskable: string;
     /** favicon file name or path */
     fav_icon: string;
     /** Orientation of the application, either portrait or landscape */

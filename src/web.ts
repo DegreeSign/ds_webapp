@@ -41,10 +41,11 @@ export const webConfig = (params: ConfigWebApp): WebConfig => {
             coverImage = `degreesign_screenshot.webp`,
             coverImageDescription = `Screenshot of website`,
             background_color = `#fff`,
-            theme_color = '#000',
-            app_icon = `app_icon.png`,
+            theme_color = `#000`,
+            appIcon = `app_icon.png`,
+            appIconMaskable = `app_icon_maskable.png`,
             fav_icon = `favicon.ico`,
-            orientation = 'portrait',
+            orientation = `portrait`,
             pagesList = [],
             htmlCommonElements = [],
             assetsDir = `assets`,
@@ -73,7 +74,8 @@ export const webConfig = (params: ConfigWebApp): WebConfig => {
                 // assets link
                 : `${full ? websiteLink : ``}/${assetsDir}/${imagesDir}/${image}`,
         coverImageLink = getImageURI(coverImage, true),
-        appIconFile = getImageURI(app_icon),
+        appIconFile = getImageURI(appIcon),
+        appIconMaskableFile = getImageURI(appIconMaskable ?? appIcon),
         favIconFile = getImageURI(fav_icon),
         htmlElements = (() => {
             const
@@ -100,18 +102,18 @@ export const webConfig = (params: ConfigWebApp): WebConfig => {
             background_color,
             theme_color,
             icons: [{
-                src: appIconFile,
-                type: 'image/png',
-                sizes: '512x512',
-                purpose: 'maskable'
+                src: appIconMaskableFile,
+                type: `image/png`,
+                sizes: `512x512`,
+                purpose: `maskable`
             }, {
                 src: appIconFile,
-                type: 'image/png',
-                sizes: '512x512',
-                purpose: 'any'
+                type: `image/png`,
+                sizes: `512x512`,
+                purpose: `any`
             }],
             shortcuts: [],
-            display: 'standalone',
+            display: `standalone`,
             orientation,
             short_name: appShortName,
             start_url: `/${startURI}`,
@@ -139,12 +141,12 @@ export const webConfig = (params: ConfigWebApp): WebConfig => {
                         <title>${title || ``}</title>
                     </head>
                     <body>
-                        ${menuHTML ? `<nav aria-label="primary">${menuHTML}</nav>` : ''}
-                        <main role="main">
+                        ${menuHTML ? `<nav role="navigation" style="width:100%;">${menuHTML}</nav>` : ``}
+                        <main role="main" style="width:100%;">
                             ${bodyHTML || ``}
                             ${pageBody || ``}
                         </main>
-                        ${footerHTML ? `<footer aria-label="page">${footerHTML}</footer>` : ''}
+                        ${footerHTML ? `<footer role="contentinfo" style="width:100%;">${footerHTML}</footer>` : ``}
                     </body>
                     </html>`
         },
@@ -158,7 +160,7 @@ ${pagesList
 Sitemap: https://${websiteDomain}/sitemap.xml`,
         getServiceWorkerContent = () => {
             const
-                urlsToCache = ['/', '/index.html', '/app.json'].concat(pagesList.map(pageData => {
+                urlsToCache = [`/`, `/index.html`, `/app.json`].concat(pagesList.map(pageData => {
                     return `/${pageData?.uri}`
                 })),
                 file = readData(`sw.js`, true);
@@ -218,15 +220,15 @@ ErrorDocument 403 /404
                     || pageData.description,
                 url: isHome ? `/` : `/${pageURI}`,
                 icons: [{
-                    src: icon,
-                    type: 'image/png',
-                    sizes: '512x512',
-                    purpose: 'maskable'
+                    src: pageData.iconMaskable ?? icon,
+                    type: `image/png`,
+                    sizes: `512x512`,
+                    purpose: `maskable`
                 }, {
                     src: icon,
-                    type: 'image/png',
-                    sizes: '512x512',
-                    purpose: 'any'
+                    type: `image/png`,
+                    sizes: `512x512`,
+                    purpose: `any`
                 }]
             });
         };
@@ -362,7 +364,7 @@ ErrorDocument 403 /404
             CssMinimizerPlugin.CssNanoOptionsExtended
         >[] = [new CssMinimizerPlugin({ // Add the CSS minimizer plugin
             minimizerOptions: {
-                preset: ['default', { discardUnused: cssDiscardUnused }], // Prevent removing unused styles
+                preset: [`default`, { discardUnused: cssDiscardUnused }], // Prevent removing unused styles
             },
         })],
         entryPoints: StringObj = {};
