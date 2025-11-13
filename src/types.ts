@@ -17,7 +17,12 @@ export interface Page {
     description: string;
     /** Icon associated with the page (optional) */
     icon?: string;
-    /** [Maskable] Icon associated with the page (optional) */
+    /**
+     * [Maskable] Icon associated with the page (optional)
+     * 
+     * maskable icon should be centered in safe zone (inner 338x338 pixels of 512x512)
+     * prevents masking from cropping important elements
+    */
     iconMaskable?: string;
     /** Flag to indicate if the page is a shortcut (optional) */
     shortcut?: boolean;
@@ -95,7 +100,12 @@ export interface ConfigWebApp extends ConfigBase {
     theme_color: string;
     /** Path to the application icon */
     appIcon: string;
-    /** Path to the application icon (maskable) */
+    /**
+     * Path to the application icon (maskable)
+     * 
+     * maskable icon should be centered in safe zone (inner 338x338 pixels of 512x512)
+     * prevents masking from cropping important elements
+    */
     appIconMaskable: string;
     /** favicon file name or path */
     fav_icon: string;

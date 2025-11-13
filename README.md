@@ -81,7 +81,8 @@ module.exports = build({
   coverImageDescription: "A descriptive alt text for the cover image.",
   background_color: "#ffffff",
   theme_color: "#000000",
-  app_icon: "app_icon.png",
+  appIcon: "app_icon.png",
+  appIconMaskable: "app_icon_maskable.png",
   fav_icon: "favicon.ico",
   orientation: "portrait",
   pagesList: [{
