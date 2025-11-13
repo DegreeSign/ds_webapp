@@ -105,16 +105,20 @@ const webConfig = (params) => {
                         <title>${title || ``}</title>
                     </head>
                     <body>
-                        ${menuHTML || ``}
-                        ${bodyHTML || ``}
-                        ${pageBody || ``}
-                        ${footerHTML || ``}
+                        ${menuHTML ? `<nav aria-label="primary">${menuHTML}</nav>` : ''}
+                        <main role="main">
+                            ${bodyHTML || ``}
+                            ${pageBody || ``}
+                        </main>
+                        ${footerHTML ? `<footer aria-label="page">${footerHTML}</footer>` : ''}
                     </body>
                     </html>`;
     }, robots = `User-agent: *
 Allow: /
-Disallow: /404
-${pagesList?.map(page => page.noindex ? `Disallow: /${page.uri}` : ``)?.join(`\n`)}
+${pagesList
+        ?.map(page => page.noindex ? `Disallow: /${page.uri}` : ``)
+        ?.filter(tag => tag)
+        ?.join(`\n`)}
 
 Sitemap: https://${websiteDomain}/sitemap.xml`, getServiceWorkerContent = () => {
         const urlsToCache = ['/', '/index.html', '/app.json'].concat(pagesList.map(pageData => {
