@@ -100,17 +100,18 @@ const webConfig = (params) => {
                     <!-- Last Published: ${new Date().toUTCString()}+0000 (Coordinated Universal Time) -->
                     <html lang="en" prefix="og: https://ogp.me/">
                     <head>
+                        <style type="text/css">nav,main,footer{width:100%;display:flex;flex-direction:column;align-items:center;}</style>
                         ${links || ``}
                         ${headerHTML || ``}
                         <title>${title || ``}</title>
                     </head>
                     <body>
-                        ${menuHTML ? `<nav role="navigation" style="width:100%;">${menuHTML}</nav>` : ``}
-                        <main role="main" style="width:100%;">
+                        ${menuHTML ? `<nav role="navigation">${menuHTML}</nav>` : ``}
+                        <main role="main">
                             ${bodyHTML || ``}
                             ${pageBody || ``}
                         </main>
-                        ${footerHTML ? `<footer role="contentinfo" style="width:100%;">${footerHTML}</footer>` : ``}
+                        ${footerHTML ? `<footer role="contentinfo">${footerHTML}</footer>` : ``}
                     </body>
                     </html>`;
     }, robots = `User-agent: *
