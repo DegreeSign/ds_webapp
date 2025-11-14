@@ -136,7 +136,7 @@ export const webConfig = (params: ConfigWebApp): WebConfig => {
                     <!-- Last Published: ${new Date().toUTCString()}+0000 (Coordinated Universal Time) -->
                     <html lang="en" prefix="og: https://ogp.me/">
                     <head>
-                        <style type="text/css">nav,main,footer{width:100%;display:flex;flex-direction:column;align-items:center;}</style>
+                        <style type="text/css">nav,main,footer{width:100%;display:flex !important;flex-direction:column;align-items:center;}</style>
                         ${links || ``}
                         ${headerHTML || ``}
                         <title>${title || ``}</title>
