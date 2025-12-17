@@ -68,6 +68,8 @@ export interface ConfigBase {
     licenseText?: string;
     /** Show Packages Analyser Window */
     openAnalyzer?: boolean;
+    /** Node module included for server */
+    includeServerModules?: boolean;
 }
 export interface ConfigWebApp extends ConfigBase {
     /** Name of the website */

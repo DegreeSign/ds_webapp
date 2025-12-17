@@ -16,7 +16,6 @@ dotenv.config();
 const build = (params: ConfigBuild): Configuration => {
 
     const
-        isWebApp = params.type != `server`,
         {
             mode = `production`,
             obfuscateON = false,
@@ -27,7 +26,10 @@ const build = (params: ConfigBuild): Configuration => {
             maxFileSizeMB = 2,
             resolveOptions = {},
             licenseText = ``,
+            includeServerModules,
+            type: setupType
         } = params,
+        isWebApp = setupType != `server`,
         {
             filesList = [],
         } = isWebApp ? {} : params,
@@ -75,7 +77,9 @@ const build = (params: ConfigBuild): Configuration => {
                 __dirname: false, // Prevent Webpack from mocking __dirname
                 __filename: false, // Prevent Webpack from mocking __filename
             },
-            externals: [nodeExternals()], // Externalize all node_modules
+            ...includeServerModules ? {} : {
+                externals: [nodeExternals()], // Externalize all node_modules
+            },
         },
         resolve: {
             extensions: [`.tsx`, `.ts`, `.js`, `.json`], // Resolve files

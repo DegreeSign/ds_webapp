@@ -15,7 +15,7 @@ const web_1 = require("./web");
 const obfuscate_1 = require("./obfuscate");
 dotenv_1.default.config();
 const build = (params) => {
-    const isWebApp = params.type != `server`, { mode = `production`, obfuscateON = false, minimiseON = true, srcDir = `src`, productionDir = `public_html`, port = 3210, maxFileSizeMB = 2, resolveOptions = {}, licenseText = ``, } = params, { filesList = [], } = isWebApp ? {} : params, { entryPoints = {}, customWebRules = [], configWebPlugins = [], cssMinimise = [] } = isWebApp ? (0, web_1.webConfig)(params) : {}, fileSize = maxFileSizeMB * 1024 ** 2, envKeys = {};
+    const { mode = `production`, obfuscateON = false, minimiseON = true, srcDir = `src`, productionDir = `public_html`, port = 3210, maxFileSizeMB = 2, resolveOptions = {}, licenseText = ``, includeServerModules, type: setupType } = params, isWebApp = setupType != `server`, { filesList = [], } = isWebApp ? {} : params, { entryPoints = {}, customWebRules = [], configWebPlugins = [], cssMinimise = [] } = isWebApp ? (0, web_1.webConfig)(params) : {}, fileSize = maxFileSizeMB * 1024 ** 2, envKeys = {};
     // Environment keys
     for (const key in process.env)
         envKeys[`process.env.${key}`] = JSON.stringify(process.env[key]);
@@ -50,7 +50,9 @@ const build = (params) => {
                 __dirname: false, // Prevent Webpack from mocking __dirname
                 __filename: false, // Prevent Webpack from mocking __filename
             },
-            externals: [(0, webpack_node_externals_1.default)()], // Externalize all node_modules
+            ...includeServerModules ? {} : {
+                externals: [(0, webpack_node_externals_1.default)()], // Externalize all node_modules
+            },
         },
         resolve: {
             extensions: [`.tsx`, `.ts`, `.js`, `.json`], // Resolve files
