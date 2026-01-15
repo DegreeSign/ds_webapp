@@ -143,20 +143,17 @@ Sitemap: https://${websiteDomain}/sitemap.xml`, getServiceWorkerContent = () => 
   Header set Strict-Transport-Security "max-age=31536000; includeSubDomains"
 </IfModule>
 
-# disable indexing
+# Disable Indexing
 Options -Indexes
 
+# Always use HTTPS
 <IfModule mod_rewrite.c>
   RewriteEngine On
   RewriteCond %{HTTPS} off
   RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
 </IfModule>
 
-# Errors
-ErrorDocument 404 /404
-ErrorDocument 403 /404
-
-# Add content type
+# Files and Directories
 `;
     for (let i = 0; i < pagesList.length; i++) {
         const pageData = pagesList[i], pageURI = pageData.uri, isHome = pageHome == pageURI;
@@ -202,6 +199,7 @@ ErrorDocument 403 /404
     }
     ;
     htaccessFile += htaccessCustom;
+    htaccessFile += `\n\n# Errors\nErrorDocument 404 /404\nErrorDocument 403 /404`;
     (0, utils_1.writeData)(`./${productionDir}/robots.txt`, robots);
     (0, utils_1.writeData)(`./${productionDir}/.htaccess`, htaccessFile);
     (0, utils_1.writeData)(`./${productionDir}/app.json`, JSON.stringify(appManifest));

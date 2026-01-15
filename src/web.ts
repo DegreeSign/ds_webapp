@@ -184,20 +184,17 @@ Sitemap: https://${websiteDomain}/sitemap.xml`,
   Header set Strict-Transport-Security "max-age=31536000; includeSubDomains"
 </IfModule>
 
-# disable indexing
+# Disable Indexing
 Options -Indexes
 
+# Always use HTTPS
 <IfModule mod_rewrite.c>
   RewriteEngine On
   RewriteCond %{HTTPS} off
   RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
 </IfModule>
 
-# Errors
-ErrorDocument 404 /404
-ErrorDocument 403 /404
-
-# Add content type
+# Files and Directories
 `;
 
     for (let i = 0; i < pagesList.length; i++) {
@@ -250,6 +247,8 @@ ErrorDocument 403 /404
     };
 
     htaccessFile += htaccessCustom;
+
+    htaccessFile += `\n\n# Errors\nErrorDocument 404 /404\nErrorDocument 403 /404`;
 
     writeData(`./${productionDir}/robots.txt`, robots);
     writeData(`./${productionDir}/.htaccess`, htaccessFile);
