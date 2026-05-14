@@ -66,7 +66,7 @@ export const webConfig = (params: ConfigWebApp): WebConfig => {
         updateTimes = () => writeJSON(`./updateTimes.json`, latestUpdates),
         dataString = new Date().toISOString(),
         timeNow = Date.now(),
-        websiteLink = `https://${websiteDomain}`,
+        websiteLink = `https://${websiteDomain || `degreesign.com`}`,
         /** Update Image URL */
         getImageURI = (image: string, full?: boolean) =>
             // raw link string
