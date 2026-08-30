@@ -1,4 +1,4 @@
-import { MetaTags, MetaTagsInput } from "./types";
+import { MetaTags, MetaTagsInput, PreconnectLink } from "./types";
 import fs from "fs"
 import path from "path"
 
@@ -290,16 +290,26 @@ const
         timeNow,
         coverImageLink,
         canonicalURL,
+        preconnectLinks,
     }: {
         coverImageLink: string,
         favIconFile: string,
         timeNow: number,
         canonicalURL: string,
+        preconnectLinks?: (string | PreconnectLink)[],
     }) => `
         <link rel="icon" href="${favIconFile}" type="image/x-icon">
         <link rel="manifest" href="/app.json?v=${timeNow}">
         <link rel="image_src" href="${coverImageLink}">
-        <link rel="canonical" href="${canonicalURL}">\n`,
+        <link rel="canonical" href="${canonicalURL}">
+        ${preconnectLinks?.map(link => {
+            const { href, crossorigin = true } =
+                typeof link == `string` ? { href: link }
+                    : link;
+            return `<link rel="preconnect" href="${href}"${crossorigin ? ` crossorigin` : ``}>`;
+        })?.join(`
+        `) || ``}
+` ,
     /** Check for PHP tag */
     isPHPTag = (code: string): boolean => code?.includes(`<?php`);
 

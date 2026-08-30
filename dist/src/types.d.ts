@@ -4,6 +4,12 @@ import CssMinimizerPlugin from "css-minimizer-webpack-plugin";
 export interface StringObj {
     [key: string]: string;
 }
+export interface PreconnectLink {
+    /** Server base URL to preconnect to */
+    href: string;
+    /** Enable CORS for the connection; defaults to true */
+    crossorigin?: boolean;
+}
 export interface Page {
     /** URI of the page */
     uri: string;
@@ -135,6 +141,8 @@ export interface ConfigWebApp extends ConfigBase {
     updateServiceWorker?: boolean;
     /** Online reference file */
     onlineIndicatorFile?: string;
+    /** Server base URLs for <link rel="preconnect">, CORS on by default (optional) */
+    preconnectLinks?: (string | PreconnectLink)[];
 }
 export interface ConfigServer extends ConfigBase {
     /** Server Files list */

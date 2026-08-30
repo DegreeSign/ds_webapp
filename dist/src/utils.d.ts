@@ -1,4 +1,4 @@
-import { MetaTags, MetaTagsInput } from "./types";
+import { MetaTags, MetaTagsInput, PreconnectLink } from "./types";
 declare const 
 /** Write to files */
 writeData: (file: string, code: string) => boolean, 
@@ -7,11 +7,12 @@ writeJSON: (file: string, code: any) => boolean,
 /** Read files */
 readData: (file: string, internal?: boolean) => string, 
 /** Read JSON files */
-readJSON: (file: string, internal?: boolean) => any, metaTags: ({ author, websiteDescription, websiteName, websiteTitle, coverImageLink, coverImageDescription, publishedTime, websiteLink, dataString, theme_color, twitterUserName, appIconFile, noindex, language, isHome, keywords, }: MetaTagsInput) => MetaTags, linkTags: ({ favIconFile, timeNow, coverImageLink, canonicalURL, }: {
+readJSON: (file: string, internal?: boolean) => any, metaTags: ({ author, websiteDescription, websiteName, websiteTitle, coverImageLink, coverImageDescription, publishedTime, websiteLink, dataString, theme_color, twitterUserName, appIconFile, noindex, language, isHome, keywords, }: MetaTagsInput) => MetaTags, linkTags: ({ favIconFile, timeNow, coverImageLink, canonicalURL, preconnectLinks, }: {
     coverImageLink: string;
     favIconFile: string;
     timeNow: number;
     canonicalURL: string;
+    preconnectLinks?: (string | PreconnectLink)[];
 }) => string, 
 /** Check for PHP tag */
 isPHPTag: (code: string) => boolean;

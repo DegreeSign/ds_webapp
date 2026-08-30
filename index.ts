@@ -1,5 +1,5 @@
 import { build } from "./src/main";
-import { Page } from "./src/types";
+import { Page, PreconnectLink } from "./src/types";
 import { readData, readJSON, writeData, writeJSON } from "./src/utils";
 
 export {
@@ -9,4 +9,5 @@ export {
     readData,
     readJSON,
     Page,
+    PreconnectLink,
 }

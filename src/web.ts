@@ -59,6 +59,7 @@ export const webConfig = (params: ConfigWebApp): WebConfig => {
             cssDiscardUnused = false,
             updateServiceWorker = false,
             onlineIndicatorFile = `https://degreesign.com/assets/images/Degree_Sign_Logo_2022.svg`,
+            preconnectLinks = [],
         } = params || {};
 
     const
@@ -297,6 +298,7 @@ Options -Indexes
                     coverImageLink: coverImageLinkNew,
                     canonicalURL: pageData.canonicalURL
                         || `https://${websiteDomain}${isHome ? `` : `/${fileName}`}`,
+                    preconnectLinks,
                 }),
                 pageBody: readData(`./${srcDir}/${pagesDir}/${fileName}/${fileName}.html`),
                 filename: isHome ? `index.html` : fileName,

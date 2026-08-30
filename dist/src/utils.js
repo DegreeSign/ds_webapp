@@ -260,11 +260,18 @@ readJSON = (file, internal) => {
         // Theme
         "theme-color": theme_color,
     };
-}, linkTags = ({ favIconFile, timeNow, coverImageLink, canonicalURL, }) => `
+}, linkTags = ({ favIconFile, timeNow, coverImageLink, canonicalURL, preconnectLinks, }) => `
         <link rel="icon" href="${favIconFile}" type="image/x-icon">
         <link rel="manifest" href="/app.json?v=${timeNow}">
         <link rel="image_src" href="${coverImageLink}">
-        <link rel="canonical" href="${canonicalURL}">\n`, 
+        <link rel="canonical" href="${canonicalURL}">
+        ${preconnectLinks?.map(link => {
+    const { href, crossorigin = true } = typeof link == `string` ? { href: link }
+        : link;
+    return `<link rel="preconnect" href="${href}"${crossorigin ? ` crossorigin` : ``}>`;
+})?.join(`
+        `) || ``}
+`, 
 /** Check for PHP tag */
 isPHPTag = (code) => code?.includes(`<?php`);
 exports.writeData = writeData;

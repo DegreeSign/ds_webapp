@@ -46,7 +46,7 @@ const SitemapPlugin = __importStar(require("sitemap-webpack-plugin"));
 const HtmlInlineCssWebpackPlugin = __importStar(require("html-inline-css-webpack-plugin"));
 const utils_1 = require("./utils");
 const webConfig = (params) => {
-    const { srcDir = `src`, productionDir = `public_html`, appShortName = `WebApp`, twitterUserName = `degreesign`, websiteName = `DegreeSign WebApp`, websiteDomain = `degreesign.com`, publishedTime = `2025-01-01T00:00:00+00:00`, author = `DegreeSign Team`, websiteTitle = `progressive webapp`, websiteDescription = `Webpack progressive web app`, coverImage = `degreesign_screenshot.webp`, coverImageDescription = `Screenshot of website`, background_color = `#fff`, theme_color = `#000`, appIcon = `app_icon.png`, appIconMaskable = `app_icon_maskable.png`, fav_icon = `favicon.ico`, orientation = `portrait`, pagesList = [], htmlCommonElements = [], assetsDir = `assets`, commonDir = `common`, imagesDir = `images`, pagesDir = `pages`, pageHome = `home`, htaccessCustom = ``, startURI = ``, language = `en_GB`, cssDiscardUnused = false, updateServiceWorker = false, onlineIndicatorFile = `https://degreesign.com/assets/images/Degree_Sign_Logo_2022.svg`, } = params || {};
+    const { srcDir = `src`, productionDir = `public_html`, appShortName = `WebApp`, twitterUserName = `degreesign`, websiteName = `DegreeSign WebApp`, websiteDomain = `degreesign.com`, publishedTime = `2025-01-01T00:00:00+00:00`, author = `DegreeSign Team`, websiteTitle = `progressive webapp`, websiteDescription = `Webpack progressive web app`, coverImage = `degreesign_screenshot.webp`, coverImageDescription = `Screenshot of website`, background_color = `#fff`, theme_color = `#000`, appIcon = `app_icon.png`, appIconMaskable = `app_icon_maskable.png`, fav_icon = `favicon.ico`, orientation = `portrait`, pagesList = [], htmlCommonElements = [], assetsDir = `assets`, commonDir = `common`, imagesDir = `images`, pagesDir = `pages`, pageHome = `home`, htaccessCustom = ``, startURI = ``, language = `en_GB`, cssDiscardUnused = false, updateServiceWorker = false, onlineIndicatorFile = `https://degreesign.com/assets/images/Degree_Sign_Logo_2022.svg`, preconnectLinks = [], } = params || {};
     const latestUpdates = (0, utils_1.readJSON)(`./updateTimes.json`) || {}, updateTimes = () => (0, utils_1.writeJSON)(`./updateTimes.json`, latestUpdates), dataString = new Date().toISOString(), timeNow = Date.now(), websiteLink = `https://${websiteDomain || `degreesign.com`}`, 
     /** Update Image URL */
     getImageURI = (image, full) => 
@@ -234,6 +234,7 @@ Options -Indexes
                 coverImageLink: coverImageLinkNew,
                 canonicalURL: pageData.canonicalURL
                     || `https://${websiteDomain}${isHome ? `` : `/${fileName}`}`,
+                preconnectLinks,
             }),
             pageBody: (0, utils_1.readData)(`./${srcDir}/${pagesDir}/${fileName}/${fileName}.html`),
             filename: isHome ? `index.html` : fileName,

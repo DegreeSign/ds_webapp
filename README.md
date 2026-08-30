@@ -92,6 +92,10 @@ module.exports = build({
   }],
   htmlCommonElements: [],
   obfuscateON: false,
+  preconnectLinks: [
+    "https://api.example.com",
+    { href: "https://cdn.example.com", crossorigin: true },
+  ],
   srcDir: "src",
   assetsDir: "assets",
   commonDir: "code",
@@ -142,6 +146,7 @@ module.exports = build({
 - **Environment Variables**: Use `.env` to securely store sensitive data.
 - **Development Server**: Runs on `port: 3210` by default.
 - **PWA Support**: Customise `app_icon`, `fav_icon`, and `orientation` for a native-like experience.
+- **Preconnect**: `preconnectLinks` adds `<link rel="preconnect">` entries (e.g. your server base URL) to the page head, so the browser starts DNS/TCP/TLS for those origins early. Each entry is a URL string or an object with `href` and optional `crossorigin`. `crossorigin` is on by default; set `crossorigin: false` per link to disable.
 - **SEO Optimisation**: Set `websiteTitle`, `websiteDescription`, and `coverImage` for better search visibility.
 - **Pages**: Add all pages to `pagesList`.
 
