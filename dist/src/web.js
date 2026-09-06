@@ -100,6 +100,7 @@ const webConfig = (params) => {
                     <!-- Last Published: ${new Date().toUTCString()}+0000 (Coordinated Universal Time) -->
                     <html lang="en" prefix="og: https://ogp.me/">
                     <head>
+                        <meta charset="utf-8">
                         <style type="text/css">nav,main,footer{width:100%;display:flex !important;flex-direction:column;align-items:center;}</style>
                         ${links || ``}
                         ${headerHTML || ``}
