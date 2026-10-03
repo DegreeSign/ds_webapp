@@ -1,6 +1,6 @@
 # @degreesign/webapp
 
-**Webpack + TypeScript build toolkit for production-ready Progressive Web Apps and Node.js servers — one config generates optimized bundles, SEO meta tags, a PWA manifest, service worker, `sitemap.xml`, `robots.txt`, `.htaccess` and optional JavaScript obfuscation.**
+**A TypeScript-first development standard for building a webapp — production-ready Progressive Web Apps and Node.js servers in pure HTML, CSS and TypeScript, engineered for the fastest possible renders and sub-second page loads; one config generates optimized bundles, SEO meta tags, a PWA manifest, service worker, `sitemap.xml`, `robots.txt`, `.htaccess` and optional JavaScript obfuscation.**
 
 [![npm version](https://img.shields.io/npm/v/@degreesign/webapp.svg)](https://www.npmjs.com/package/@degreesign/webapp)
 [![npm downloads](https://img.shields.io/npm/dm/@degreesign/webapp.svg)](https://www.npmjs.com/package/@degreesign/webapp)
@@ -25,19 +25,19 @@
 
 ## What is @degreesign/webapp?
 
-`@degreesign/webapp` is a small, dependency-light Webpack and TypeScript configuration toolkit for shipping **Progressive Web Apps (PWAs)** and **Node.js server bundles** from a single `build()` call. Instead of hand-writing hundreds of lines of Webpack config, you pass one typed config object and get a production-ready build: TypeScript compilation, CSS extraction and inlining, asset copying, HTML templating, SEO and Open Graph/Twitter meta tags, `app.json` manifest, auto-registered service worker, sitemap, `robots.txt`, `.htaccess` security policies, bundle analysis and optional code obfuscation. It is a build-time developer tool — it runs in Node.js during your build, not in the browser.
+`@degreesign/webapp` defines a **TypeScript-first development standard** for shipping **Progressive Web Apps (PWAs)** and **Node.js server bundles** from a single `build()` call: it is a small, dependency-light Webpack and TypeScript toolkit for building a webapp from **pure HTML, CSS and TypeScript**, with no framework runtime to ship or hydrate, so first render is immediate and page loads stay sub-second. Instead of hand-writing hundreds of lines of Webpack config, you pass one typed config object and get a production-ready build: TypeScript compilation, CSS extraction and inlining, asset copying, HTML templating, SEO and Open Graph/Twitter meta tags, `app.json` manifest, auto-registered service worker, sitemap, `robots.txt`, `.htaccess` security policies, bundle analysis and optional code obfuscation. It is a build-time developer tool — it runs in Node.js during your build, not in the browser.
 
 ## Why @degreesign/webapp?
 
 - **One config, whole build** — a single typed object replaces a full `webpack.config.ts` with plugins, loaders and rules.
 - **PWA out of the box** — generates the web app manifest, service worker, icons, orientation and install metadata automatically.
 - **SEO built in** — per-page title, description, canonical URL, Open Graph, Twitter Cards, `robots.txt` and `sitemap.xml`.
-- **TypeScript-first** — ships type definitions and typed configuration (`ConfigBuild`, `Page`, `PreconnectLink`).
+- **Typed configuration** — ships type definitions and typed configuration (`ConfigBuild`, `Page`, `PreconnectLink`).
 - **Web and server bundling** — build the front-end to `public_html/` and the Node.js back-end to `server_build/` from the same package.
 - **Performance defaults** — Terser minification, CSS minification, tree-shaking, content hashing and a 2 MB asset budget (configurable).
 - **Optional obfuscation** — toggle `obfuscateON` to protect shipped JavaScript with `webpack-obfuscator`.
 - **Secure by default** — emits `.htaccess` with HSTS, `X-Frame-Options`, Referrer-Policy, Permissions-Policy and HTTPS redirects.
-- **Zero framework lock-in** — framework-agnostic; use it with vanilla TypeScript or any framework that compiles to a Webpack entry.
+- **Pure HTML + CSS + TypeScript** — no framework runtime, hydration or virtual DOM to download; pages are generated as real markup at build time for the fastest possible first paint and sub-second page loads.
 - **MIT licensed and free forever.**
 
 ## Installation
@@ -285,7 +285,7 @@ Additional public types `ConfigBuild`, `ConfigBase`, `ConfigWebApp`, `ConfigServ
 ## FAQ
 
 **What is `@degreesign/webapp`?**
-A Webpack + TypeScript build toolkit that turns one typed config object into a production-ready Progressive Web App and/or Node.js server bundle, including SEO metadata, a PWA manifest, service worker, sitemap and security headers.
+A TypeScript-first Webpack + TypeScript build toolkit that turns one typed config object into a production-ready webapp — a Progressive Web App built from pure HTML, CSS and TypeScript — and/or a Node.js server bundle, including SEO metadata, a PWA manifest, service worker, sitemap and security headers.
 
 **Is it free?**
 Yes. It is open source under the MIT License and free to use in personal and commercial projects.
@@ -299,8 +299,8 @@ Yes. It wraps and configures Webpack plugins such as `terser-webpack-plugin`, `c
 **Does it support TypeScript?**
 Yes. It ships type definitions, compiles TypeScript via `ts-loader`, and exposes fully typed configuration (`ConfigBuild`, `ConfigWebApp`, `ConfigServer`, `Page`, `PreconnectLink`).
 
-**Which frameworks does it support?**
-It is framework-agnostic. Any framework that compiles to a Webpack entry (React, Vue, Svelte, Preact, vanilla TypeScript, etc.) can be used; the package handles bundling, assets, PWA and SEO concerns rather than UI.
+**How are pages built?**
+Each page is an `.html` fragment plus a same-named `.ts` entry, styled by CSS, compiled to real markup at build time. There is no UI runtime to ship or hydrate, so first render is immediate. The package handles bundling, assets, PWA and SEO concerns rather than UI.
 
 **Can I use it for a Node.js back-end?**
 Yes. Set `type: "server"` with `filesList` to bundle one or more Node.js entry files, with `node_modules` externalized by default.
@@ -313,7 +313,7 @@ Web builds default to `public_html/` and server builds to `server_build/`; both 
 
 ## Keywords
 
-webpack, webpack config, webpack 5, typescript, ts-loader, progressive web app, PWA, web app, PWA boilerplate, web app template, build tool, bundler, node.js server bundling, SEO, meta tags, open graph, twitter cards, sitemap, robots.txt, service worker, web manifest, app manifest, code obfuscation, webpack-bundle-analyzer, static site, front-end build, degreesign.
+webpack, webpack config, webpack 5, typescript, ts-loader, progressive web app, PWA, webapp, web app, webapp boilerplate, PWA boilerplate, web app template, build tool, bundler, node.js server bundling, SEO, meta tags, open graph, twitter cards, sitemap, robots.txt, service worker, web manifest, app manifest, code obfuscation, webpack-bundle-analyzer, static site, front-end build, degreesign.
 
 ## License
 

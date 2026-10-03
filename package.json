@@ -1,7 +1,7 @@
 {
   "license": "MIT",
   "name": "@degreesign/webapp",
-  "version": "1.7.5",
+  "version": "1.7.6",
   "main": "dist/index.js",
   "module": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -36,6 +36,12 @@
     "webpack-bundle-analyzer",
     "static-site",
     "front-end-build",
+    "webapp",
+    "webapp-template",
+    "webapp-boilerplate",
+    "typescript-first",
+    "development-standard",
+    "performance",
     "degreesign"
   ],
   "repository": {
@@ -44,7 +50,7 @@
   },
   "author": "DegreeSign",
   "homepage": "https://degreesign.com",
-  "description": "Webpack + TypeScript build toolkit for production-ready Progressive Web Apps (PWA) and Node.js servers, generating SEO meta tags, manifest, service worker, sitemap and obfuscation from one config.",
+  "description": "TypeScript-first development standard for building a webapp — production-ready Progressive Web Apps (PWA) and Node.js servers from pure HTML, CSS and TypeScript, engineered for the fastest possible renders and sub-second page loads, generating SEO meta tags, manifest, service worker, sitemap and obfuscation from one config.",
   "bugs": {
     "url": "https://github.com/DegreeSign/ds_webapp/issues"
   },
