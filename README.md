@@ -18,6 +18,7 @@
 - [Build API](#build-api)
 - [File Utilities](#file-utilities)
 - [Types](#types)
+- [Architecture](#architecture)
 - [Configuration Options](#configuration-options)
 - [FAQ](#faq)
 - [Keywords](#keywords)
@@ -218,6 +219,12 @@ Small, dependency-free Node.js helpers used internally and exported for reuse in
 | `PreconnectLink` | `interface` | A `<link rel="preconnect">` entry: `{ href: string; crossorigin?: boolean }`. `crossorigin` defaults to `true`; `preconnectLinks` also accepts a plain URL string. |
 
 Additional public types `ConfigBuild`, `ConfigBase`, `ConfigWebApp`, `ConfigServer`, `MetaTags`, `MetaTagsInput` and `WebManifest` are exported from the package source for advanced typing.
+
+## Architecture
+
+The package is one entry (`index.ts`) over a build core (`src/main.ts`) that branches on `ConfigBuild.type`: a web pipeline (`src/web.ts`) for PWAs and a Node target for servers, with file, tag and type support in `src/utils.ts` and `src/types.ts`. The service worker and its register script ship to the app from `src/sw.ts` and `src/sw_register.ts`.
+
+Open [`docs/architecture.html`](https://degreesign.github.io/ds_webapp/architecture.html) — published by GitHub Pages from the `docs/` directory — for the full map: bands in dependency order, every module and function with its definition line and signature, the real call, build and type relations, and the primary flow from one config to the emitted output. The page is self-contained and works offline.
 
 ## Configuration Options
 
